@@ -1,0 +1,54 @@
+  <%
+var css = [
+  '/css/header.css',
+  '/css/dit-create.css',
+  '/css/tag-elem.css'
+];
+var title = 'create dit';
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+</style>
+<form method="post" >
+<div>
+<h1>Create dit</h1>
+<table>
+<tr><td>name</td><td><input type="text" name="name" value="" placeholder="dit name" /></td><td>errors</td></tr>
+<tr><td>url</td><td><input type="text" name="url" value="" placeholder="url" /></td><td>errors</td></tr>
+<tr>
+  <td>type</td>
+  <td>
+    <select name="dittype">
+      <option value="unspecified">unspecified</option>
+      <option value="idea">idea</option>
+      <option value="project">project</option>
+      <option value="challenge">challenge</option>
+      <option value="interest">interest</option>
+    </select>
+  </td>
+  <td>errors</td>
+</tr>
+<tr>
+  <td>summary</td>
+  <td><input type="summary" name="summary" value="" placeholder="summary" /></td>
+  <td>errors</td>
+</tr>
+<tr>
+  <td></td>
+  <td><input class="button" type="submit" name="create" value="Create New Dit" /></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td><a class="button" href="/dits" >Cancel</a></td>
+  <td></td>
+</tr>
+</table>
+</div>
+</form>
+<% include ./partial/page-bottom.ejs %>

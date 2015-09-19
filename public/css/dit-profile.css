@@ -1,0 +1,39 @@
+div.panel-basic {
+  float:left;
+  width:25%;
+}
+
+div.panel-info {
+  float:left;
+  width:75%;
+}
+
+span.profile-name {
+  font-size: 2em;
+}
+
+span.profile-username {
+  font-size: 1.2em;
+  color: gray;
+}
+
+div.top-menu>a {
+  background-color: gray;
+  color: white;
+}
+
+div.about {
+  float:left;
+  width:50%;
+  background-color:#ffa;
+}
+
+div.activity {
+  float:left;
+  width:50%;
+  background-color:#faf;
+}
+
+h1 {
+  font-weight: bold;
+}

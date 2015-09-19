@@ -1,0 +1,10 @@
+node_modules
+*.swp
+public/img/*
+files/img/avatars/*
+public/libs
+config/*
+
+
+#Allow
+!public/img/logo*

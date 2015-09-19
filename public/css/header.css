@@ -1,0 +1,121 @@
+/**style for header of pages with header. Linked from view class PageWithHeader*/
+
+/**layout**/
+
+div.main-menu-top
+{
+  height:40px;
+  position:fixed;
+  top:0;
+  left:0;
+  background-color:#6ca6ca;
+  width:100%;
+  font-weight: bold;
+  color:white;
+}
+
+body
+{
+  margin-top:40px;
+}
+
+.nav {
+  height:100%;
+}
+
+.nav>li {
+  display:inline-block;
+  height:100%;
+  vertical-align:middle;}
+
+.nav>li>a {
+  display:inline-block;
+  height:100%;
+  vertical-align:middle;
+  padding:12.5px 12.5px;
+  text-decoration:none;
+  font-size:15px;
+
+}
+
+.nav>li:hover {
+  background-color:#5b95b9;
+}
+
+.nav>li>a>span {
+}
+
+div.main-menu-top>ul ul
+{
+  position:absolute;
+  display:none;
+  list-style-type : none;
+  border:1px solid #ddf;
+}
+
+div.main-menu-top>ul>li:hover ul
+{
+  display:block;
+}
+
+.nav>li li a {
+  display:block;
+  padding:5px 2px;
+}
+.nav>li li a:hover {
+  background-color: #ddf;
+}
+
+/**colors**/
+
+div.main-menu-top>ul ul
+{
+  background-color:white;
+  color: #000;
+}
+
+div.main-menu-top>ul
+{
+}
+
+span.span-image{
+  display:inline-block;
+  background-position-x:center;
+  background-position-y:center;
+  background-repeat:no-repeat;
+  -webkit-background-size: 100%; /* For WebKit*/
+  -moz-background-size: 100%;  /* Mozilla*/
+  -o-background-size: 100%;    /* Opera*/
+  background-size: 100%;     /* Generic*/
+  float:left;
+}
+
+#header-ditup-logo{
+  height:30px;
+  width:30px;
+  position: relative;
+  top: -8px;
+  margin-right:8px;
+  -webkit-background-size: 100%; /* For WebKit*/
+  -moz-background-size: 100%;  /* Mozilla*/
+  -o-background-size: 100%;    /* Opera*/
+  background-size: 100%;     /* Generic*/
+}
+
+#header-user-avatar{
+  height:30px;
+  width:30px;
+  position: relative;
+  top: -7.5px;
+  margin-right: 5px;
+  border-radius:15px;
+  -webkit-background-size: 100%; /* For WebKit*/
+  -moz-background-size: 100%;  /* Mozilla*/
+  -o-background-size: 100%;    /* Opera*/
+  background-size: 100%;     /* Generic*/
+}
+
+#search-form-header {
+    top: 7.5px;
+    position: relative;
+}

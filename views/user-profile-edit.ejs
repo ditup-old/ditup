@@ -1,0 +1,73 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/user-profile.css'
+];
+var title = 'profile of :'+profile.username ;
+
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/user-profile-edit/main'
+    }
+  }
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+<style>
+  div.avatar-pic {
+    background-image: url('/user/<%= profile.username %>/avatar');
+    background-repeat: no-repeat;
+    background-size: contain;
+    width:100%;
+    padding-bottom:100%;
+  }
+  #tag-list>li {
+    display:inline;
+  }
+</style>
+<form method="post" >
+<div class="panel-basic" ><!-- basic profile info -->
+  <div class="avatar-pic" >upload profile picture</div>
+  <div>birthday <input type="text" name="birthday" value="<%= profile.birthday %>" placeholder="yyyy-mm-dd"/></div>
+  <div>gender
+    <select name="gender">
+      <option value="unspecified">unspecified</option>
+      <option <% if (profile.gender === 'male') { %> selected="selected"<% } %> value="male">male</option>
+      <option <% if (profile.gender === 'female') { %> selected="selected"<% } %>value="female">female</option>
+      <option <% if (profile.gender === 'other') { %> selected="selected"<% } %>value="other">other</option>
+    </select>
+  </div>
+</div>
+<div class="panel-info" ><!--  -->
+  <div>
+    <span class="profile-name" >
+      <input type="text" name="name" value="<%= profile.name %>" placeholder="Name" />
+      <input type="text" name="surname" value="<%= profile.surname %>" placeholder="Surname" />
+    </span>
+    <span class="profile-username" >@<%= profile.username %></span>
+    <span>
+      <a href="/user/<%= profile.username %>">Cancel</a>
+      <input type="submit" name="submit" value="Save Changes" />
+    </span>
+  </div>
+  <div><!-- tags -->
+    <ul id="tag-list">
+      <li><span class="tag" ></span></li>
+      <li><span class="tag" ></span></li>
+      <li><span class="tag" ></span></li>
+    </ul>
+    <input id="tag-search-input" type="text" placeholder="add tag" />
+    <ul id="tag-search-output" style="position:absolute; background-color:white" ></ul>
+  </div>
+  <div><h1>about me</h1>
+    <div>
+      <textarea name="about"><%= profile.about %></textarea>
+    </div>
+  </div>
+</div>
+</form>
+<% include ./partial/page-bottom.ejs %>

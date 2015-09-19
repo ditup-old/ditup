@@ -1,0 +1,58 @@
+<div class="main-menu-top">
+  <ul class="nav" >
+    <li><a href="/" ><span id="header-ditup-logo" class="span-image" style="background-image:url(/img/logo3.png)"></span> ditup</a>
+      <ul>
+        <li><a href="/development">development</a></li>
+        <li><a href="/feedback">feedback</a></li>
+      </ul>
+    </li><!--
+ --><li><a href="/dits" ><span>dits</span></a>
+      <ul>
+        <li><a href="/ideas">ideas</a></li>
+        <li><a href="/projects">projects</a></li>
+        <li><a href="/interests">interests</a></li>
+        <li>explore (categories, tags)</li>
+        <li><a href="/dits/create">+ create new dit</a></li>
+      </ul>
+    </li><!--
+ --><li><a href="/people">people</a>
+      <ul>
+        <li><a href="/user/<%= session.username %>">my profile</a></li>
+        <li>groups</li>
+      </ul>
+    </li><!--
+ --><li><a href="/community" >community</a>
+      <ul>
+        <li><a href="/wiki">wiki</a></li>
+        <li>support</li>
+        <li><a href="/map">map</a></li>
+      </ul>
+     </li><!--
+ -->   <li>
+      <form id="search-form-header" method="post" action="/search"><input type="text" name="search-string" />
+        <button type="submit" name="search" ><span class="fa fa-search" ></span></button>
+      </form>
+	<div id="search-form-header-results" ></div>
+    </li><!--
+    --><% if(session.logged === true) { %><!--
+    --><li><a href="/user/<%= session.username %>"><span id="header-user-avatar" class="span-image" style="background-image:url('/user/<%= session.username %>/avatar')"></span>@<%= session.username %><i class="fa fa-caret-down"></i></a>
+      <ul>
+        <li><a href="/user/<%= session.username %>"><i class="fa fa-user"></i> My profile</a></li>
+        <li><a href="/user/<%= session.username %>/edit"><i class="fa fa-pencil"></i> Edit profile</a></li>
+        <li><a href="/user/<%= session.username %>/settings"><i class="fa fa-cog"></i> Settings</a></li>
+        <li><a href="/user/<%= session.username %>/dits"><i class="fa fa-cubes"></i> Dits</a></li>
+        <li><a href="/logout/"><i class="fa fa-sign-out"></i> Log out</a></li>
+        <li><a href="/logout-all/"><i class="fa fa-times"></i> Logout everywhere</a></li>
+      </ul>
+    </li><!--
+    --><% } 
+    %><% if(session.logged !== true) { %><!--
+   --><li><a href="/login" >login</a></li><!--
+    --><li><a href="/signup" >signup</a></li><!--
+   --><% } %><% if(session.logged === true) { 
+ %><li><a href="/notifications"><span class="fa fa-bell" ></span></a></li><!--
+  --><li><a href="/talk" ><span class="fa fa-comments" ></span></a>
+    </li><% } %><!--
+  --><li><i class="fa fa-bars" ></i>
+  </li></ul>
+</div>

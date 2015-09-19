@@ -1,0 +1,51 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/user-profile.css',
+  '/css/tag-elem.css'
+];
+var title = 'profile of :'+profile.username ;
+
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/user-profile/main'
+    }
+  }
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+<style>
+  div.avatar-pic {
+    background-image: url('/user/<%= profile.username %>/avatar');
+    background-repeat: no-repeat;
+    background-size: contain;
+    width:100%;
+    padding-bottom:100%;
+  }
+</style>
+<div class="panel-basic" ><!-- basic profile info -->
+  <div class="avatar-pic" ></div>
+  <div><%= profile.age %></div>
+  <div><%= profile.gender %></div>
+  <div>Member since <%= profile.joined %></div>
+  <div><%= profile.lastLogin %></div>
+</div>
+<div class="panel-info" ><!--  -->
+  <div>
+    <span class="profile-name" ><%= profile.name %></span>
+    <span class="profile-username" >@<%= profile.username %></span>
+    <% if (rights.edit === true) { %><span><a class="button" href="/user/<%= profile.username %>/edit">Edit Profile</a></span><% } %></div>
+  <div><!-- tags -->
+    <ul id="tag-list">
+      <li><span class="tag" ></span></li>
+      <li><span class="tag" ></span></li>
+      <li><span class="tag" ></span></li>
+    </ul>
+  </div>
+  <div><h1>about me</h1><div><%= profile.about %></div></div>
+</div>
+<% include ./partial/page-bottom.ejs %>

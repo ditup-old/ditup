@@ -1,0 +1,51 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/talk.css'
+];
+
+//TODO fix for require.js
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/talk/main'
+    }
+  }
+];
+
+var scripts = [
+//  {src: '/libs/js/jquery.js'},
+//  {src: '/socket.io/socket.io.js'},
+//  {src: '/js/talk.js'}
+];
+
+var title = 'talk';
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+    <div id="content-wrap" >
+      <div id="chat-wrap" >
+        <button id="new-talk-button" >Start a new talk</button>
+        <input id="save-talk" type="checkbox" checked="checked"> save talk to database
+        <div id="new-talk-form-wrap" >
+          <form id="new-talk-form" method="post" >
+            participants:
+            <span id="new-talk-participants"></span><input type="text" />
+            <textarea id="new-talk-msg"></textarea>
+            <input type="submit" />
+          </form>
+        </div>
+        <div id="chat"></div>
+        <form id="send-message" >
+          <input size="35" id="message" />
+          <input type="submit" />
+        </form>
+      </div>
+      <div id="talk-list">
+        <form method="post" id="talk-search-form" ><input type="text" id="talk-search" /><input type="submit" value="search" /></form>
+      </div>
+    </div>
+
+<% include ./partial/page-bottom.ejs %>

@@ -1,0 +1,62 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/dit-profile.css',
+  '/css/tag-elem.css'
+];
+var title = '*' + data.name ;
+
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/dit-profile/main'
+    }
+  }
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+  div.logo {
+    background-image: url('/<%= data.dittype %>/<%= data.url %>/logo');
+    background-repeat: no-repeat;
+    background-size: contain;
+    height:64px;
+    width:64px;
+  }
+</style>
+<div class="panel-basic" ><!-- basic dit info -->
+  <div class="logo" ></div>
+  <div><%= data.dittype %></div>
+  <div><%= data.created %></div>
+</div>
+<div class="panel-info"><!--  -->
+  <div>
+    <span class="profile-dittype" ><%= data.dittype %></span>: <span class="profile-name" ><%= data.name %></span>
+    <span class="data-url"><%= data.url %></span>
+    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit <%= data.dittype %></a></span><% } %>
+    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/invite">Invite User</a></span><% } %>
+  </div>
+  <div><%= data.summary %></div>
+  <div><!-- tags -->
+    <ul id="tag-list">
+      <li><span class="tag" ></span></li>
+      <li><span class="tag" ></span></li>
+      <li><span class="tag" ></span></li>
+    </ul>
+  </div>
+  <div class="top-menu">
+  <a href="about">about</a>
+  <a href="people">people</a>
+  <a href="brainstorm">brainstorm</a>
+  <a href="gtd">GTD</a>
+  <% if (rights.edit === true) { %><a href="edit">edit</a><% } %>
+  <a href="">...</a>
+  </div>
+  <div class="about" ><h1>about</h1><div><%= data.about %></div></div>
+  <div class="activity" ><h1>activity</h1><div><%= data.activity %></div></div>
+</div>
+<% include ./partial/page-bottom.ejs %>

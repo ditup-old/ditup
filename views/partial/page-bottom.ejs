@@ -1,0 +1,10 @@
+<%
+  //default variables //not working
+  //var scripts = scripts || [];
+%>
+
+<% for(var i=0, len=scripts.length; i<len; i++) { %> 
+ <script src="<%= scripts[i].src %>"></script>
+<% } %>
+</body>
+</html>

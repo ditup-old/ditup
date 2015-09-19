@@ -1,0 +1,31 @@
+#chat {
+  height: 300px;
+}
+
+#chat-wrap {
+  float:left;
+  border: 1px solid lightgray;
+  width:60%;
+}
+
+#talk-list {
+  border: 1px solid lightgray;
+  width: 40%;
+  float: left;
+  height: 323px;
+}
+
+#new-talk-form-wrap {
+  display: none;
+}
+
+.msg {}
+
+.error {
+  color:red;
+}
+
+.whisper {
+  color:gray;
+  font-style:italic;
+}

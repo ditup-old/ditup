@@ -1,0 +1,21 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/tag.css'
+];
+var title = '#'+data.name ;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+</style>
+<h1>#<%=data.name %></h1>
+<div><%=data.description %></div>
+<div>number of users using this tag</div>
+<div>number of dits using this tag</div>
+<div>popular dits using this tag</div>
+<% include ./partial/page-bottom.ejs %>

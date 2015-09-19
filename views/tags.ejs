@@ -1,0 +1,28 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/tags.css'
+];
+var title = 'ditup tags';
+
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/tags/main'
+    }
+  }
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+</style>
+<h1>Tags page</h1>
+<div><a href="/tags/create">create new tag</a></div>
+<div>most popular tags</div>
+<div>brainstorm: recently added tags, random tags...</div>
+<div id="tag-search" ><input type="text" id="tag-search-input" /><ul id="tag-search-output" ></ul></div>
+<% include ./partial/page-bottom.ejs %>

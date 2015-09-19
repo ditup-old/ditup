@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<%
+//var headScripts = headScripts || [];
+//var title = typeof(title)==='String' ? title : 'not-defined';
+//var css = css ? css : [];
+
+
+%>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title><%= title %></title>
+  <link rel="icon" type="image/png" href="/img/logo1-icon.png" />
+  <link rel="stylesheet" type="text/css" href="/css/reset.css" />
+  <link rel="stylesheet" type="text/css" href="/css/main.css" />
+  <link rel="stylesheet" type="text/css" href="/libs/fonts/font-awesome-4.3.0/css/font-awesome.min.css" /><%
+for (var i = 0, len = css.length; i < len; i++) {%>
+  <link rel="stylesheet" type="text/css" href="<%= css[i] %>" />
+<% } %>
+  <% for (var i = 0, len = headScripts.length; i<len; i++) { %>
+  <script src="<%= headScripts[i].src %>" <% for (var prop in headScripts[i].properties) {
+  %><%= prop %>="<%= headScripts[i].properties[prop] %>" <% } %> ></script>
+  <% } %>
+</head>
+<body style="background:#fff;">
