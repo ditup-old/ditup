@@ -19,6 +19,8 @@ a:hover {
   text-decoration:none;
   font-size:1.1em;
   background-color:#0c30c3;
+  border-width:0px;
+  cursor:pointer;
 }
 
 .tag {

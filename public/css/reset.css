@@ -64,4 +64,6 @@ input[type=submit] {
   /*padding: 0;*/
   border: none;
   line-height: 1;
+  background-color:none;
+  font-size:1em;
 }

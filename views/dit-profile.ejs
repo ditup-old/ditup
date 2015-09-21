@@ -30,14 +30,14 @@ var scripts = [];
 </style>
 <div class="panel-basic" ><!-- basic dit info -->
   <div class="logo" ></div>
-  <div><%= data.dittype %></div>
+  <div><%= (data.dittype === 'dit' ? 'unspecified' : data.dittype) %></div>
   <div><%= data.created %></div>
 </div>
 <div class="panel-info"><!--  -->
   <div>
-    <span class="profile-dittype" ><%= data.dittype %></span>: <span class="profile-name" ><%= data.name %></span>
+    <span class="profile-dittype" ><%= (data.dittype==='dit' ? '?' : data.dittype) %></span>: <span class="profile-name" ><%= data.name %></span>
     <span class="data-url"><%= data.url %></span>
-    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit <%= data.dittype %></a></span><% } %>
+    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit</a></span><% } %>
     <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/invite">Invite User</a></span><% } %>
   </div>
   <div><%= data.summary %></div>

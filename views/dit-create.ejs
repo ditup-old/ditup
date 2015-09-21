@@ -18,25 +18,25 @@ var scripts = [];
 <div>
 <h1>Create dit</h1>
 <table>
-<tr><td>name</td><td><input type="text" name="name" value="" placeholder="dit name" /></td><td>errors</td></tr>
-<tr><td>url</td><td><input type="text" name="url" value="" placeholder="url" /></td><td>errors</td></tr>
+<tr><td>name</td><td><input type="text" name="name" value="<%= values.name %>" placeholder="dit name" /></td><td><%= errors.name %></td></tr>
+<tr><td>url</td><td><input type="text" name="url" value="<%= values.url %>" placeholder="url" /></td><td><%= errors.url %></td></tr>
 <tr>
   <td>type</td>
   <td>
     <select name="dittype">
       <option value="unspecified">unspecified</option>
-      <option value="idea">idea</option>
-      <option value="project">project</option>
-      <option value="challenge">challenge</option>
-      <option value="interest">interest</option>
+      <option <% if (values.dittype === 'idea') { %> selected="selected"<% } %> value="idea">idea</option>
+      <option <% if (values.dittype === 'project') { %> selected="selected"<% } %> value="project">project</option>
+      <option <% if (values.dittype === 'challenge') { %> selected="selected"<% } %> value="challenge">challenge</option>
+      <option <% if (values.dittype === 'interest') { %> selected="selected"<% } %> value="interest">interest</option>
     </select>
   </td>
-  <td>errors</td>
+  <td><%= errors.dittype %></td>
 </tr>
 <tr>
   <td>summary</td>
-  <td><input type="summary" name="summary" value="" placeholder="summary" /></td>
-  <td>errors</td>
+  <td><input type="summary" name="summary" value="<%= values.summary %>" placeholder="summary" /></td>
+  <td><%= errors.summary %></td>
 </tr>
 <tr>
   <td></td>

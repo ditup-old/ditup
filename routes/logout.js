@@ -3,10 +3,9 @@
 var express = require('express');
 var router = express.Router();
 
-router.all('*', function(req, res, next) {
-  var err = new Error('TODO router for ' + req.originalUrl);
-  err.status = 404;
-  next(err);
+router.get('/', function (req, res, next) {
+    req.session.destroy();
+    res.redirect('/');
 });
 
 module.exports = router;

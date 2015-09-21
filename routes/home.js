@@ -7,7 +7,7 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   var sessUser = req.session.user;
   if(sessUser.logged === true) {
-    return res.render('main-logged', {user: sessUser});
+    return res.render('main-logged', {session: sessUser, user: sessUser});
   }
   else {
     return res.render('main');

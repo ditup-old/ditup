@@ -51,7 +51,8 @@ router.post('/', function (req, res, next) {
     })
     .then(function () {
       //console.log('redirect');
-      res.redirect(req.session.history.current);
+      return res.render('sysinfo', {msg: 'login successful', session: sessUser});
+      //res.redirect(req.session.history.current);
     })
     .then(null, function (err) {
       console.log(err.stack);

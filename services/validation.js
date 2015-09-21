@@ -3,11 +3,13 @@
 //this service strictly validates form of the fields. no database access.
 
 var signup = {};
+var user = {};
+var dit = {};
 
 signup.username = function (username, errors) {
   var errors = errors || [];
   //username regex
-  var usernameRegex = /^([a-z0-9_\-\.]{2,32})$/;
+  var usernameRegex = /^(?=.{2,32}$)[a-z0-9]+([_\-\.][a-z0-9]+)*$/;
 
   if(usernameRegex.test(username) === true) return true;
 
@@ -26,17 +28,21 @@ signup.email = function (email, errors) {
   return false;
 };
 
-signup.name = function (name, errors) {
+user.name = signup.name = function (name, errors, values) {
   var errors = errors || [];
+  var values = values || {};
   //name, surname max 128 characters long
+  values.name = name;
   if(name.length <= 128) return true;
 
   errors.push('name can be max 128 characters long');
   return false;
 };
 
-signup.surname = function (surname, errors) {
+user.surname = signup.surname = function (surname, errors, values) {
   var errors = errors || [];
+  var values = values || {};
+  values.surname = surname;
   if(surname.length <= 128) return true;
 
   errors.push('surname can be max 128 characters long');
@@ -94,6 +100,157 @@ signup.all = function (form, errors) {
   return valid;
 };
 
+user.birthday = function (birthday, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  values.birthday = values.birthday === '' ? null : birthday;
+  //validate birthday
+
+  var birthdayRegex = /^(19|20)[0-9]{2}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/;
+  if (!birthdayRegex.test(birthday) && birthday !== '') {
+    errors.push('birthday is in wrong format. please use yyyy-mm-dd');
+    return false;
+  }
+
+  return true;
+};
+
+user.gender = function (gender, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  var valid = true;
+  //validate gender [unspecified, male, female, other]
+  var genderArray = ['unspecified', 'male', 'female', 'other'];
+  var genderIndex = genderArray.indexOf(gender);
+  if(!(genderIndex > -1)) {
+    valid = false;
+    errors.push('please select gender from the list provided');
+  }
+  values.gender = (genderIndex > 0) ? genderArray[genderIndex] : null;
+
+  return valid;
+};
+
+user.about = dit.about = function (about, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  values.about = about;
+  //validate about (0 - 16384 characters)
+  if (about.length > 16384) {
+    errors.push('description is too long (max 16384 characters)');
+    return false;
+  }
+  return true;
+}
+
+user.profile = function (profileData, errors, values) {
+  var errors = errors || {};
+  var values = values || {};
+  //birthday, name, surname, gender, about
+
+  var fields = ['name', 'surname', 'gender', 'birthday', 'about'];
+  
+  var valid = true;
+  for(var i = 0, len = fields.length; i<len; i++){
+    var field = fields[i];
+    errors[field] = errors[field] || [];
+    valid = user[field](profileData[field], errors[field], values) && valid;
+  }
+  
+  return valid;
+};
+
+dit.url = function (url, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  values.url = url;
+
+  //validate url 
+  var valid = true;
+  var regex = /^[a-z0-9]+(\-[a-z0-9]+)*$/;
+
+  if (!regex.test(url)) {
+    errors.push('examples: good: "user", "user-1-23", bad: "12user", "-a--a-"');
+    valid = false;
+  }
+  var len = url.length;
+  if(len<2 || len> 128) {
+    errors.push('url needs to be 2-128 characters long');
+    valid = false;
+  }
+
+  return valid;
+};
+
+dit.dittype = function (dittype, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  var valid = true;
+  //validate dittype ['unspecified', 'idea', 'project', 'challenge', 'interest']
+  var dittypeArray = ['unspecified', 'idea', 'project', 'challenge', 'interest'];
+
+  var dittypeIndex = dittypeArray.indexOf(dittype);
+  if(!(dittypeIndex > -1)) {
+    valid = false;
+    errors.push('please select type from the list provided');
+  }
+  values.dittype = (dittypeIndex > 0) ? dittypeArray[dittypeIndex] : null;
+
+  return valid;
+};
+
+dit.name = function (name, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  values.name = name;
+  //validate name (0 - 16384 characters)
+  if (name.length > 128) {
+    errors.push('name is too long (max 128 characters)');
+    return false;
+  }
+  return true;
+};
+dit.summary = function (summary, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  values.summary = summary;
+  //validate summary (140 characters)
+  if (summary.length > 140) {
+    errors.push('summary is too long (max 140 characters)');
+    return false;
+  }
+  return true;
+};
+
+dit.create = valiterate(['url', 'dittype', 'name', 'summary']);
+
+dit.profile = valiterate(['dittype', 'name', 'summary', 'about']);
+
+//function which iterates through specific fields for validation
+function valiterate(fields) {
+  return function (data, errors, values) {
+    var errors = errors || {};
+    var values = values || {};
+    //url, dittype, name, summary
+
+    var valid = true;
+    for(var i = 0, len = fields.length; i<len; i++){
+      var field = fields[i];
+      errors[field] = errors[field] || [];
+      valid = this[field](data[field], errors[field], values) && valid;
+    }
+    
+    return valid;
+  };
+}
+
 module.exports = {
-  signup : signup
+  signup : signup,
+  user: user,
+  dit: dit
 };

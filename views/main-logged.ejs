@@ -1,0 +1,13 @@
+<%
+  var css = [
+    '/css/header.css',
+    '/css/main-logged.css'
+  ];
+
+  var title = 'home';
+  var headScripts = [];
+  var scripts = [];
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<div > Welcome <%= user.username %>!</div>
+<% include ./partial/page-bottom.ejs %>

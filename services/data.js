@@ -32,6 +32,11 @@ module.exports = {
     return db.query('FOR x IN users FILTER x.username == @username RETURN {profile: x.profile}', {username: user.username})
       .then(function (cursor) {
         return cursor.all();
+      })
+      .then(function (users) {
+        if(users.length === 1) return users[0];
+        if(users.length === 0) throw new Error('user ' + user.username + ' not found');
+        if(users.length > 1) throw new Error('database corruption: username ' + user.username + ' is not unique');
       });
   },
   readUserSettings: function (user) {
@@ -68,8 +73,8 @@ module.exports = {
   },
   login: function (user) {},
   ////U
-  updateUserProfile: function (user) {
-    return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {profile: @profile} IN users', {username: user.username, profile: user.profile});
+  updateUserProfile: function (user, profile) {
+    return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {profile: @profile} IN users', {username: user.username, profile: profile});
   },
   updateUserSettings: function (user) {
     return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {settings: @settings} IN users', {username: user.username, settings: user.settings});
@@ -102,13 +107,31 @@ module.exports = {
     return db.query('FOR x IN users FILTER x.username == @username REMOVE x IN users', {username: user.username});
   },
   //dit
-  createDit: function (dit) {
-    return db.query('INSERT @dit IN dits', {dit: dit});
+  createDit: function (dit, creator) {
+    var that = this;
+    return db.query('INSERT @dit IN dits', {dit: dit})
+      .then(function () {
+        //add creator
+        var query = 'FOR d IN dits FILTER d.url == @url LET to = d._id ' +
+          'FOR u IN users FILTER u.username == @username LET from = u._id ' +
+          'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to)} IN creatorOfDit';
+        return db.query(query, {url: dit.url, username: creator.username});
+      })
+      .then(function (){
+        //creator will become admin of dit
+        return that.addUserToDit(creator, {url: dit.url}, 'admin');
+      });
   },
   readDit: function (dit) {
     return db.query('FOR x IN dits FILTER x.url == @url RETURN x', {url: dit.url})
       .then(function (cursor) {
         return cursor.all();
+      })
+      .then(function (ditArray){
+        var len = ditArray.length;
+        if(len === 0) return null;
+        if(len === 1) return ditArray[0];
+        throw new Error('weird amount of dits ' + dit.url + ' found');
       });
   },
   readDitProfile: function (dit) {
@@ -123,8 +146,28 @@ module.exports = {
         return cursor.all();
       });
   },
-  updateDitProfile: function (dit) {
-    return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {profile: @profile} IN dits', {url: dit.url, profile: dit.profile});
+  urlExists: function (url) {
+    return db.query('FOR x IN dits FILTER x.url == @url ' +
+      'COLLECT WITH COUNT INTO number ' +
+      'RETURN number', {url: url})
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (output) {
+        var number = output[0];
+        if(number === 0) return false;
+        else return true;
+      });
+  },
+  updateDitProfile: function (dit, data) {
+    var dittype = data.dittype;
+    var profile = {};
+    for(var name in data) {
+      if(name !== 'dittype') profile[name] = data[name];
+    }
+    console.log('*************** dittype ************', dittype);
+    console.log('*************** profile ************', profile);
+    return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {dittype: @dittype, profile: @profile} IN dits', {url: dit.url, profile: profile, dittype: dittype});
   },
   updateDitSettings: function (dit) {
     return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {settings: @settings} IN dits', {url: dit.url, settings: dit.settings});
@@ -152,9 +195,9 @@ module.exports = {
   
   //tag-user
   addTagToUser: function (tag, user) {
-    var query = 'FOR x IN users FILTER x.username == @username ' +
-      'FOR y IN tags FILTER y.name == @name ' +
-      'INSERT {_from: x._id, _to: y._id } IN userTag';
+    var query = 'FOR x IN users FILTER x.username == @username LET from = x._id ' +
+      'FOR y IN tags FILTER y.name == @name LET to = y._id ' +
+      'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN userTag';
     return db.query(query, {username: user.username, name: tag.name});
   },
   readTagsOfUser: function (user) {
@@ -176,9 +219,9 @@ module.exports = {
   },
   //tag-dit
   addTagToDit: function (tag, dit) {
-    var query = 'FOR d IN dits FILTER d.url == @url ' +
-      'FOR t IN tags FILTER t.name == @name ' +
-      'INSERT {_from: d._id, _to: t._id } IN ditTag';
+    var query = 'FOR d IN dits FILTER d.url == @url LET from = d._id ' +
+      'FOR t IN tags FILTER t.name == @name LET to = t._id ' +
+      'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN ditTag';
     return db.query(query, {url: dit.url, name: tag.name});
   },
   readTagsOfDit: function (dit) {
@@ -200,9 +243,9 @@ module.exports = {
   },
   //user-dit
   addUserToDit: function (user, dit, relation) {
-    var query = 'FOR d IN dits FILTER d.url == @url ' +
-      'FOR u IN users FILTER u.username == @username ' +
-      'INSERT {_from: u._id, _to: d._id, relation: @rel} IN memberOf';
+    var query = 'FOR d IN dits FILTER d.url == @url LET to = d._id ' +
+      'FOR u IN users FILTER u.username == @username LET from = u._id ' +
+      'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), relation: @rel} IN memberOf';
     return db.query(query, {url: dit.url, username: user.username, rel: relation});
   },
   readUsersOfDit: function (dit) {
@@ -225,6 +268,21 @@ module.exports = {
         return cursor.all();
       });
   },
+  readMemberOf: function (user, dit) {
+    var query = 'FOR d IN dits FILTER d.url == @url ' +
+      'FOR u IN users FILTER u.username == @username ' +
+      'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to ' +
+      'RETURN ud';
+    return db.query(query, {url: dit.url, username: user.username})
+      .then(function (cursor) {
+        return cursor.all()
+      })
+      .then(function (results) {
+        if(results.length === 0) return null;
+        if(results.length === 1) return results[0];
+        throw new Error('strange amount of relations or other error');
+      });
+  },
   updateUserDit: function (user, dit, relation) {
     var query = 'FOR d IN dits FILTER d.url == @url ' +
       'FOR u IN users FILTER u.username == @username ' +
@@ -240,8 +298,8 @@ module.exports = {
     return db.query(query, {url: dit.url, username: user.username});
   },
   isMember: function (user, dit) {
-    var query = 'FOR d IN dits FILTER d.url == "dit2" ' +
-      'FOR u IN users FILTER u.username == "test1" ' +
+    var query = 'FOR d IN dits FILTER d.url == @url ' +
+      'FOR u IN users FILTER u.username == @username ' +
       'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to ' +
       'RETURN ud.relation == "member" || ud.relation == "admin"';
     return db.query(query, {url: dit.url, username: user.username})
@@ -257,8 +315,8 @@ module.exports = {
       });
   },
   isAdmin: function (user, dit) {
-    var query = 'FOR d IN dits FILTER d.url == "dit2" ' +
-      'FOR u IN users FILTER u.username == "test1" ' +
+    var query = 'FOR d IN dits FILTER d.url == @url ' +
+      'FOR u IN users FILTER u.username == @username ' +
       'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to ' +
       'RETURN ud.relation == "admin"';
     return db.query(query, {url: dit.url, username: user.username})
