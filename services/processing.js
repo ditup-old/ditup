@@ -2,12 +2,17 @@
 
 var Q = require('q');
 
+var dit = {};
+var tag = {};
+var user = {};
+
 var exports = module.exports = {
-  user: {},
-  dit: {}
+  user: user,
+  dit: dit,
+  tag: tag
 };
 
-exports.user.profile = function (userData) {
+user.profile = function (userData) {
   var deferred = Q.defer();
   console.log('userData', userData);
   process.nextTick(function(){
@@ -35,7 +40,7 @@ exports.user.profile = function (userData) {
   return deferred.promise;
 };
 
-exports.user.profileEdit = function (userData) {
+user.profileEdit = function (userData) {
   var deferred = Q.defer();
   process.nextTick(function(){
     var profile = {};
@@ -64,7 +69,7 @@ exports.user.profileEdit = function (userData) {
   return deferred.promise;
 };
 
-exports.dit.profile = exports.dit.profileEdit = function (dit) {
+dit.profile = exports.dit.profileEdit = function (dit) {
   return Q.resolve({
     url: dit.url,
     dittype: dit.dittype || 'dit',
@@ -74,6 +79,30 @@ exports.dit.profile = exports.dit.profileEdit = function (dit) {
     about: dit.profile.about,
     activity: 'activity should be an array of latest actions to feed...'
   });
+};
+
+dit.settings = function (dit) {
+  return Q.resolve({
+    url: dit.url,
+    dittype: dit.dittype,
+    settings: {
+      view: dit.settings.view,
+      edit: dit.settings.edit
+    }
+  });
+};
+
+dit.users = function (users) {
+  var response = [];
+
+  for (var i = 0, len = users.length; i < len; i++){
+    var user = {};
+    user.profile = users[i].user.profile;
+    user.username = users[i].user.username;
+    response.push({user: user, relation: users[i].relation});
+  }
+
+  return response;
 };
 
 var months = [
@@ -90,6 +119,10 @@ var months = [
   'November',
   'December',
 ];
+
+tag.view = tag.edit = function (tag) {
+  return tag;
+};
 
 function countAge(dateString) {
   //http://stackoverflow.com/a/7091965

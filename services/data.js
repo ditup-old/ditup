@@ -28,6 +28,16 @@ module.exports = {
         if(users.length > 1) throw new Error('database corruption: username ' + user.username + ' is not unique');
       });
   },
+  searchUsers: function (string) {
+    var query = 'FOR u IN users ' +
+      'FILTER LIKE(u.username, CONCAT("%", @string, "%"), true) ' +
+      'RETURN {username: u.username}';
+    var params = {string: string};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      });
+  },
   readUserProfile: function (user) {
     return db.query('FOR x IN users FILTER x.username == @username RETURN {profile: x.profile}', {username: user.username})
       .then(function (cursor) {
@@ -160,8 +170,10 @@ module.exports = {
       });
   },
   updateDitProfile: function (dit, data) {
+    //dittype is not stored in profile object, but in the root of json
     var dittype = data.dittype;
     var profile = {};
+    //create profile without dittype (don't modify the original object)
     for(var name in data) {
       if(name !== 'dittype') profile[name] = data[name];
     }
@@ -169,18 +181,68 @@ module.exports = {
     console.log('*************** profile ************', profile);
     return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {dittype: @dittype, profile: @profile} IN dits', {url: dit.url, profile: profile, dittype: dittype});
   },
-  updateDitSettings: function (dit) {
-    return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {settings: @settings} IN dits', {url: dit.url, settings: dit.settings});
+  updateDitSettings: function (dit, settings) {
+    return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {settings: @settings} IN dits', {url: dit.url, settings: settings});
   },
   deleteDit: function (dit) {
     return db.query('FOR x IN dits FILTER x.url == @url REMOVE x IN dits', {url: dit.url});
   },
   //tag
   createTag: function (tag) {
-    return db.query('INSERT @tag IN tags', {tag: tag});
+    var query = 'FOR u IN users FILTER u.username == @username ' +
+      'INSERT {name: @name, description: @description, meta: {created: @created, creator: u._id}} IN tags';
+    var params = {
+      name: tag.name,
+      description: tag.description,
+      created: tag.meta.created,
+      username: tag.meta.creator
+    };
+    return db.query(query, params);
+      /*.then(null, function (err) {
+        console.log('***********caught error************');
+        if(err.errorNum === 1210){
+          console.log('****************correct number***');
+        }
+        return false;
+      });*/
   },
   readTag: function (tag) {
     return db.query('FOR x IN tags FILTER x.name == @name RETURN x', {name: tag.name})
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (tags){
+        var len = tags.length;
+        if(len === 0) return null;
+        if(len === 1) return tags[0];
+        throw new Error('weird amount of tags ' + tag.name + ' found');
+      });
+  },
+  searchTags: function (string) {
+    var query = 'FOR t IN tags ' +
+      'FILTER LIKE(t.name, CONCAT("%", @string, "%"), true) ' +
+      'RETURN t';
+    var params = {string: string};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      });
+  },
+  tag: {
+    nameExists: function (name) {
+      return db.query('FOR t IN tags FILTER t.name == @name ' +
+        'COLLECT WITH COUNT INTO number ' +
+        'RETURN number', {name: name})
+        .then(function (cursor) {
+          return cursor.all();
+        })
+        .then(function (output) {
+          var number = output[0];
+          if(number === 0) return false;
+          else if (number === 1) return true;
+          throw new Error('weird database error: more than 1 tag with unique name exists');
+        });
+    }
   },
   updateTag: function (tag) {
     return db.query('FOR x IN tags FILTER x.name == @name UPDATE x WITH @tag IN tags', {name: tag.name, tag: tag});
@@ -247,6 +309,13 @@ module.exports = {
       'FOR u IN users FILTER u.username == @username LET from = u._id ' +
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), relation: @rel} IN memberOf';
     return db.query(query, {url: dit.url, username: user.username, rel: relation});
+      //.then(function (cursor) {
+      //  console.log(cursor);
+      //  //return cursor.extra.stats.writesExecuted === 1 ? true : false;
+      //});
+  },
+  get createUserDit () {
+    return this.addUserToDit;
   },
   readUsersOfDit: function (dit) {
     var query = 'FOR d IN dits FILTER d.url == @url ' +
@@ -283,19 +352,67 @@ module.exports = {
         throw new Error('strange amount of relations or other error');
       });
   },
-  updateUserDit: function (user, dit, relation) {
+  readUserDit: function (user, dit) {
     var query = 'FOR d IN dits FILTER d.url == @url ' +
       'FOR u IN users FILTER u.username == @username ' +
       'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to ' +
-      'UPDATE ud WITH {relation: @rel} IN memberOf';
-    return db.query(query, {url: dit.url, username: user.username, rel: relation});
+      'RETURN {user: u, dit: d, relation: ud}';
+    return db.query(query, {url: dit.url, username: user.username})
+      .then(function (cursor) {
+        return cursor.all()
+      })
+      .then(function (results) {
+        if(results.length === 0) return null;
+        if(results.length === 1) return results[0];
+        throw new Error('strange amount of relations or other error');
+      });
   },
-  deleteUserFromDit: function (user, dit) {
-    var query = 'FOR d IN dits FILTER d.url == @url ' +
+  updateUserDit: function (user, dit, relation, oldRelation) {
+    var query = oldRelation === undefined
+      ? 'FOR d IN dits FILTER d.url == @url ' +
       'FOR u IN users FILTER u.username == @username ' +
       'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to ' +
+      'UPDATE ud WITH {relation: @rel} IN memberOf'
+      : 'FOR d IN dits FILTER d.url == @url ' +
+      'FOR u IN users FILTER u.username == @username ' +
+      'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to && ud.relation == @oldRel ' +
+      'UPDATE ud WITH {relation: @rel} IN memberOf';
+    var params = oldRelation === undefined
+      ? {url: dit.url, username: user.username, rel: relation}
+      : {url: dit.url, username: user.username, rel: relation, oldRel: oldRelation}
+ 
+    return db.query(query, params);
+  },
+  upsertUserDit: function (user, dit, relation) {
+    var query = 
+      'FOR u IN users FILTER u.username == @username ' +
+        'LET from = u._id ' +
+      'FOR d IN dits FILTER d.url == @url ' +
+        'LET to = d._id ' +
+      'UPSERT {_from: from, _to: to} ' +
+      'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), relation: @rel} ' +
+      'UPDATE {relation: @rel} ' +
+        'IN memberOf';
+    return db.query(query, {username: user.username, url: dit.url, rel: relation});
+  },
+  deleteUserFromDit: function (user, dit, relation) {
+    //relation is optional argument
+    var query = relation === undefined
+      ? 'FOR d IN dits FILTER d.url == @url ' +
+      'FOR u IN users FILTER u.username == @username ' +
+      'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to ' +
+      'REMOVE ud IN memberOf'
+      :'FOR d IN dits FILTER d.url == @url ' +
+      'FOR u IN users FILTER u.username == @username ' +
+      'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to && ud.relation == @rel' +
       'REMOVE ud IN memberOf';
-    return db.query(query, {url: dit.url, username: user.username});
+
+    var params = relation === undefined
+    ? {url: dit.url, username: user.username}
+    : {url: dit.url, username: user.username, rel: relation};
+;
+
+    return db.query(query, params);
   },
   isMember: function (user, dit) {
     var query = 'FOR d IN dits FILTER d.url == @url ' +

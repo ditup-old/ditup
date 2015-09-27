@@ -1,52 +1,29 @@
-<html>
-<head>
+<%
+var css = [
+  '/css/header.css',
+  '/css/tag-edit.css',
+];
+var title = '#' + data.name ;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
 
 <style>
-  div.logo {
-    background-image: url('/<% data.form %>/<%= data.url %>/logo');
-    background-repeat: no-repeat;
-    background-size: contain;
-    height:64px;
-    width:64px;
-  }
 </style>
-</head>
-<body>
-<form method="post">
-<div><!-- basic dit info -->
-  <div class="logo" >change dit logo</div>
-  <div>
-    <div>type
-      <select name="form">
-        <option value="unspecified">unspecified</option>
-        <option <% if (data.form === 'idea') { %> selected="selected"<% } %> value="idea">idea</option>
-        <option <% if (data.form === 'project') { %> selected="selected"<% } %> value="project">project</option>
-        <option <% if (data.form === 'challenge') { %> selected="selected"<% } %> value="challenge">challenge</option>
-        <option <% if (data.form === 'interest') { %> selected="selected"<% } %> value="interest">interest</option>
-      </select>
-    </div>
-    <div><%= data.created %></div>
-    <div>tags</div>
-  </div>
-</div>
-<div><!--  -->
-  <div>
-    <span><input type="text" name="name" placeholder="dit name" value="<%= data.name %>" /></span>
-    <span><%= data.form %>:<%= data.url %></span>
-    <span>
-      <a href="/dit/<%= data.url %>">Cancel</a>
-      <input type="submit" name="submit" value="Save Changes" />
-    </span>
-  </div>
-  <div>
-    <input type="text" name="summary" placeholder="short summary" value="<%= data.summary %>" />
-  </div>
-  <div><h1>about the <%= data.form %></h1>
+<h1>edit tag <%= data.name %></h1>
+<div>
+  <form method="post" >
+    <div>name</div>
+    <div>#<%= data.name %></div>
+    <div>description</div>
+    <textarea name="description" ><%= data.description %></textarea><%= errors.description %>
     <div>
-      <textarea name="about" placeholder="description" ><%= data.about %></textarea>
+      <input type="submit" name="edit" value="edit" class="button" />
+      <a class="button" href="/tag/<%= data.name %>">Cancel</a>
     </div>
-  </div>
+  </form>
 </div>
-</form>
-</body>
-</html>
+<% include ./partial/page-bottom.ejs %>

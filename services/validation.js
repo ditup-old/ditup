@@ -5,6 +5,14 @@
 var signup = {};
 var user = {};
 var dit = {};
+var tag = {};
+
+module.exports = {
+  signup : signup,
+  user: user,
+  dit: dit,
+  tag: tag
+};
 
 signup.username = function (username, errors) {
   var errors = errors || [];
@@ -143,7 +151,7 @@ user.about = dit.about = function (about, errors, values) {
     return false;
   }
   return true;
-}
+};
 
 user.profile = function (profileData, errors, values) {
   var errors = errors || {};
@@ -214,6 +222,7 @@ dit.name = function (name, errors, values) {
   }
   return true;
 };
+
 dit.summary = function (summary, errors, values) {
   var errors = errors || [];
   var values = values || {};
@@ -227,9 +236,88 @@ dit.summary = function (summary, errors, values) {
   return true;
 };
 
+//here we validate user view settings (who has rights to view dit?)
+dit.view = function (view, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  var valid = true;
+  //validate view settings
+  var viewSettingsArray = ['all', 'members', 'admins'];
+
+  var viewIndex = viewSettingsArray.indexOf(view);
+  if(!(viewIndex > -1)) {
+    valid = false;
+    errors.push('please select option from the list provided');
+  }
+  values.view = (viewIndex >= 0) ? viewSettingsArray[viewIndex] : null;
+
+  return valid;
+};
+
+//here we validate user edit settings (who has right to edit dit?) (TODO it's not clear what is dit editing)
+dit.edit = function (edit, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  var valid = true;
+  //validate view settings
+  var editSettingsArray = ['all', 'members', 'admins'];
+
+  var editIndex = editSettingsArray.indexOf(edit);
+  if(!(editIndex > -1)) {
+    valid = false;
+    errors.push('please select option from the list provided');
+  }
+  values.edit = (editIndex >= 0) ? editSettingsArray[editIndex] : null;
+
+  return valid;
+};
+
 dit.create = valiterate(['url', 'dittype', 'name', 'summary']);
 
 dit.profile = valiterate(['dittype', 'name', 'summary', 'about']);
+
+dit.settings = valiterate(['view', 'edit']);
+
+tag.name = function (name, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  values.name = name;
+
+  //validate url 
+  var valid = true;
+  var regex = /^[a-z0-9]+(\-[a-z0-9]+)*$/;
+
+  if (!regex.test(name)) {
+    errors.push('examples: good: "tag", "some-tag-1-23", "12tag"; bad: "-tag--a-"');
+    valid = false;
+  }
+  var len = name.length;
+  if(len < 2 || len > 64) {
+    errors.push('tag name needs to be 2-64 characters long');
+    valid = false;
+  }
+
+  return valid;
+};
+
+tag.description = function (description, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  values.description = description;
+  //validate about (0 - 16384 characters)
+  if (description.length > 2048) {
+    errors.push('description is too long (max 2048 characters)');
+    return false;
+  }
+  return true;
+};
+
+tag.edit = valiterate(['description']);
+
+tag.create = valiterate(['name', 'description']);
 
 //function which iterates through specific fields for validation
 function valiterate(fields) {
@@ -248,9 +336,3 @@ function valiterate(fields) {
     return valid;
   };
 }
-
-module.exports = {
-  signup : signup,
-  user: user,
-  dit: dit
-};

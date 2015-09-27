@@ -6,12 +6,14 @@ var router = express.Router();
 var validate = require('../services/validation');
 var process = require('../services/processing');
 var database = require('../services/data');
+var rights = require('../services/rights');
 
 router.get('/', function (req, res, next) {
   var url = '/'+req.originalUrl.replace(/^[\/]+|[\/]+$/,'');
   return res.redirect(url+'s');
 });
 
+//here we check if user is logged in. if true, then continue. otherwise error.
 router.all(['/:url', '/:url/*'], function (req, res, next) {
   var sessUser = req.session.user;
   if(sessUser.logged === true) {
@@ -23,6 +25,8 @@ router.all(['/:url', '/:url/*'], function (req, res, next) {
   }
 });
 
+
+//here we read dit from database, check if it exists (else error) and redirect if url dittype !== database dittype
 router.get(['/:url', '/:url/*'], function (req, res, next) {
   var url = req.params.url;
   var originalUrl = req.originalUrl;
@@ -167,11 +171,14 @@ router.post('/:url/edit', function (req, res, next) {
   }
   
   function invalidBranch() {
+    //read dit from database (we haven't done it until this point)
     return database.readDit({url: url})
       .then(function (_dit) {
+        //process dit data
         return process.dit.profileEdit(_dit);
       })
       .then(function (_profile) {
+        //show values filled by user, not values from database.
         for(var name in values){
           _profile[name] = values[name];
         }
@@ -181,12 +188,130 @@ router.post('/:url/edit', function (req, res, next) {
 });
 
 router.get('/:url/settings', function (req, res, next) {
+  var sessUser = req.session.user;
+  var url = req.params.url;
   
+  var dit, rights;
+
+  //read dit
+  return Q.resolve(req.dit)
+    .then(function (_dit) {
+      dit = _dit;
+
+      //check my rights to dit
+      return getMyRightsToDit(sessUser, dit);
+    })
+    .then(function (_rights) {
+      rights = _rights;
+      if(rights.edit !== true) {
+        throw new Error('you don\'t have rights to change the settings');
+      }
+
+      //process data
+      return process.dit.settings(dit);
+    })
+    .then(function (_data) {
+      //render the settings page
+      res.render('dit-settings', {data: _data, rights: rights, errors: {}, session: sessUser});
+    })
+    .then(null, function (err) {
+      next(err);
+    });
 });
 
 router.post('/:url/settings', function (req, res, next) {
+  var sessUser = req.session.user;
+
+  var url = req.params.url;
+  var form = req.body;
+  var formData = {
+    view: form.view,
+    edit: form.edit
+  };
+
+  console.log('*************** form data************ \\n',formData);
+
+  var me = {username: sessUser.username};
+  var dit = {url: url};
   
+  var errors = {};
+  var values = {};
+
+  return database.isAdmin(me, dit)
+    .then(function (isAdmin) {
+      if(isAdmin !== true) throw new Error('you don\'t have rights to edit this dit');
+      return validate.dit.settings(formData, errors, values);
+    })
+    .then(function (isValid) {
+      if(isValid === true) return validBranch();
+      else return invalidBranch();
+    })
+    .then(null, function (err) {
+      next(err);
+    });
+
+  function validBranch() {
+    var settings = values;
+    return database.updateDitSettings(dit, settings)
+      .then(function () {
+        return res.render('sysinfo', {msg: '<a href="" >settings</a> of <a href="/dit/' + dit.url + '" >' + dit.url + '</a> were successfully updated', session: sessUser});
+      });
+  }
+  
+  function invalidBranch() {
+    return database.readDit({url: url})
+      .then(function (_dit) {
+        return process.dit.settings(_dit);
+      })
+      .then(function (_data) {
+        return res.render('dit-settings', {data: _data, rights: {view: true, edit: true}, errors: errors, session: sessUser});
+      });
+  }
 });
+
+router.get(['/:url/people', '/:url/members'], function (req, res, next) {
+  var sessUser = req.session.user;
+  var url = req.params.url;
+  
+  var dit, rights;
+
+  //read dit
+  return Q.resolve(req.dit)
+    .then(function (_dit) {
+      dit = _dit;
+
+      //check my rights to dit
+      return getMyRightsToDit(sessUser, dit);
+    })
+    .then(function (_rights) {
+      rights = _rights;
+      if(rights.view !== true) {
+        throw new Error('you don\'t have rights to view this dit');
+      }
+
+      //process data
+      return database.readUsersOfDit({url: url});
+    })
+    .then(function (_users) {
+      
+      return process.dit.users(_users);
+    })
+    .then(function (_users) {
+      //render the members page
+      res.render('dit-members', {dit: {url: dit.url, dittype: dit.dittype}, users: _users, rights: rights, session: sessUser});
+    })
+    .then(null, function (err) {
+      next(err);
+    });
+});
+
+//router.get('/:url/add-user', function (req, res, next) {
+//  var sessUser = req.session.user;
+//});
+
+//router.post('/:url/add-user', function (req, res, next) {
+//  
+//});
 
 module.exports = router;
 
@@ -227,6 +352,6 @@ var getMyRightsToDit = function (me, dit) {
       else if (viewSettings === 'admins' && relation === 'admin'){
         view = true;
       }
-      return {view: view, edit: edit};
+      return {view: view, edit: edit, relation: relation};
     });
 };

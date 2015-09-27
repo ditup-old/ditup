@@ -4,6 +4,7 @@ public/img/*
 files/img/avatars/*
 public/libs
 config/*
+npm-debug.log
 
 
 #Allow

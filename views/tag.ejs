@@ -1,9 +1,14 @@
 <%
 var css = [
   '/css/header.css',
-  '/css/tag.css'
+  '/css/tag.css',
 ];
 var title = '#'+data.name ;
+
+if(data.description === '') {
+  data.description = 'no description';
+}
+
 
 var headScripts = [];
 var scripts = [];
@@ -12,9 +17,13 @@ var scripts = [];
 <% include ./partial/header.ejs %>
 
 <style>
+h1 {
+  font-weight: bold;
+}
 </style>
-<h1>#<%=data.name %></h1>
-<div><%=data.description %></div>
+<h1>#<%= data.name %></h1>
+<div><%= data.description %></div>
+<a class="button" href="/tag/<%= data.name %>/edit" >edit tag</a>
 <div>number of users using this tag</div>
 <div>number of dits using this tag</div>
 <div>popular dits using this tag</div>

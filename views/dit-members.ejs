@@ -1,0 +1,33 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/dit-members.css',
+  '/libs/jquery-ui-1.11.4/jquery-ui.css'
+];
+var title = 'members of ' + dit.url ;
+
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/dit-members/main'
+    }
+  }
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+<h1>Members of <%= dit.dittype %> <%= dit.url %></h1>
+  <ul>
+<% for (var i = 0, len=users.length; i < len; i++) {%>
+    <li><a href="/user/<%= users[i].user.username %>"><%= users[i].user.username %></a> (<%= users[i].relation %>)</li><% } %>
+  </ul><% if (rights.relation === 'admin') { %>
+  <div id="invite-user" >invite user
+    <input id="autocomplete" title="select user" class="ui-autocomplete-input" />
+  </div><% } %>
+</div>
+<% include ./partial/page-bottom.ejs %>

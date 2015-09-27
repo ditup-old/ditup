@@ -37,8 +37,9 @@ var scripts = [];
   <div>
     <span class="profile-dittype" ><%= (data.dittype==='dit' ? '?' : data.dittype) %></span>: <span class="profile-name" ><%= data.name %></span>
     <span class="data-url"><%= data.url %></span>
-    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit</a></span><% } %>
     <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/invite">Invite User</a></span><% } %>
+    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit</a></span><% } %>
+    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/settings">Settings</a></span><% } %>
   </div>
   <div><%= data.summary %></div>
   <div><!-- tags -->
@@ -49,10 +50,10 @@ var scripts = [];
     </ul>
   </div>
   <div class="top-menu">
-  <a href="about">about</a>
-  <a href="people">people</a>
-  <a href="brainstorm">brainstorm</a>
-  <a href="gtd">GTD</a>
+  <a href="/<%= data.dittype %>/<%= data.url %>/about">about</a>
+  <a href="/<%= data.dittype %>/<%= data.url %>/people">people</a>
+  <a href="/<%= data.dittype %>/<%= data.url %>/brainstorm">brainstorm</a>
+  <a href="/<%= data.dittype %>/<%= data.url %>/gtd">GTD</a>
   <% if (rights.edit === true) { %><a href="edit">edit</a><% } %>
   <a href="">...</a>
   </div>

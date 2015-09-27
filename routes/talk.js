@@ -3,10 +3,17 @@
 var express = require('express');
 var router = express.Router();
 
-router.all('*', function(req, res, next) {
-  var err = new Error('TODO router for ' + req.originalUrl);
-  err.status = 404;
-  next(err);
+router.get('/', function (req, res, next) {
+  console.log(req.session);
+  var sessUser = req.session.user;
+  res.render('talk', {session: {logged: sessUser.logged, username: sessUser.username}});
 });
 
-module.exports = router;
+router.get('/:talkUrl', function (req, res, next) {
+  var talkUrl = req.params.talkUrl;
+  console.log(talkUrl);
+  var sessUser = req.session.user;
+  res.render('talk', {session: {logged: sessUser.logged, username: sessUser.username}});
+});
+
+module.exports=router;

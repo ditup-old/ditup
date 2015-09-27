@@ -16,16 +16,16 @@ var scripts = [];
 <h1>Create New Tag</h1>
 <table>
 <form method="post">
-  <tr><td>tag-name</td><td><input type="text" name="name" placeholder="tag name" value="<%= data.name %>" /></td><td></td></tr>
-  <tr><td>description</td><td><textarea name="description" placeholder="description" ><%= data.description %></textarea></td><td></td></tr>
+  <tr><td>tag-name</td><td><input type="text" name="name" placeholder="tag name" value="<%= data.name %>" /></td><td><%= errors.name %></td></tr>
+  <tr><td>description</td><td><textarea name="description" placeholder="description" ><%= data.description %></textarea></td><td><%= errors.description %></td></tr>
   <tr>
     <td></td>
-    <td><input type="submit" name="submit" value="Create Tag" /></td>
+    <td><input class="button" type="submit" name="submit" value="Create Tag" /></td>
     <td></td>
   </tr>
   <tr>
     <td></td>
-    <td><a href="/tags %>">Cancel</a></td>
+    <td><a class="button" href="/tags">Cancel</a></td>
     <td></td>
   </tr>
 </form>

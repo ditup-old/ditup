@@ -1,0 +1,52 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/dit-settings.css',
+];
+var title = '*' + data.name ;
+
+var headScripts = [
+  //{
+    //src: '/libs/js/require.js',
+    //properties: {
+    //  'data-main': '/js/dit-profile-edit/main'
+    //}
+  //}
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+  div.logo {
+    background-image: url('/<%= data.dittype %>/<%= data.url %>/logo');
+    background-repeat: no-repeat;
+    background-size: contain;
+    height:64px;
+    width:64px;
+  }
+</style>
+<h1>Settings for dit <%= data.dittype %>::<%= data.url %></h1>
+<form method="post" >
+  <div>
+    <div>Who can view this dit (only these people will be able to join)</div>
+    <select name="view">
+      <option value="all" <% if (data.settings.view === 'all') { %>selected <% } %>>all</option>
+      <option value="members" <% if (data.settings.view === 'members') { %>selected <% } %>>members</option>
+      <option value="admins" <% if (data.settings.view === 'admins') { %>selected <% } %>>admins</option>
+    </select>
+    <span><%= errors.view %></span>
+  </div>
+  <div>
+    <div>Who can edit this dit</div>
+    <select name="edit">
+      <option value="all" <% if (data.settings.edit === 'all') { %>selected <% } %>>all</option>
+      <option value="members" <% if (data.settings.edit === 'members') { %>selected <% } %>>members</option>
+      <option value="admins" <% if (data.settings.edit === 'admins') { %>selected <% } %>>admins</option>
+    </select>
+    <span><%= errors.edit %></span>
+  </div>
+  <input class="button" type="submit" name="submit" value="Update Settings" />
+</form>
+<% include ./partial/page-bottom.ejs %>
