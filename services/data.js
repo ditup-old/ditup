@@ -5,6 +5,7 @@ var Database = require('arangojs');
 var config = require('./db-config');
 
 var db = new Database({url: config.url, databaseName: config.dbname});
+//var graph = db.graph('ditg');
 
 module.exports = {
   //user
@@ -24,7 +25,7 @@ module.exports = {
       })
       .then(function (users) {
         if(users.length === 1) return users[0];
-        if(users.length === 0) throw new Error('user ' + user.username + ' not found');
+        if(users.length === 0) return null; //throw new Error('user ' + user.username + ' not found');
         if(users.length > 1) throw new Error('database corruption: username ' + user.username + ' is not unique');
       });
   },
@@ -45,14 +46,19 @@ module.exports = {
       })
       .then(function (users) {
         if(users.length === 1) return users[0];
-        if(users.length === 0) throw new Error('user ' + user.username + ' not found');
+        if(users.length === 0) return null; // throw new Error('user ' + user.username + ' not found');
         if(users.length > 1) throw new Error('database corruption: username ' + user.username + ' is not unique');
       });
   },
   readUserSettings: function (user) {
-    return db.query('FOR x IN users FILTER x.username == @username RETURN {settings: x.settings}', {username: user.username})
+    return db.query('FOR u IN users FILTER u.username == @username RETURN {settings: u.settings}', {username: user.username})
       .then(function (cursor) {
         return cursor.all();
+      })
+      .then(function (users) {
+        if(users.length === 1) return users[0];
+        if(users.length === 0) return null; //throw new Error('user ' + user.username + ' not found');
+        if(users.length > 1) throw new Error('database corruption: username ' + user.username + ' is not unique');
       });
   },
   usernameExists: function (username) {
@@ -86,8 +92,8 @@ module.exports = {
   updateUserProfile: function (user, profile) {
     return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {profile: @profile} IN users', {username: user.username, profile: profile});
   },
-  updateUserSettings: function (user) {
-    return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {settings: @settings} IN users', {username: user.username, settings: user.settings});
+  updateUserSettings: function (user, settings) {
+    return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {settings: @settings} IN users', {username: user.username, settings: settings});
   },
   updateUserAccount: function (user, account) {
     return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {account: @account} IN users', {username: user.username, account: account});
@@ -139,6 +145,7 @@ module.exports = {
       })
       .then(function (ditArray){
         var len = ditArray.length;
+        console.log('*********', ditArray)
         if(len === 0) return null;
         if(len === 1) return ditArray[0];
         throw new Error('weird amount of dits ' + dit.url + ' found');
@@ -219,9 +226,10 @@ module.exports = {
       });
   },
   searchTags: function (string) {
+    //TODO return number of tag uses
     var query = 'FOR t IN tags ' +
       'FILTER LIKE(t.name, CONCAT("%", @string, "%"), true) ' +
-      'RETURN t';
+      'RETURN {name: t.name, description: t.description}';
     var params = {string: string};
     return db.query(query, params)
       .then(function (cursor) {
@@ -250,23 +258,31 @@ module.exports = {
   deleteTag: function (tag) {
     return db.query('FOR x IN tags FILTER x.name == @name REMOVE x IN tags', {name: tag.name});
   },
-  //talk
+  //talk TODO 
   ///C
   createTalk: function (talk) {
   },
-  
+  //RUD
+
   //tag-user
   addTagToUser: function (tag, user) {
     var query = 'FOR x IN users FILTER x.username == @username LET from = x._id ' +
       'FOR y IN tags FILTER y.name == @name LET to = y._id ' +
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN userTag';
-    return db.query(query, {username: user.username, name: tag.name});
+    return db.query(query, {username: user.username, name: tag.name})
+      .then(function (cursor) {
+        console.log(cursor);
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'tag not found'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with adding tag');
+      });
   },
   readTagsOfUser: function (user) {
     var query = 'FOR u IN users FILTER u.username == @username ' +
       'FOR ut IN userTag FILTER ut._from == u._id ' +
       'FOR t IN tags FILTER t._id == ut._to ' +
-      'RETURN t';
+      'RETURN {name: t.name, description: t.description}';
     return db.query(query, {username: user.username})
       .then(function (cursor) {
         return cursor.all();
@@ -277,14 +293,27 @@ module.exports = {
       'FOR t IN tags FILTER t.name == @name ' +
       'FOR ut IN userTag FILTER u._id == ut._from && t._id == ut._to ' +
       'REMOVE ut IN userTag';
-    return db.query(query, {username: user.username, name: tag.name});
+    return db.query(query, {username: user.username, name: tag.name})
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'user doesn\'t have this tag'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with removing tag (this should never happen)');
+      });
   },
   //tag-dit
   addTagToDit: function (tag, dit) {
     var query = 'FOR d IN dits FILTER d.url == @url LET from = d._id ' +
       'FOR t IN tags FILTER t.name == @name LET to = t._id ' +
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN ditTag';
-    return db.query(query, {url: dit.url, name: tag.name});
+    return db.query(query, {url: dit.url, name: tag.name})
+      .then(function (cursor) {
+        console.log(cursor);
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'dit or tag not found'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with adding tag');
+      });
   },
   readTagsOfDit: function (dit) {
     var query = 'FOR d IN dits FILTER d.url == @url ' +
@@ -301,7 +330,14 @@ module.exports = {
       'FOR t IN tags FILTER t.name == @name ' +
       'FOR dt IN ditTag FILTER d._id == dt._from && t._id == dt._to ' +
       'REMOVE dt IN ditTag';
-    return db.query(query, {url: dit.url, name: tag.name});
+    return db.query(query, {url: dit.url, name: tag.name})
+      .then(function (cursor) {
+        console.log(cursor);
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'dit doesn\'t have the tag'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with adding tag');
+      });
   },
   //user-dit
   addUserToDit: function (user, dit, relation) {
@@ -327,12 +363,20 @@ module.exports = {
         return cursor.all();
       });
   },
-  readDitsOfUser: function (user) {
-    var query = 'FOR u IN users FILTER u.username == @username ' +
+  readDitsOfUser: function (user, relations) {
+    var relIsArray = Object.prototype.toString.call( relations ) === '[object Array]';
+    var query = relIsArray 
+    ? 'FOR u IN users FILTER u.username == @username ' +
+      'FOR ud IN memberOf FILTER ud._from == u._id && ud.relation IN @rels ' +
+      'FOR d IN dits FILTER d._id == ud._to ' +
+      'RETURN {dit: d, relation: ud.relation}'
+    
+    : 'FOR u IN users FILTER u.username == @username ' +
       'FOR ud IN memberOf FILTER ud._from == u._id ' +
       'FOR d IN dits FILTER d._id == ud._to ' +
       'RETURN {dit: d, relation: ud.relation}';
-    return db.query(query, {username: user.username})
+    var params = relIsArray ? {username: user.username, rels: relations} : {username: user.username};
+    return db.query(query, params)
       .then(function (cursor) {
         return cursor.all();
       });

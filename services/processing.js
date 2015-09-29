@@ -69,7 +69,17 @@ user.profileEdit = function (userData) {
   return deferred.promise;
 };
 
-dit.profile = exports.dit.profileEdit = function (dit) {
+user.settings = function (user) {
+  var settings = user.settings || {};
+  return Q.resolve({
+    username: user.username,
+    settings: {
+      view: settings.view || 'all'
+    }
+  });
+};
+
+dit.profile = dit.profileEdit = function (dit) {
   return Q.resolve({
     url: dit.url,
     dittype: dit.dittype || 'dit',

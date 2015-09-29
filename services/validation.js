@@ -170,6 +170,26 @@ user.profile = function (profileData, errors, values) {
   return valid;
 };
 
+user.view = function (view, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  
+  var valid = true;
+  //validate view settings
+  var viewSettingsArray = ['all', 'me'];
+
+  var viewIndex = viewSettingsArray.indexOf(view);
+  if(!(viewIndex > -1)) {
+    valid = false;
+    errors.push('please select option from the list provided');
+  }
+  values.view = (viewIndex >= 0) ? viewSettingsArray[viewIndex] : null;
+
+  return valid;
+};
+
+user.settings = valiterate(['view']);
+
 dit.url = function (url, errors, values) {
   var errors = errors || [];
   var values = values || {};
@@ -236,7 +256,7 @@ dit.summary = function (summary, errors, values) {
   return true;
 };
 
-//here we validate user view settings (who has rights to view dit?)
+//here we validate dit view settings (who has rights to view dit?)
 dit.view = function (view, errors, values) {
   var errors = errors || [];
   var values = values || {};

@@ -2,7 +2,8 @@
 var css = [
   '/css/header.css',
   '/css/dit-profile.css',
-  '/css/tag-elem.css'
+  '/css/tag-elem.css',
+  '/libs/jquery-ui-1.11.4/jquery-ui.css'
 ];
 var title = '*' + data.name ;
 
@@ -60,8 +61,10 @@ var scripts = [];
       <li><span class="tag" ></span></li>
       <li><span class="tag" ></span></li>
     </ul>
-    <input id="tag-search-input" type="text" placeholder="add tag" />
-    <ul id="tag-search-output" style="position:absolute; background-color:white" ></ul>
+    <span id="add-tag">
+      <input id="autocomplete" type="text" placeholder="add tag" />
+      <span>Tag not found? <a href="/tags/create" >Create it!</a></span>
+    </span>
   </div>
   <div class="top-menu">
   </div>

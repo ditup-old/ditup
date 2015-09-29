@@ -4,21 +4,91 @@ require.config({
   urlArgs: "bust=" + (new Date()).getTime(),
   baseUrl: '/js',
   paths: {
-    jquery: '/libs/js/jquery'
+    jquery: '/libs/js/jquery',
+    jqueryui: '/libs/jquery-ui-1.11.4/jquery-ui',
+    'jquery-private': '/libs/js/jquery-private'
+  },
+  map: {
+    // '*' means all modules will get 'jquery-private'
+    // for their 'jquery' dependency.
+    '*': { 'jquery': 'jquery-private' },
+    '*': { '$': 'jquery-private' },
+    '*': { 'jQuery': 'jquery-private' },
+
+    // 'jquery-private' wants the real jQuery module
+    // though. If this line was not here, there would
+    // be an unresolvable cyclic dependency.
+    'jquery-private': { 'jquery': 'jquery' }
   }
 });
 
-require(['tags/TagSearch', 'tags/TagSearchItem', 'tags/Tag', 'jquery'], function (TagSearch, TagSearchItem, Tag, $) {
+require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
   //DOM elements
-  //var $tagSearch = $('#tag-search');
-  var $tagSearchInput = $('#tag-search-input');
-  var $tagSearchOutput = $('#tag-search-output');
   var $tagList = $('#tag-list');
   //variables
 
   var urlPath = window.location.pathname.replace(/^\/*|\/*$/g, '').split('/');
   console.log(urlPath);
   var url = urlPath[1];
+
+  var source = function (request, response) {
+    $.ajax({
+      url: '/ajax/search-tags',
+      async: true,
+      method: 'POST',
+      data: {string: request.term},
+      dataType: 'json'
+    })
+    .then(function (data){
+      var tags = [];
+      for (var i = 0, len = data.length; i<len; i++) {
+        var name = data[i].name;
+        tags.push({value: name, label: name});
+      }
+      return response(tags);
+      //return response(data);
+    });
+  };
+
+  $('#autocomplete').autocomplete({
+    source: source,
+    appendTo: '#add-tag',
+    delay: 600,
+    minLength: 3,
+    select: function (e, ui) {
+      addTag(ui.item.value);
+      return false;
+    }
+  });
+
+  function addTag(name) {
+    //show unsaved tag in the list
+    console.log('clicked tag');
+    var tag = new Tag({
+      data: {name: name},
+      click: tagFunctions.click.call(tag, {name: name}),
+      close: tagFunctions.close.call(tag, {name: name}),
+      saved: false
+    });
+
+    //save tag to list of user tags
+    $.ajax({
+      url: '/ajax/add-tag-to-dit',
+      async: true,
+      method: 'POST',
+      data: {name: name, url: url},
+      dataType: 'json'
+    })
+    .then(function (resp){
+      if(resp.hasOwnProperty('success') && resp.success === true) {
+        //change unsaved tag to saved tag on success
+        tag.saved(true);
+      }
+      else tag.del();
+    });
+    var tagListItem = $(document.createElement('li')).append(tag.dom.main);
+    tagListItem.appendTo($tagList);
+  }
 
   var tagFunctions = {
     click: function (tagData) {
@@ -31,7 +101,7 @@ require(['tags/TagSearch', 'tags/TagSearchItem', 'tags/Tag', 'jquery'], function
         console.log(tagData.name);
         //remove tag of user from database
         $.ajax({
-          url: '/ajax/dit/remove-tag',
+          url: '/ajax/remove-tag-from-dit',
           async: true,
           method: 'POST',
           data: {tagname: tagData.name, url: url},
@@ -53,10 +123,10 @@ require(['tags/TagSearch', 'tags/TagSearchItem', 'tags/Tag', 'jquery'], function
 
   //show tags
   $.ajax({
-    url: '/ajax/dit/get-tags',
+    url: '/ajax/read-tags-of-dit',
     async: true,
     method: 'POST',
-    data: {url: url}, //just for testing purposes! how to get username?
+    data: {url: url},
     dataType: 'json'
   })
   .then(function (resp){
@@ -75,52 +145,4 @@ require(['tags/TagSearch', 'tags/TagSearchItem', 'tags/Tag', 'jquery'], function
     }
   });
 
-  var tagTemplate = '<span></span>';
-
-  var tagBox = new TagSearch({
-    input: $tagSearchInput,
-    output: $tagSearchOutput,
-    process: function (tagData) {
-      var item = new TagSearchItem({
-        tag: tagData,
-        action: function (data) {
-          //show unsaved tag in the list
-          console.log('clicked tag');
-          var tag = new Tag({
-            data: tagData,
-            click: tagFunctions.click.call(tag, tagData),
-            close: tagFunctions.close.call(tag, tagData),
-            saved: false
-          });
-
-          //save tag to list of user tags
-          $.ajax({
-            url: '/ajax/dit/add-tag',
-            async: true,
-            method: 'POST',
-            data: {tagname: tagData.name, url: url},
-            dataType: 'json'
-          })
-          .then(function (resp){
-            console.log(resp, JSON.stringify(resp));
-            if(resp.hasOwnProperty('success') && resp.success === true) {
-              tag.saved(true);
-            }
-            else if(resp.hasOwnProperty('success') && resp.success === false) {
-              tag.del();
-            }
-            else{
-              console.log('weird', resp);
-              tag.del();
-            }
-          });
-          //change unsaved tag to saved tag on success
-          var tagListItem = $(document.createElement('li')).append(tag.dom.main);
-          tagListItem.appendTo($tagList);
-        },
-      });
-      console.log(item);
-      return item.dom.main;
-    }
-  });
 });

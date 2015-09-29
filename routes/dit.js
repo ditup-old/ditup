@@ -269,7 +269,7 @@ router.post('/:url/settings', function (req, res, next) {
   }
 });
 
-router.get(['/:url/people', '/:url/members'], function (req, res, next) {
+router.get(['/:url/people', '/:url/members', '/:url/users'], function (req, res, next) {
   var sessUser = req.session.user;
   var url = req.params.url;
   

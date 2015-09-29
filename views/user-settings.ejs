@@ -1,0 +1,28 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/user-settings.css',
+];
+var title = '*' + data.name ;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+</style>
+<h1>Settings for user <%= data.username %></h1>
+<form method="post" >
+  <div>
+    <div>Who can view this user</div>
+    <select name="view">
+      <option value="all" <% if (data.settings.view === 'all') { %>selected <% } %>>everybody</option>
+      <option value="me" <% if (data.settings.view === 'me') { %>selected <% } %>>only me</option>
+    </select>
+    <span><%= errors.view %></span>
+  </div>
+  <input class="button" type="submit" name="submit" value="Update Settings" />
+</form>
+<% include ./partial/page-bottom.ejs %>

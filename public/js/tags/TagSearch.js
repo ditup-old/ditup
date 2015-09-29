@@ -9,10 +9,10 @@ define(['jquery'], function ($) {
         console.log(data.input.val());
         //improve request optimisation (request sent with some mouseout, don't send empty request)
         $.ajax({
-          url: '/tags/search',
+          url: '/ajax/search-tags',
           async: true,
           method: 'POST',
-          data: {query: data.input.val()},
+          data: {string: data.input.val()},
           dataType: 'json'
         })
           .then(function (response) {

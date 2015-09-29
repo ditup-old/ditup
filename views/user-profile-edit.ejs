@@ -1,7 +1,8 @@
 <%
 var css = [
   '/css/header.css',
-  '/css/user-profile.css'
+  '/css/user-profile.css',
+  '/libs/jquery-ui-1.11.4/jquery-ui.css',
 ];
 var title = 'profile of :'+profile.username ;
 
@@ -60,8 +61,10 @@ var scripts = [];
       <li><span class="tag" ></span></li>
       <li><span class="tag" ></span></li>
     </ul>
-    <input id="tag-search-input" type="text" placeholder="add tag" />
-    <ul id="tag-search-output" style="position:absolute; background-color:white" ></ul>
+    <span id="add-tag" >
+      <input id="autocomplete" type="text" placeholder="add tag" />
+      <span>Tag not found? <a href="/tags/create" >Create it!</a></span>
+    </span>
   </div>
   <div><h1>about me</h1>
     <div>
