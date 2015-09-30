@@ -12,6 +12,7 @@ div.main-menu-top
   width:100%;
   font-weight: bold;
   color:white;
+  z-index:2;
 }
 
 body
