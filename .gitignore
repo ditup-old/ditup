@@ -5,6 +5,7 @@ files/uploads/*
 files/img/avatars/*
 public/libs
 config/*
+services/mailer/config.json
 npm-debug.log
 
 
