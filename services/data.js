@@ -99,22 +99,34 @@ module.exports = {
     return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {account: @account} IN users', {username: user.username, account: account});
   },
   updateUserEmailVerifyCode: function (user, data) {
+    
     var query = 'FOR x IN users FILTER x.username == @username ' +
-      'UPDATE x WITH {account: {email: @data}} IN users';
+      'UPDATE x WITH {email: @email, account: {email: @data}} IN users';
     var email = {
       create_date: data.create_date,
-      code: data.code,
+      hash: data.hash,
       salt: data.salt,
-      iterations: data.iterations
+      iterations: data.iterations,
+      verified: false
     };
-    return db.query(query, {username: user.username, data: email});
+    var params = {
+      data: email,
+      username: user.username,
+      email: user.email
+    }
+
+    return db.query(query, params);
   },
   updateUserEmailVerified: function (user, data) {
     var query = 'FOR x IN users FILTER x.username == @username ' +
       'UPDATE x WITH {account: {email: @data}} IN users';
     var email = {
       verified: data.verified,
-      verify_date: data.verify_date
+      verify_date: data.verifyDate,
+      hash: null,
+      salt: null,
+      iterations: null,
+      create_date: null
     };
     return db.query(query, {username: user.username, data: email});
   },

@@ -5,51 +5,10 @@ var router = express.Router();
 var validate = require('../services/validation');
 var database = require('../services/data');
 var accountService = require('../services/account');
+var accountModule = require('../modules/account');
 var accountConfig = require('../config/user/account.json');
 
 var ITERATIONS = accountConfig.password.iterations;
-
-/* GET signup page. */
-router.get('/verify-email/:username/:code', function (req, res, next) {
-  var sessUser = req.session.user;
-  var username = req.params.username;
-  var code = req.params.code;
-  
-  var hash, salt, iterations, createDate;
-  
-  //first read user from database (async)
-  return database.readUser({username: username})
-    .then(function (user) {
-      //if user is already verified, don't continue
-      if(user.account.email.verified === true) throw new Error('user ' + username + ' is already verified');
-
-      hash = user.account.email.hash;
-      salt = user.account.email.salt;
-      iterations = user.account.email.iterations;
-      createDate = user.account.email.create_date;
-      
-      //check that create_date of code is not older than 2 hours
-      var isExpired = Date.now() - createDate > 2*3600*1000;
-      if(isExpired) throw new Error('code is expired');
-
-      //hash verification code (async)
-      return accountService.hashPassword(code, salt, iterations);
-    })
-    .then(function (hash2) {
-      //compare hash codes
-      var areHashesEqual = accountService.compareHashes(hash, hash2);
-      if(areHashesEqual !== true) throw new Error('code is wrong');
-      //
-      return database.updateUserEmailVerified({username: username}, {verified: true, verify_date: Date.now()});
-    })
-    .then(function () {
-      res.render('sysinfo', {msg: 'verification successful', session: sessUser});
-    })
-    .then(null, function (err) {
-      console.log(err.stack);
-      next(err);
-    });
-});
 
 router.all('*', function(req, res, next) {
   var sessUser = req.session.user;
@@ -150,34 +109,9 @@ router.post('/', function(req, res, next){
         return database.createUser(newUser);
       })
       .then(function () {
-        //send verification email
-        var code;
-        var salt;
-        var hash;
-        return accountService.generateHexCode(16)
-          .then(function (_code){
-            code = _code;
-            return accountService.generateSalt();
-          })
-          .then(function (_salt) {
-            salt = _salt;
-            return accountService.hashPassword(code, salt, ITERATIONS);
-          })
-          .then(function (_hash) {
-            hash = _hash;
-            var data = {
-              create_date: Date.now(),
-              hash: hash,
-              salt: salt,
-              iterations: ITERATIONS
-            };
-
-            return database.updateUserEmailVerifyCode({username: formData.username}, data);
-          })
-          .then(function sendEmail() {
-            //TODO the email sending!!! (with link /signup/verify-email/:username/:code)
-            console.log(formData.username, code);
-          });
+        var username = formData.username;
+        var email = formData.email;
+        return accountModule.initEmailVerification({username: username, email: email});
       })
       .then(function () {
         //generate success message
