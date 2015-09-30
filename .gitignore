@@ -1,6 +1,7 @@
 node_modules
 *.swp
 public/img/*
+files/uploads/*
 files/img/avatars/*
 public/libs
 config/*

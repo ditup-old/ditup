@@ -26,13 +26,19 @@ var scripts = [];
     width:100%;
     padding-bottom:100%;
   }
+
+  div#upload-avatar {
+    position: absolute;
+    width: 25%
+  }
+
   #tag-list>li {
     display:inline;
   }
 </style>
 <form method="post" >
 <div class="panel-basic" ><!-- basic profile info -->
-  <div class="avatar-pic" >upload profile picture</div>
+  <div class="avatar-pic" ></div>
   <div>birthday <input type="text" name="birthday" value="<%= profile.birthday %>" placeholder="yyyy-mm-dd"/></div>
   <div>gender
     <select name="gender">
@@ -63,7 +69,7 @@ var scripts = [];
     </ul>
     <span id="add-tag" >
       <input id="autocomplete" type="text" placeholder="add tag" />
-      <span>Tag not found? <a href="/tags/create" >Create it!</a></span>
+      <span>Tag not found? <a href="/tags/create" >Create it.</a></span>
     </span>
   </div>
   <div><h1>about me</h1>
@@ -73,4 +79,10 @@ var scripts = [];
   </div>
 </div>
 </form>
+<div id="upload-avatar" >
+  <form action="/user/<%= profile.username %>/upload-avatar" enctype="multipart/form-data" method="post">
+    <input name="avatar" type="file" accept="image/*" />
+    <input type="submit" value="Upload" />
+  </form>
+</div>
 <% include ./partial/page-bottom.ejs %>

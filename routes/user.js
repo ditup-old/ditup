@@ -1,11 +1,16 @@
 'use strict';
 
 var Q = require('q');
+var util = require('util');
+var fs = require('fs');
+//var formidable = require('formidable');
+var multer = require('multer');
 var express = require('express');
 var router = express.Router();
 var database = require('../services/data');
 var process = require('../services/processing');
 var validate = require('../services/validation');
+var image = require('../services/image')
 
 router.get('/', function (req, res, next) {
   return res.redirect('/users');
@@ -82,7 +87,6 @@ router.post('/:username/edit', function (req, res, next){
   var user, rights;
   var profile = {};
   var errors = {};
-  console.log('***************************************************************', username)
   database.readUser({username: username})
     .then(function (_user){
       user = _user;
@@ -116,6 +120,40 @@ router.post('/:username/edit', function (req, res, next){
         return res.render('user-profile-edit', {profile: profile, errors: errors, rights: rights, session: sessUser});
       }
       next(err);
+    });
+});
+
+
+router.get('/:username/avatar', function (req, res, next) {
+  var username = req.params.username;
+  var sessUser = req.session.user;
+
+  var user, rights;
+
+  //read user
+  return database.readUser({username: username})
+    .then(function (_user) {
+      user = _user;
+      if(_user === null) {
+        var err = new Error('user not found');
+        err.status = 404;
+        throw err;
+      }
+      //check if i can see her.
+      return myRightsToUser(sessUser, _user);
+    })
+    .then(function (_rights) {
+      rights = _rights;
+      if(rights.view !== true) throw new Error('you don\'t have rights to see user');
+      //read the avatar image of user
+      return image.avatar.read(username);
+    })
+    .then(function (_img) {
+      res.writeHead(200, {'Content-Type': _img.type});
+      return res.end(_img.data); // Send the file data to the browser.
+    })
+    .then(null, function (err) {
+      return next(err);
     });
 });
 
@@ -156,7 +194,7 @@ router.get('/:username/dits', function (req, res, next) {
 });
 
 //check if i can see & change settings of user (basically: is it me?)
-router.all('/:username/settings', function (req, res, next) {
+router.all(['/:username/settings', '/:username/upload-avatar'], function (req, res, next) {
   var sessUser = req.session.user;
   var username = req.params.username;
   
@@ -247,6 +285,72 @@ router.post('/:username/settings', function (req, res, next) {
         next(err);
       });
   }
+});
+
+
+var upload = multer({
+  dest: './files/uploads/',
+  limits: {
+    fileSize: 2*1024*1024
+  }
+});
+
+router.post('/:username/upload-avatar', upload.single('avatar'), function (req, res, next) {
+  var sessUser = req.session.user;
+  var username = req.params.username;
+  if (sessUser.username !== username) throw new Error('this should never happen. already checked that they\'re similar');
+  //res.end(util.inspect(req.file));
+  if (req.file === undefined) throw new Error('file too big or other error');
+  //res.end(util.inspect(req.file));
+
+  var tempPath = req.file.path;
+
+  return image.avatar.create(tempPath, username)
+    .then(function (){
+      return res.redirect('/user/' + username + '/edit');
+    })
+    .then(null, function (err) {
+      console.log(err);
+      return next(err);
+    });
+
+
+
+
+  //var form = new formidable.IncomingForm();
+
+  //form.encoding = 'utf-8';
+
+  //form.keepExtensions = false; // if you want to store files with extensions
+  //form.multiples = false; // if you allow to upload multiple files
+  //form.maxFileSize = 2 * 1024 * 1024; //  maximum file size
+
+  //form.parse(req
+  /*, function(err, fields, files) {
+    res.writeHead(200, {'content-type': 'text/plain'});
+    res.write('received upload: \n\n');
+    res.end(util.inspect({fields: fields, files: files}));
+  //}*///);
+/*
+  form.on('progress', function(bytesReceived, bytesExpected) {
+    var percent = Math.floor(bytesReceived/bytesExpected*100);
+    console.log('finished', percent, '%');
+  });
+
+  form.on('end', function (){
+    console.log('end');
+    var temp_path = this.openedFiles[0].path;
+    //res.end(util.inspect(this));
+    return image.avatar.create(temp_path, username)
+      .then(function (){
+        return res.redirect('/user/' + username + '/edit');
+      })
+      .then(null, function (err) {
+        console.log(err);
+        return next(err);
+      });
+  });
+*/
 });
 
 module.exports = router;
