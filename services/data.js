@@ -365,29 +365,40 @@ module.exports = {
   get createUserDit () {
     return this.addUserToDit;
   },
-  readUsersOfDit: function (dit) {
-    var query = 'FOR d IN dits FILTER d.url == @url ' +
-      'FOR ud IN memberOf FILTER ud._to == d._id ' +
-      'FOR u IN users FILTER u._id == ud._from ' +
-      'RETURN {user: u, relation: ud.relation}';
-    return db.query(query, {url: dit.url})
+  readUsersOfDit: function (dit, relations) {
+    var relIsArray = Array.isArray(relations);
+    var query = relIsArray
+      ? 'FOR d IN dits FILTER d.url == @url ' +
+        'FOR ud IN memberOf FILTER ud._to == d._id && ud.relation IN @rels ' +
+        'FOR u IN users FILTER u._id == ud._from ' +
+        'RETURN {user: u, relation: ud.relation}'
+      : 'FOR d IN dits FILTER d.url == @url ' +
+        'FOR ud IN memberOf FILTER ud._to == d._id ' +
+        'FOR u IN users FILTER u._id == ud._from ' +
+        'RETURN {user: u, relation: ud.relation}';
+    var params = relIsArray
+      ? {url: dit.url, rels: relations}
+      : {url: dit.url};
+    return db.query(query, params)
       .then(function (cursor) {
         return cursor.all();
       });
   },
   readDitsOfUser: function (user, relations) {
-    var relIsArray = Object.prototype.toString.call( relations ) === '[object Array]';
+    var relIsArray = Array.isArray(relations);
     var query = relIsArray 
-    ? 'FOR u IN users FILTER u.username == @username ' +
-      'FOR ud IN memberOf FILTER ud._from == u._id && ud.relation IN @rels ' +
-      'FOR d IN dits FILTER d._id == ud._to ' +
-      'RETURN {dit: d, relation: ud.relation}'
-    
-    : 'FOR u IN users FILTER u.username == @username ' +
-      'FOR ud IN memberOf FILTER ud._from == u._id ' +
-      'FOR d IN dits FILTER d._id == ud._to ' +
-      'RETURN {dit: d, relation: ud.relation}';
-    var params = relIsArray ? {username: user.username, rels: relations} : {username: user.username};
+      ? 'FOR u IN users FILTER u.username == @username ' +
+        'FOR ud IN memberOf FILTER ud._from == u._id && ud.relation IN @rels ' +
+        'FOR d IN dits FILTER d._id == ud._to ' +
+        'RETURN {dit: d, relation: ud.relation}'
+      
+      : 'FOR u IN users FILTER u.username == @username ' +
+        'FOR ud IN memberOf FILTER ud._from == u._id ' +
+        'FOR d IN dits FILTER d._id == ud._to ' +
+        'RETURN {dit: d, relation: ud.relation}';
+    var params = relIsArray
+      ? {username: user.username, rels: relations}
+      : {username: user.username};
     return db.query(query, params)
       .then(function (cursor) {
         return cursor.all();

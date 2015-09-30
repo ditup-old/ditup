@@ -290,7 +290,8 @@ router.get(['/:url/people', '/:url/members', '/:url/users'], function (req, res,
       }
 
       //process data
-      return database.readUsersOfDit({url: url});
+      if(rights.edit === true) return database.readUsersOfDit({url: url});
+      return database.readUsersOfDit({url: url}, ['member', 'admin']);
     })
     .then(function (_users) {
       
