@@ -7,8 +7,8 @@ up - start it up
 
 ## development
 
-If you're looking for older (unfinished & abandoned) version written in PHP, look into https://github.com/ditup/ditup-php.
-There is also a version (unfinished & abandoned) using Mongodb for database
+old (unfinished & abandoned) version written in php: https://github.com/ditup/ditup-php
+old (unfinished & abandoned) version using mongodb: https://github.com/ditup/ditup-node-mongodb
 
 ### technology
 * server: nodejs
