@@ -75,7 +75,9 @@ user.settings = function (user) {
     username: user.username,
     settings: {
       view: settings.view || 'all'
-    }
+    },
+    email: user.email,
+    isEmailVerified: user.account.email.verified
   });
 };
 

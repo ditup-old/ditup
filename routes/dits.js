@@ -80,7 +80,7 @@ router.post('/create', function (req, res, next) {
       },
       created: Date.now(),
       settings: {
-        view: 'members' //(all, members, admins)
+        view: 'all' //(all, members, admins)
       }
     };
 
