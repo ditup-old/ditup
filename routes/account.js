@@ -26,7 +26,7 @@ router.get('/verify-email/:username/:code', function (req, res, next) {
 router.get('/reset-password', function (req, res, next) {
   //form to provide username or email of account to reset password
   var sessUser = req.session.user;
-  return res.render('account/reset-password', {session: sessUser});
+  return res.render('account/request-reset-password', {session: sessUser});
 });
 
 router.post('/reset-password', function (req, res, next) {
@@ -65,16 +65,61 @@ router.post('/reset-password', function (req, res, next) {
 router.all('/reset-password/:username/:code', function (req, res, next) {
   //we check validity of the link and on valid, next(), otherwise next(err);
   //validity: not expired (30 minutes?) & username-code match
+  var username = req.params.username;
+  var code = req.params.code;
+  var validUsername = validate.user.username(username);
+  var validCode = validate.user.code(code);
+  return Promise.all([validUsername, validCode])
+    .then(function (_resp) {
+      if(_resp[0] !== true || _resp[1] !== true) throw new Error('provided url is not valid');
+      return accountModule.isResetPasswordCodeValid({username: username, code: code});
+      //return true;
+    })
+    .then(function (isValid) {
+      if(isValid === true) return next();
+      var err = new Error('invalid username/code (wrong or expired)');
+      return next(err);
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
 });
 
 router.get('/reset-password/:username/:code', function (req, res, next) {
+  var sessUser = req.session.user;
+  return res.render('account/reset-password', {errors: {}, session: sessUser});
   //validity of the link was already checked.
   //we show form for resetting password (add new password twice)
 });
 
 router.post('/reset-password/:username/:code', function (req, res, next) {
   //validity of the link was already checked.
-  //we validate and save the new password. maybe login.
+  //we validate and save the new password. maybe log in.
+  var sessUser = req.session.user;
+  var username = req.params.username;
+  var password = req.body.password;
+  var password2 = req.body.password2;
+  
+  var errors = {};
+  return Promise.resolve(validate.user.passwords([password, password2], errors))
+    .then(function (valid) {
+      if(valid === true) return validBranch();
+      return invalidBranch();
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
+
+  function validBranch() {
+    return accountModule.updatePassword({username: username, password: password})
+      .then(function () {
+        return res.render('sysinfo', {msg: 'password was successfully changed. Try to log in.', session: sessUser});
+      });
+  }
+
+  function invalidBranch() {
+    return res.render('account/reset-password', {errors: errors, session: sessUser});
+  }
 });
 
 //continue only for logged in users

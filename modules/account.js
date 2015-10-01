@@ -14,6 +14,8 @@ var mailer = require('../services/mailer/mailer');
 
 const ITERATIONS = accountConfig.password.iterations;
 
+var badInput = new Error('incorrect function input');
+
 
 var exports = module.exports = {};
 
@@ -165,4 +167,77 @@ exports.initResetPassword = function (user) {
     });
 };
 
-exports.check
+exports.isResetPasswordCodeValid = function (data) {
+  if(data.hasOwnProperty('username') !== true || data.hasOwnProperty('code') !== true) throw badInput;
+  //{username: username, code: code}
+  var username = data.username;
+  var code = data.code;
+
+  var hash, salt, iterations, createDate;
+  
+  //first read user from database (async)
+  return database.readUser({username: username})
+    .then(function (user) {
+
+      //if reset_password is not there, throw not initialised error
+      let notThere = !user.account.hasOwnProperty('reset_password') ||
+        !user.account.reset_password ||
+        !user.account.reset_password.hash ||
+        !user.account.reset_password.salt ||
+        !user.account.reset_password.iterations ||
+        !user.account.reset_password.create_date;
+
+      if(notThere) throw new Error('reset is not initialised');
+
+      hash = user.account.reset_password.hash;
+      salt = user.account.reset_password.salt;
+      iterations = user.account.reset_password.iterations;
+      createDate = user.account.reset_password.create_date;
+      
+      //check that create_date of code is not older than 30 minutes
+      var isExpired = Date.now() - createDate > 1800*1000;
+      if(isExpired) throw new Error('code is expired');
+
+      //hash verification code (async)
+      return accountService.hashPassword(code, salt, iterations);
+    })
+    .then(function (hash2) {
+      //compare hash codes
+      var areHashesEqual = accountService.compareHashes(hash, hash2);
+      if(areHashesEqual !== true) throw new Error('code is wrong');
+      //
+      return true;
+    });
+};
+
+exports.updatePassword = function (data) {
+  if(!data.hasOwnProperty('username') || !data.hasOwnProperty('password')) throw badInput;
+  var username = data.username;
+  var password = data.password;
+  var salt;
+  var hash;
+
+  //generate salt for password hash
+  return accountService.generateSalt()
+    .then(function (_salt) {
+      salt = _salt;
+
+      //generate hash
+      return accountService.hashPassword(password, salt, ITERATIONS);
+    })
+    .then(function (_hash) {
+      hash = _hash;
+
+      //this user should be saved to database
+      var login = {
+        salt: salt,
+        hash: hash,
+        iterations: ITERATIONS
+      };
+
+      var user = {username: username};
+      
+      //save new user to database
+      return database.updateUserPassword(user, login);
+    });
+};

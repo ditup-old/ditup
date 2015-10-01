@@ -174,6 +174,32 @@ module.exports = {
 
     return db.query(query, params);
   },
+  /**
+   * @param {Object} user
+   * @param {Object} data
+   */
+  updateUserPassword: function (user, login) {
+    
+    var query = 'FOR u IN users FILTER u.username == @username ' +
+      'UPDATE u WITH @data IN users';
+
+    var passData = {
+      account:{
+        reset_password: null
+      },
+      login: {
+        salt: login.salt,
+        hash: login.hash,
+        iterations: login.iterations
+      }
+    };
+    var params = {
+      data: passData,
+      username: user.username
+    };
+
+    return db.query(query, params);
+  },
   ////D
   deleteUser: function (user) {
     return db.query('FOR x IN users FILTER x.username == @username REMOVE x IN users', {username: user.username});

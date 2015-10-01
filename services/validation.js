@@ -17,7 +17,6 @@ var user = exports.user = {};
 var dit = exports.dit = {};
 var tag = exports.tag = {};
 
-
 /**
  * Validates username against regex && length.
  * @alias user.username
@@ -122,7 +121,7 @@ exports.user.password = function (password, errors) {
 
 /**
  * Check whether two passwords match.
- * @param {Array.<string>} passwords Two strings provided.
+ * @param {Array.<string>} passwords Array of two strings
  * @param {Array.<string>} [errors=[]] Array which will be filled with errors.
  * @param {Object} [values={}] Object which will be given validated value.
  * @returns {boolean} passwords[0] === passwords [1]
@@ -130,10 +129,31 @@ exports.user.password = function (password, errors) {
 user.passwordMatch = function (passwords, errors, values) {
   var values = values || {};
   var errors = errors || [];
+  if(!Array.isArray(passwords) || passwords.length !== 2) throw new Error('invalid function parameters');
   if(passwords[0] === passwords[1]) return true;
 
   errors.push('passwords don\'t match');
   return false;
+};
+
+/**
+ * @param {Array.<string>} passwords Array of two strings.
+ * @param {Object} [errors={}] Object which will be filled with errors.
+ * @param {Object} [values={}] Object which will be given validated value.
+ * @returns {boolean}
+ */
+user.passwords = function (passwords, errors, values) {
+  var values = values || {};
+  var errors = errors || {};
+  if(!Array.isArray(passwords) || passwords.length !== 2) throw new Error('invalid function parameters');
+
+  errors.password = errors.password || [];
+  errors.password2 = errors.password2 || [];
+
+  var validRegex = this.password(passwords[0], errors.password);
+  var validMatch = this.passwordMatch(passwords, errors.password2);
+
+  return (validRegex && validMatch) ? true : false;
 };
 
 /**
@@ -306,6 +326,23 @@ user.view = function (view, errors, values) {
  * @returns {boolean}
  */
 exports.user.settings = valiterate(['view']);
+
+exports.user.code = function (code, errors, values) {
+  var errors = errors || [];
+  var values = values || {};
+  values.code = code;
+
+  //validate url 
+  var valid = true;
+  var regex = /^(?=.{32}$)[a-f0-9]*$/;
+
+  if (!regex.test(code)) {
+    errors.push('wrong code format');
+    valid = false;
+  }
+
+  return valid;
+};
 
 dit.url = function (url, errors, values) {
   var errors = errors || [];
