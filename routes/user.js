@@ -1,9 +1,6 @@
 'use strict';
 
-var Q = require('q');
-var util = require('util');
 var fs = require('fs');
-//var formidable = require('formidable');
 var multer = require('multer');
 var express = require('express');
 var router = express.Router();
@@ -246,7 +243,7 @@ router.post('/:username/settings', function (req, res, next) {
   var errors = {};
   var values = {};
 
-  return Q.resolve(validate.user.settings(form, errors, values))
+  return Promise.resolve(validate.user.settings(form, errors, values))
     .then(function (isValid) {
       if(isValid === true) return validBranch();
       else return invalidBranch();
@@ -299,9 +296,7 @@ router.post('/:username/upload-avatar', upload.single('avatar'), function (req, 
   var sessUser = req.session.user;
   var username = req.params.username;
   if (sessUser.username !== username) throw new Error('this should never happen. already checked that they\'re similar');
-  //res.end(util.inspect(req.file));
   if (req.file === undefined) throw new Error('file too big or other error');
-  //res.end(util.inspect(req.file));
 
   var tempPath = req.file.path;
 
@@ -313,44 +308,6 @@ router.post('/:username/upload-avatar', upload.single('avatar'), function (req, 
       console.log(err);
       return next(err);
     });
-
-
-
-
-  //var form = new formidable.IncomingForm();
-
-  //form.encoding = 'utf-8';
-
-  //form.keepExtensions = false; // if you want to store files with extensions
-  //form.multiples = false; // if you allow to upload multiple files
-  //form.maxFileSize = 2 * 1024 * 1024; //  maximum file size
-
-  //form.parse(req
-  /*, function(err, fields, files) {
-    res.writeHead(200, {'content-type': 'text/plain'});
-    res.write('received upload: \n\n');
-    res.end(util.inspect({fields: fields, files: files}));
-  //}*///);
-/*
-  form.on('progress', function(bytesReceived, bytesExpected) {
-    var percent = Math.floor(bytesReceived/bytesExpected*100);
-    console.log('finished', percent, '%');
-  });
-
-  form.on('end', function (){
-    console.log('end');
-    var temp_path = this.openedFiles[0].path;
-    //res.end(util.inspect(this));
-    return image.avatar.create(temp_path, username)
-      .then(function (){
-        return res.redirect('/user/' + username + '/edit');
-      })
-      .then(null, function (err) {
-        console.log(err);
-        return next(err);
-      });
-  });
-*/
 });
 
 module.exports = router;

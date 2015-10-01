@@ -37,7 +37,7 @@ router.post('/', function(req, res, next){
 
   //first let's validate data from the form
   var errors = {};            
-  var valid = validate.signup.all(formData, errors);
+  var valid = validate.user.signup(formData, errors);
    
   //console.log(valid, errors, 'post signup');
   //now let's check if username and email are unique

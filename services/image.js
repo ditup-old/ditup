@@ -10,6 +10,11 @@ var pul = Q.denodeify(fs.unlink); //promisifying fs.unlink function (pul = promi
 var exports = module.exports = {};
 var avatar = exports.avatar = {};
 
+/**
+ * @param {string|Buffer} input Path to image or image Buffer.
+ * @param {string} username
+ *
+ */
 avatar.create = function (input, username) {
   var avatarOutput = __dirname + '/../files/img/avatars/' + username + '.jpg';
   var response;
@@ -27,6 +32,10 @@ avatar.create = function (input, username) {
     })
     .then(function () {
       return response;
+    })
+    .then(null, function (err) {
+      pul(input);
+      throw err;
     });
 };
 

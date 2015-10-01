@@ -1,31 +1,57 @@
 'use strict';
 
+/**
+ * Validation module.
+ * @module validation
+ * @namespace validation
+ */
+
 //this service strictly validates form of the fields. no database access.
+/**
+ * Object user containing methods
+ * @memberof validation
+ * @type {Object}
+ * @property {method} username
+ */
+exports.user = {};
+exports.dit = {};
+exports.tag = {};
 
-var signup = {};
-var user = {};
-var dit = {};
-var tag = {};
 
-module.exports = {
-  signup : signup,
-  user: user,
-  dit: dit,
-  tag: tag
-};
-
-signup.username = function (username, errors) {
+/**
+ * Validates username against regex && length.
+ * @alias user.username
+ * @memberof! validation#
+ * @method user.username
+ * @param {string} username
+ * @param {Array.<string>} [errors=[]] Array to push string errors to.
+ * @param {Object[]} data
+ * @param {string} data.name
+ * @param {string} data.email
+ * @param {Array.<{name:string, email:string}>} data3
+ * @returns {boolean}
+ */
+exports.user.username = function (username, errors) {
   var errors = errors || [];
   //username regex
   var usernameRegex = /^(?=.{2,32}$)[a-z0-9]+([_\-\.][a-z0-9]+)*$/;
 
   if(usernameRegex.test(username) === true) return true;
 
-  errors.push('username must be 2-32 characters long and contain only a-z, 0-9, _, -');
+  errors.push('username must be 2-32 characters long and contain only a-z, 0-9, _, -, .');
   return false;
 };
 
-signup.email = function (email, errors) {
+/**
+ * Validates email against regex
+ * @alias user.email
+ * @memberof! validation#
+ * @method user.email
+ * @param {string} email
+ * @param {Array.<string>} [errors=[]] Array to push string errors to.
+ * @returns {boolean}
+ */
+user.email = function (email, errors) {
   var errors = errors || [];
   //username regex
   var regex = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
@@ -36,7 +62,16 @@ signup.email = function (email, errors) {
   return false;
 };
 
-user.name = signup.name = function (name, errors, values) {
+/**
+ * Validates name against length
+ * @alias user.name
+ * @memberof! validation#
+ * @method user.name
+ * @param {string} name
+ * @param {Array.<string>} [errors=[]] Array to push string errors to.
+ * @returns {boolean}
+ */
+user.name = function (name, errors, values) {
   var errors = errors || [];
   var values = values || {};
   //name, surname max 128 characters long
@@ -47,7 +82,13 @@ user.name = signup.name = function (name, errors, values) {
   return false;
 };
 
-user.surname = signup.surname = function (surname, errors, values) {
+/**
+ * Validates surname against regex && length
+ * @param {string} surname
+ * @param {Array.<string>} [errors=[]] Array to push string errors to.
+ * @returns {boolean}
+ */
+user.surname = function (surname, errors, values) {
   var errors = errors || [];
   var values = values || {};
   values.surname = surname;
@@ -57,7 +98,13 @@ user.surname = signup.surname = function (surname, errors, values) {
   return false;
 };
 
-signup.password = function (password, errors) {
+/**
+ * Validates password against length
+ * @param {string} password
+ * @param {Array.<string>} [errors=[]] Array to push string errors to.
+ * @returns {boolean}
+ */
+user.password = function (password, errors) {
   var errors = errors || [];
   /*
   //password regex
@@ -73,15 +120,47 @@ signup.password = function (password, errors) {
   return false;
 };
 
-signup.passwordMatch = function (password, password2, errors) {
+/**
+ * Check whether two passwords match.
+ * @param {Array.<string>} passwords Two strings provided.
+ * @param {Array.<string>} [errors=[]] Array which will be filled with errors.
+ * @param {Object} [values={}] Object which will be given validated value.
+ * @returns {boolean} passwords[0] === passwords [1]
+ */
+user.passwordMatch = function (passwords, errors, values) {
+  var values = values || {};
   var errors = errors || [];
-  if(password === password2) return true;
+  if(passwords[0] === passwords[1]) return true;
 
   errors.push('passwords don\'t match');
   return false;
 };
 
-signup.all = function (form, errors) {
+/**
+ * Validate signup form data (username, email, password, passwords matching).
+ * @param {Object} data
+ * @param {string} data.username
+ * @param {string} data.email
+ * @param {string} data.password
+ * @param {string} data.password2
+ * @param {Object} [errors={}] Object which will be filled with arrays of errors for each field.
+ * @param {Object} [values={}] Object which will be given validated value.
+ * @returns {boolean}
+ */
+user.signup = function (data, errors, values) {
+  var errors = errors || {};
+  var values = values || {};
+  errors.password2 = errors.password2 || [];
+  var singles = valiterate(['username', 'email', 'password']).call(this, data, errors, values);
+
+  var password = this.passwordMatch.call(this, [data.password, data.password2], errors.password2, values);
+
+  return singles && password;
+};
+
+
+/*
+function (form, errors) {
   var errors = errors || {}
   var valid = true;
 
@@ -107,7 +186,15 @@ signup.all = function (form, errors) {
 
   return valid;
 };
+*/
 
+/**
+ * Check whether birthday matches required regex.
+ * @param {string} birthday
+ * @param {Array.<string>} [errors=[]] Array which will be filled with errors.
+ * @param {Object} [values={}] Object which will be given validated birthday:value.
+ * @returns {boolean}
+ */
 user.birthday = function (birthday, errors, values) {
   var errors = errors || [];
   var values = values || {};
@@ -123,6 +210,13 @@ user.birthday = function (birthday, errors, values) {
   return true;
 };
 
+/**
+ * Check whether gender is contained in Array of possible values: ['unspecified', 'male', 'female', 'other'].
+ * @param {string} gender
+ * @param {Array.<string>} [errors=[]] Array which will be filled with errors.
+ * @param {Object} [values={}] Object which will be given validated gender:value.
+ * @returns {boolean}
+ */
 user.gender = function (gender, errors, values) {
   var errors = errors || [];
   var values = values || {};
@@ -140,6 +234,13 @@ user.gender = function (gender, errors, values) {
   return valid;
 };
 
+/**
+ * Check whether about length does not exceed 16384 characters
+ * @param {string} about
+ * @param {Array.<string>} [errors=[]] Array which will be filled with errors.
+ * @param {Object} [values={}] Object which will be given validated about:value.
+ * @returns {boolean}
+ */
 user.about = dit.about = function (about, errors, values) {
   var errors = errors || [];
   var values = values || {};
@@ -153,23 +254,30 @@ user.about = dit.about = function (about, errors, values) {
   return true;
 };
 
-user.profile = function (profileData, errors, values) {
-  var errors = errors || {};
-  var values = values || {};
-  //birthday, name, surname, gender, about
+/**
+ * @function
+ * Validate user profile data (name, surname, gender, birthday, about).
+ * @param {Object} data
+ * @param {string} data.name
+ * @param {string} data.surname
+ * @param {string} data.gender
+ * @param {string} data.birthday
+ * @param {string} data.about
+ * @param {Object} [errors={}] Object which will be filled with arrays of errors for each field.
+ * @param {Object} [values={}] Object which will be given validated value.
+ * @returns {boolean}
+ */
+user.profile = valiterate(['name', 'surname', 'gender', 'birthday', 'about']);
 
-  var fields = ['name', 'surname', 'gender', 'birthday', 'about'];
-  
-  var valid = true;
-  for(var i = 0, len = fields.length; i<len; i++){
-    var field = fields[i];
-    errors[field] = errors[field] || [];
-    valid = user[field](profileData[field], errors[field], values) && valid;
-  }
-  
-  return valid;
-};
-
+/**
+ * Check whether view (settings) is contained in Array of possible values: ['all', 'me'].
+ * @function user/view
+ * 
+ * @param {string} view
+ * @param {Array.<string>} [errors=[]] Array which will be filled with errors.
+ * @param {Object} [values={}] Object which will be given validated view:value.
+ * @returns {boolean}
+ */
 user.view = function (view, errors, values) {
   var errors = errors || [];
   var values = values || {};
@@ -188,7 +296,16 @@ user.view = function (view, errors, values) {
   return valid;
 };
 
-user.settings = valiterate(['view']);
+/**
+ * Validate user settings data (view).
+ * @function user/settings
+ * @param {Object} data
+ * @param {string} data.view
+ * @param {Object} [errors={}] Object which will be filled with arrays of errors for each field.
+ * @param {Object} [values={}] Object which will be given validated value.
+ * @returns {boolean}
+ */
+exports.user.settings = valiterate(['view']);
 
 dit.url = function (url, errors, values) {
   var errors = errors || [];
@@ -347,8 +464,8 @@ function valiterate(fields) {
     //url, dittype, name, summary
 
     var valid = true;
-    for(var i = 0, len = fields.length; i<len; i++){
-      var field = fields[i];
+
+    for(let field of fields){
       errors[field] = errors[field] || [];
       valid = this[field](data[field], errors[field], values) && valid;
     }
