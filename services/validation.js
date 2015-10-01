@@ -13,9 +13,9 @@
  * @type {Object}
  * @property {method} username
  */
-exports.user = {};
-exports.dit = {};
-exports.tag = {};
+var user = exports.user = {};
+var dit = exports.dit = {};
+var tag = exports.tag = {};
 
 
 /**
@@ -51,7 +51,7 @@ exports.user.username = function (username, errors) {
  * @param {Array.<string>} [errors=[]] Array to push string errors to.
  * @returns {boolean}
  */
-user.email = function (email, errors) {
+exports.user.email = function (email, errors) {
   var errors = errors || [];
   //username regex
   var regex = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
@@ -71,7 +71,7 @@ user.email = function (email, errors) {
  * @param {Array.<string>} [errors=[]] Array to push string errors to.
  * @returns {boolean}
  */
-user.name = function (name, errors, values) {
+exports.user.name = function (name, errors, values) {
   var errors = errors || [];
   var values = values || {};
   //name, surname max 128 characters long
@@ -88,7 +88,7 @@ user.name = function (name, errors, values) {
  * @param {Array.<string>} [errors=[]] Array to push string errors to.
  * @returns {boolean}
  */
-user.surname = function (surname, errors, values) {
+exports.user.surname = function (surname, errors, values) {
   var errors = errors || [];
   var values = values || {};
   values.surname = surname;
@@ -104,7 +104,7 @@ user.surname = function (surname, errors, values) {
  * @param {Array.<string>} [errors=[]] Array to push string errors to.
  * @returns {boolean}
  */
-user.password = function (password, errors) {
+exports.user.password = function (password, errors) {
   var errors = errors || [];
   /*
   //password regex

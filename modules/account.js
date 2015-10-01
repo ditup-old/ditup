@@ -3,7 +3,7 @@
 /** this module serves as wrapper to provide higher-level account functions
   * it can contain functions like: verifying new email, resetting passwords etc.
   *
-  *
+  * @module modules/account
   */
 
 var validate = require('../services/validation');
@@ -12,11 +12,22 @@ var accountService = require('../services/account');
 var accountConfig = require('../config/user/account.json');
 var mailer = require('../services/mailer/mailer');
 
-var ITERATIONS = accountConfig.password.iterations;
+const ITERATIONS = accountConfig.password.iterations;
 
 
 var exports = module.exports = {};
 
+/**
+ * This function will:
+ *  create code, salt and hash for email verification
+ *  save new email, salt and hash to database and set verified to false
+ *  send verification email with url https://ditup.org/account/verify-email/:username/:code
+ *
+ * @param {Object} data
+ * @param {string} data.username
+ * @param {string} data.email
+ * @returns {Promise}
+ */
 exports.initEmailVerification = function (data) {
   var username = data.username;
   var email = data.email;
@@ -54,12 +65,24 @@ exports.initEmailVerification = function (data) {
       var mailerData = {
         username: username,
         email: email,
-        url: 'http://ditup.org/account/verify-email/'+username+'/'+code //TODO https!!!
+        url: 'https://ditup.org/account/verify-email/'+username+'/'+code
       };
       return mailer.send.verifyEmail(mailerData);
     });
 };
 
+/**
+ * This function will
+ *  check if email is not yet verified
+ *  check if code is not expired (not older than 2 hours)
+ *  check if code is correct
+ *  and if all above is true, will verify email in database (verified = true, hex & salt & iterations = null, set verify_date)
+ *
+ * @param {Object} data
+ * @param {string} data.username
+ * @param {string} data.code
+ * @returns {Promise}
+ */
 exports.verifyEmail = function (data) {
   var username = data.username;
   var code = data.code;
@@ -92,3 +115,54 @@ exports.verifyEmail = function (data) {
       return database.updateUserEmailVerified({username: username}, {verified: true, verifyDate: Date.now()});
     });
 };
+
+/**
+ * This function will:
+ *  create code, salt and hash for resetting password
+ *  save salt, hash and creation time to database and set verified to false
+ *  send reset-password email with url https://ditup.org/account/reset-password/:username/:code
+ * @param {Object} user
+ * @param {string} user.username
+ * @param {string} user.email
+ * @returns {Promise}
+ */
+exports.initResetPassword = function (user) {
+  var username = user.username;
+  var email = user.email;
+  //create verification code, salt & hash
+
+  var code;
+  var salt;
+  var hash;
+
+  return Promise.all([accountService.generateHexCode(16), accountService.generateSalt()])
+    .then(function (_ret){
+      code = _ret[0];
+      salt = _ret[1];
+      return accountService.hashPassword(code, salt, ITERATIONS);
+    })
+    .then(function (_hash) {
+      hash = _hash;
+
+      var data = {
+        create_date: Date.now(),
+        hash: hash,
+        salt: salt,
+        iterations: ITERATIONS
+      };
+      var user = {
+        username: username,
+      };
+      return database.updateUserResetPasswordCode(user, data);
+    })
+    .then(function sendEmail() {
+      var mailerData = {
+        username: username,
+        email: email,
+        url: 'https://ditup.org/account/reset-password/'+username+'/'+code
+      };
+      return mailer.send.resetPassword(mailerData);
+    });
+};
+
+exports.check

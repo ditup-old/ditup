@@ -18,8 +18,31 @@ module.exports = {
   },
 
   ////R
+  /**
+   * Reads user from arangodb by username (default) or email
+   * @param {Object} user
+   * @param {string} [user.username] either username or email is required
+   * @param {string} [user.email]
+   * @returns {Object|null} 
+   */
   readUser: function (user) {
-    return db.query('FOR x IN users FILTER x.username == @username RETURN x', {username: user.username})
+    var isUsername;
+    if(user.hasOwnProperty('username')){
+      isUsername = true;
+    }
+    else if(user.hasOwnProperty('email')){
+      isUsername = false;
+    }
+    else throw new Error('user.username or user.email must be provided');
+    
+    var query = isUsername
+      ? 'FOR u IN users FILTER u.username == @username RETURN u'
+      : 'FOR u IN users FILTER u.email == @email RETURN u';
+    var params = isUsername
+      ? {username: user.username}
+      : {email: user.email};
+
+    return db.query(query, params)
       .then(function (cursor) {
         return cursor.all();
       })
@@ -129,6 +152,27 @@ module.exports = {
       create_date: null
     };
     return db.query(query, {username: user.username, data: email});
+  },
+  /**
+   * @param {Object} user
+   * @param {Object} data
+   */
+  updateUserResetPasswordCode: function (user, data) {
+    
+    var query = 'FOR u IN users FILTER u.username == @username ' +
+      'UPDATE u WITH {account: {reset_password: @data}} IN users';
+    var resetData = {
+      create_date: data.create_date,
+      hash: data.hash,
+      salt: data.salt,
+      iterations: data.iterations
+    };
+    var params = {
+      data: resetData,
+      username: user.username
+    };
+
+    return db.query(query, params);
   },
   ////D
   deleteUser: function (user) {

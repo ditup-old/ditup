@@ -3,6 +3,8 @@
 var express = require('express');
 var router = express.Router();
 var accountModule = require('../modules/account');
+var validate = require('../services/validation');
+var database = require('../services/data');
 
 
 router.get('/verify-email/:username/:code', function (req, res, next) {
@@ -13,20 +15,51 @@ router.get('/verify-email/:username/:code', function (req, res, next) {
   var verifyData ={username: username, code: code};
   return accountModule.verifyEmail(verifyData)
     .then(function () {
-      res.render('sysinfo', {msg: 'verification successful', session: sessUser});
+      return res.render('sysinfo', {msg: 'verification successful', session: sessUser});
     })
     .then(null, function (err) {
       console.log(err.stack);
-      next(err);
+      return next(err);
     });
 });
 
 router.get('/reset-password', function (req, res, next) {
   //form to provide username or email of account to reset password
+  var sessUser = req.session.user;
+  return res.render('account/reset-password', {session: sessUser});
 });
 
 router.post('/reset-password', function (req, res, next) {
   //here we (check if email is verified) and if yes, we (create & save (hashed) code) and (send link for resetting password to email)
+  var sessUser = req.session.user;
+  var usernameEmail = req.body['username-email'];
+  
+  var isUsername = validate.user.username(usernameEmail);
+  var isEmail = validate.user.email(usernameEmail);
+  //check if input is username or email
+  var user;
+  return Promise.all([isUsername, isEmail])
+    .then(function (response) {
+      var _isUsername = response[0];
+      var _isEmail = response[1];
+      if(_isUsername) return database.readUser({username: usernameEmail});
+      if(_isEmail) return database.readUser({email: usernameEmail});
+      throw new Error ('not valid user nor email provided');
+    })
+    .then(function (_user){
+      user = _user;
+      if(user === null) throw new Error('user not found');
+      var isVerified = user.account.email.verified;
+      if(isVerified !== true) throw new Error('can\'t send email - is not verified. you can contact admins at this point.');
+      return accountModule.initResetPassword({username: user.username, email: user.email});
+    })
+    .then(function (resp) {
+      return res.render('sysinfo', {msg: 'email with reset code should arrive to your inbox soon', session: sessUser});
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
+
 });
 
 router.all('/reset-password/:username/:code', function (req, res, next) {

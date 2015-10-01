@@ -76,3 +76,29 @@ exports.send.verifyEmail = function (data) {
       return that.general(toSend);
     });
 };
+
+exports.send.resetPassword = function (data) {
+  var data = data || {};
+  data.email = data.to || data.email;
+  if(!data.email || !data.url || !data.username) return Q.reject(dataNotProvided);
+
+  var that = this;
+
+  var templateDir = path.join(__dirname, 'templates', 'reset-password');
+
+  var rep = new EmailTemplate(templateDir);
+  //var qvr = Q.denodeify(verify.render);
+
+  var renderData = { username: data.username, url: data.url };
+  return rep.render(renderData)
+    .then(function (result) {
+      var toSend = {
+        to: data.email,
+        subject: 'password reset for ditup.org',
+        html: result.html,
+        text: result.text
+      };
+
+      return that.general(toSend);
+    });
+};
