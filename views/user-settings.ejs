@@ -3,7 +3,10 @@ var css = [
   '/css/header.css',
   '/css/user-settings.css',
 ];
-var title = '*' + data.name ;
+var title = '@' + data.username + '::settings';
+
+
+var verifiedMail = data.isEmailVerified ? 'verified' : 'not verified';
 
 var headScripts = [];
 var scripts = [];
@@ -12,18 +15,59 @@ var scripts = [];
 <% include ./partial/header.ejs %>
 
 <style>
+#privacy-settings, #change-email, #change-password {
+  border: 10px solid #6ca6ca;
+}
+
+#delete-account {
+  border: 10px solid #ee4455;
+}
+
+#delete-account>.button{
+  background-color: #ee0022;
+}
+
 </style>
 <h1>Settings for user <%= data.username %></h1>
-<form method="post" >
-  <div>
-    <div>Who can view this user</div>
-    <select name="view">
-      <option value="all" <% if (data.settings.view === 'all') { %>selected <% } %>>everybody</option>
-      <option value="me" <% if (data.settings.view === 'me') { %>selected <% } %>>only me</option>
-    </select>
-    <span><%= errors.view %></span>
-  </div>
-  <input class="button" type="submit" name="submit" value="Update Settings" />
-  <div>TODO: deleting user, changing email, changing password (after providing password only)</div>
-</form>
+<div id="privacy-settings">
+  <form method="post" >
+    <div>
+      Who can view this user 
+      <select name="view">
+        <option value="all" <% if (data.settings.view === 'all') { %>selected <% } %>>everybody</option>
+        <option value="me" <% if (data.settings.view === 'me') { %>selected <% } %>>only me</option>
+      </select>
+      <span><%= errors.view %></span>
+    </div>
+    <input class="button" type="submit" value="Update Settings" />
+  </form>
+</div>
+<!--div>TODO: deleting user, changing email, changing password (after providing password only)</div-->
+<div id="change-email">
+  <h1>Change Email Address</h1>
+  <form method="post" action="/account/change-email" >
+    email address<br />
+    <input type="text" name="email" value="<%= data.email %>" /><%= errors.email %> <%= verifiedMail %><br />
+    password (changing sensitive data)<br />
+    <input type="password" name="password" placeholder="password" /><br />
+    <input class="button" type="submit" value="Change Email" />
+  </form>
+</div>
+<div id="change-password">
+  <h1>Change Password</h1>
+  <form method="post" action="/account/change-password" >
+    old password<br />
+    <input type="password" name="old-password" placeholder="password" /><br />
+    new password<br />
+    <input type="password" name="password" placeholder="password" /><br />
+    retype new password<br />
+    <input type="password" name="password2" placeholder="password" /><br />
+    <input class="button" type="submit" value="Change Password" />
+  </form>
+</div>
+<div>Danger</div>
+<div id="delete-account" >
+  <h1>Delete Account</h1>
+  <a href="/account/delete-user" class="button">Delete Account</a>
+</div>
 <% include ./partial/page-bottom.ejs %>
