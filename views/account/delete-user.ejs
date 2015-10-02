@@ -1,0 +1,49 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/delete-user.css',
+];
+var title = 'delete user @' + session.username;
+
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ../partial/page-top.ejs %>
+<% include ../partial/header.ejs %>
+
+<style>
+
+#delete-account {
+  border: 10px solid #ee4455;
+}
+
+#delete-button {
+  background-color: #ee0022;
+}
+
+span.username {
+  font-weight: bold;
+}
+
+</style>
+<h1>Account deletion of user <span class="username" ><%= session.username %></span></h1>
+<div id="delete-account" >
+  Warning: After filling your password, confirming by checking checkbox and clicking button "Delete my account" on this page, your account will be deleted.<br />
+  If you delete your account, all your personal data will be irreversibly lost. Your messages which belong to others will stay. Your public contributions (dits, tags, other work) will stay without reference to you.<br />
+  If you just want to be invisible or take a break, you can make your profile inactive or set it invisible (provide links).<br />
+  We will be glad if you tell us why you decided to leave.<br /><br />
+  You can write your feedback here (optional):
+
+  <form method="post" action="" >
+    <div><textarea name="feedback" placeholder="If you want, you can write your feedback here."></textarea></div>
+    <div>password (sensitive activity)</div>
+    <div><input type="password" name="password" placeholder="password" /></div>
+    <div><input type="checkbox" name="confirm" /> I understand. I know what I'm doing.</div>
+    <div>
+      <input id="delete-button" class="button" type="submit" value="Delete my account" />
+      <a href="/" class="button">Cancel</a>
+    </div>
+  </form>
+</div>
+<% include ../partial/page-bottom.ejs %>

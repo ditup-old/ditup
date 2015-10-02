@@ -202,11 +202,24 @@ router.post('/change-email', function (req, res, next) {
 router.get('/delete-user', function (req, res, next) {
   //warning about deleting all data and losing access to work.
   //give form for deleting user, ask for feedback why (optional)
+  var sessUser = req.session.user;
+  return res.render('account/delete-user', {session: sessUser});
 });
 
 router.post('/delete-user', function (req, res, next) {
   //we expect password of user and optionally feedback.
   //if password matches (if feedback is not empty, we save it) we delete user & her links, we log her out and say goodbye.
+
+  //validate checkbox, validate feedback, validate password
+  //
+  //check if password matches
+  //save feedback (with text, date, username and reference)
+  //delete user
+  //destroy session
+  //give information that user was successfuly deleted
+
+
+  return res.end(JSON.stringify(req.body));
 });
 
 module.exports = router;
