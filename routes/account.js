@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('util');
 var express = require('express');
 var router = express.Router();
 var accountModule = require('../modules/account');
@@ -133,12 +134,69 @@ router.all(['/change-password', '/change-email', '/delete-user'], function (req,
   return next();
 });
 
+//already logged in
 router.post('/change-password', function (req, res, next) {
-  //we expect old password and new password twice. if match of old and new is valid, we rewrite old with new (hashed)
+  //we expect old password and twice new password. if match of old and new is valid, we rewrite old with new (hashed)
+  var sessUser = req.session.user;
+  var oldPassword = req.body['old-password'];
+  var password = req.body.password;
+  var password2 = req.body.password2;
+
+  var inputValid = validate.user.password(oldPassword);
+
+  var errors = {};
+  return Promise.all([inputValid, validate.user.passwords([password, password2], errors)])
+    .then(function (valid) {
+      if(valid[0] && valid[1] === true) return validBranch();
+      return invalidBranch();
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
+
+  function validBranch() {
+    return accountModule.matchPassword({username: sessUser.username, password: oldPassword})
+      .then(function (res) {
+        if(res === true) return accountModule.updatePassword({username: sessUser.username, password: password});
+        throw new Error('wrong password');
+      })
+      .then(function () {
+        return res.render('sysinfo', {msg: 'password was successfully changed', session: sessUser});
+      });
+  }
+
+  function invalidBranch() {
+    return res.render('sysinfo', {msg: util.inspect(errors), session: sessUser});
+  }
 });
 
 router.post('/change-email', function (req, res, next) {
   //we expect email and password. if password match, we create email code, save email & hash to database & send verification email.
+  var sessUser = req.session.user;
+  var email = req.body.email;
+  var password = req.body.password;
+  
+  var errors = {email: []};
+  //validate data provided
+  var passValid = validate.user.password(password);
+  var emailValid = validate.user.email(email, errors);
+
+  var valid = passValid && emailValid;
+  if (valid !== true) throw new Error ('email or password is invalid (better UX!! TODO)');
+  
+  //check if password matches database
+  return accountModule.matchPassword({username: sessUser.username, password: password})
+    .then(function (match) {
+      //save new email and send verification link
+      if(match === true) return accountModule.initEmailVerification({username: sessUser.username, email: email});
+      throw new Error('wrong password');
+    })
+    .then(function (_resp) {
+      return res.render('sysinfo', {msg: 'email successfuly changed. message with verification link was sent to the address. it should arrive soon. please verify.', session: sessUser});
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
 });
 
 router.get('/delete-user', function (req, res, next) {

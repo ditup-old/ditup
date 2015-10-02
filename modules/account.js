@@ -241,3 +241,37 @@ exports.updatePassword = function (data) {
       return database.updateUserPassword(user, login);
     });
 };
+
+/**
+ * @param {Object} data
+ * @param {string} data.username
+ * @param {string} data.password
+ * @returns {Promise<boolean>}
+ */
+exports.matchPassword = function (data) {
+  if(!data.hasOwnProperty('username') || !data.hasOwnProperty('password')) throw badInput;
+
+  var username = data.username;
+  var password = data.password;
+  var hash, salt, iterations;
+
+  return database.readUser({username: username})
+    .then(function (user) {
+      console.log(user);
+      hash = user.login.hash;
+      salt = user.login.salt;
+      iterations = user.login.iterations;
+
+      //hash the provided password
+      return accountService.hashPassword(password, salt, iterations);
+    })
+    .then(function (hash2) {
+      //compare password hashes
+      var isPasswordCorrect = accountService.compareHashes(hash, hash2);
+      if(isPasswordCorrect === true) {
+        return true;
+      }
+
+      return false;
+    });
+};
