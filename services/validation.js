@@ -113,9 +113,9 @@ exports.user.password = function (password, errors) {
   errors.push('password must be at least 8 characters long and contain [a-zA-Z0-9] and some special character');
   return false;
   */
-  if(password.length >=6) return true;
+  if(password.length >=6 && password.length <= 512) return true;
   
-  errors.push('password must be at least 6 characters long');
+  errors.push('password must be 6 - 512 characters long');
   return false;
 };
 
