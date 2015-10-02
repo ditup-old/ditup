@@ -4,6 +4,7 @@ var express = require('express');
 var router = express.Router();
 var database = require('../services/data');
 var accountService = require('../services/account');
+var accountModule = require('../modules/account');
 
 router.all('*', function (req, res, next) {
   var sessUser = req.session.user;
@@ -24,30 +25,16 @@ router.post('/', function (req, res, next) {
   var sessUser = req.session.user;
   var username = req.body.username;
   var password = req.body.password;
-  var hash, salt, iterations;
-  database.readUser({username: username})
-    .then(function (user) {
-      console.log(user);
-      hash = user.login.hash;
-      salt = user.login.salt;
-      iterations = user.login.iterations;
-
-      //hash the provided password
-      return accountService.hashPassword(password, salt, iterations);
-    })
-    .then(function (hash2) {
-      console.log(hash2);
-      //compare password hashes
-      var isPasswordCorrect = accountService.compareHashes(hash, hash2);
-      if(isPasswordCorrect !== true) {
-        throw new Error('login not successful');      
-      }
-      else {
+      
+  return accountModule.matchPassword({username: username, password: password})
+    .then(function (match) {
+      if(match === true) {
         sessUser.logged = true;
         sessUser.username = username;
 
         return database.updateUserAccount({username: username}, {last_login: Date.now()});
       }
+      throw new Error('login not successful');
     })
     .then(function () {
       //console.log('redirect');
