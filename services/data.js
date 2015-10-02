@@ -202,7 +202,7 @@ module.exports = {
   },
   ////D
   deleteUser: function (user) {
-    return db.query('FOR x IN users FILTER x.username == @username REMOVE x IN users', {username: user.username});
+    return db.query('FOR u IN users FILTER u.username == @username REMOVE u IN users', {username: user.username});
   },
   //dit
   createDit: function (dit, creator) {
@@ -585,4 +585,51 @@ module.exports = {
         return ret;
       });
   }
+};
+
+module.exports.feedback = {};
+
+/**
+ * @param {Object} data
+ * @param {Object} data.from //user
+ * @param {string} data.from.username
+ * @param {boolean} [data.from.logged=false]
+ * @param {string} [data.context]
+ * @param {string} text
+ * @returns {Promise}
+ */
+module.exports.feedback.create = function (data) {
+  var logged = (data.from.logged === true) ? true : false;
+  var context = data.context || '';
+
+  var loggedQuery = `FOR u IN users FILTER u.username == @username
+    INSERT {
+      from: {
+        username: @username,
+        id: u._id
+      },
+      text: @text,
+      context: @context,
+      timestamp: @timestamp
+    } IN feedbacks`;
+
+  var nologQuery = `INSERT {
+      from: {
+        username: @username
+      },
+      text: @text,
+      context: @context,
+      timestamp: @timestamp
+    } IN feedbacks`;
+  
+  var query = logged === true ? loggedQuery : nologQuery;
+
+  var params = {
+    username: data.from.username,
+    context: context,
+    text: data.text,
+    timestamp: Date.now()
+  };
+
+  return db.query(query, params);
 };

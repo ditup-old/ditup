@@ -16,6 +16,7 @@
 var user = exports.user = {};
 var dit = exports.dit = {};
 var tag = exports.tag = {};
+var feedback = exports.feedback = {};
 
 /**
  * Validates username against regex && length.
@@ -177,36 +178,6 @@ user.signup = function (data, errors, values) {
 
   return singles && password;
 };
-
-
-/*
-function (form, errors) {
-  var errors = errors || {}
-  var valid = true;
-
-  //username
-  errors.username = errors.username || [];
-
-  valid = signup.username(form.username, errors.username) && valid;
-  //email
-  errors.email = errors.email || [];
-  valid = signup.email(form.email, errors.email) && valid;
-  //name
-//  errors.name = errors.name || [];
-  //valid = valid && signup.name(form.name, errors.name);
-  //surname
-//  errors.surname = errors.surname || [];
-  //valid = valid && signup.surname(form.surname, errors.surname);
-  //password
-  errors.password = errors.password || [];
-  valid = signup.password(form.password, errors.password) && valid;
-  //passwordMatch
-  errors.password2 = errors.password2 || [];
-  valid = signup.passwordMatch(form.password, form.password2, errors.password2) && valid;
-
-  return valid;
-};
-*/
 
 /**
  * Check whether birthday matches required regex.
@@ -492,6 +463,34 @@ tag.description = function (description, errors, values) {
 tag.edit = valiterate(['description']);
 
 tag.create = valiterate(['name', 'description']);
+
+/**
+ * Validates text of feedback (length <= 8192)
+ *
+ */
+exports.feedback.text = checkLength(1, 8192, 'feedback text must have 1 - 8192 characters');
+
+/**
+ * @param {number} min
+ * @param {number} max
+ * @param {string} [errorMessage]
+ * @returns {function}
+ */
+function checkLength(min, max, errorMessage) {
+  var errorMessage = errorMessage || 'string must be '+min+' to '+max+'characters long';
+  return function (str, errors, values, name) {
+    var errors = errors || [];
+
+    if(values && name) values[name] = str.substr(0, max);
+    
+    //validate about (0 - 16384 characters)
+    if (str.length > max || str.length < min) {
+      errors.push(errorMessage);
+      return false;
+    }
+    return true;
+  };
+}
 
 //function which iterates through specific fields for validation
 function valiterate(fields) {

@@ -217,9 +217,53 @@ router.post('/delete-user', function (req, res, next) {
   //delete user
   //destroy session
   //give information that user was successfuly deleted
+  var sessUser = req.session.user;
+  var password = req.body.password;
+  var checked = req.body['confirm'] === 'checked' ? true : false;
+  var feedback = req.body.feedback;
 
+  var passValid = validate.user.password(password);
+  var fbValid = validate.feedback.text(feedback);
 
-  return res.end(JSON.stringify(req.body));
+  if(passValid !== true) throw new Error('password invalid');
+  if(checked !== true) throw new Error('you must confirm your educated responsibility');
+
+  //check if password matches
+  return accountModule.matchPassword({username:sessUser.username, password: password})
+    .then(function (match) {
+      if(match === true) {
+        if(fbValid === true) {
+          //save feedback (with text, date, username and reference)
+          let user = {username: sessUser.username, logged: true};
+          let feedbackData = {
+            from: user,
+            context: 'user deletion',
+            text: feedback
+          };
+          return database.feedback.create(feedbackData)
+            .then(function () {
+              return true;
+            });
+        }
+        return false;
+      }
+      throw new Error('wrong password');
+    })
+    .then(function () {
+      //delete user
+      return accountModule.deleteUser({username: sessUser.username});
+    })
+    .then(function () {
+      var username = sessUser.username;
+      //log out
+      req.session.destroy();
+
+      var message = 'Dear ' + username + ', your account was successfuly deleted. Thank you for the time we spent together.' + (fbValid === true ? ' Thank you for your feedback.' : '');
+      return res.render('sysinfo', {msg: message, session: {logged: false, username: undefined}});
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
 });
 
 module.exports = router;

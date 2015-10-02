@@ -257,7 +257,6 @@ exports.matchPassword = function (data) {
 
   return database.readUser({username: username})
     .then(function (user) {
-      console.log(user);
       hash = user.login.hash;
       salt = user.login.salt;
       iterations = user.login.iterations;
@@ -274,4 +273,15 @@ exports.matchPassword = function (data) {
 
       return false;
     });
+};
+
+/**
+ * @params {Object} user
+ * @params {string} user.username
+ * @returns {Promise}
+ */
+exports.deleteUser = function (user) {
+  //more fancy and complicated deleting of user content, ideally in transaction
+
+  return database.deleteUser(user);
 };
