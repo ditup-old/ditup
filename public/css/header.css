@@ -20,14 +20,32 @@ body
   margin-top:40px;
 }
 
-.nav {
+ul.nav {
   height:100%;
+}
+
+ul.nav ul {
+  white-space: nowrap;
 }
 
 .nav>li {
   display:inline-block;
   height:100%;
-  vertical-align:middle;}
+  vertical-align:middle;
+  position: relative;
+}
+
+ul.right {
+  float:right;
+}
+
+ul.left {
+  float:left;
+}
+
+ul.nav.right ul {
+  right:0px;
+}
 
 .nav>li>a {
   display:inline-block;
@@ -117,6 +135,6 @@ span.span-image{
 }
 
 #search-form-header {
-    top: 7.5px;
+    top: -4px;
     position: relative;
 }

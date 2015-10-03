@@ -7,21 +7,36 @@ a {
   /*text-decoration: none;*/
 }
 
-a:hover {
+a:hover, .button:hover {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wYIBRYYbHc2fwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADUlEQVQI12NgYGDwAQAAUQBNbrgEdAAAAABJRU5ErkJggg==');
 }
 
 .button {
-  padding:15px 20px;
+  padding-top: 15px!important;
+  padding-right: 20px!important;
+  padding-bottom: 15px!important;
+  padding-left: 20px!important;
   margin:0px;
-  display:inline-block;
+  display:inline-block!important;
   color:white;
   text-decoration:none;
-  font-size:1.1em;
+  font-size:1.1em!important;
   background-color:#0c30c3;
-  border-width:0px;
+  border:none;
   cursor:pointer;
+  font-family: 'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
 }
+
+/*.button {
+  background:none!important;
+  border:none; 
+  padding:0!important;
+
+  font-family:arial,sans-serif;
+  color:#069;
+  text-decoration:underline;
+  cursor:pointer;
+}*/
 
 .tag {
   display:inline-block;
