@@ -52,11 +52,14 @@ module.exports = function (session) {
   //load routes to express
   var routes = require('./routes.json');
 
-  for(var i=0, len=routes.length; i<len; i++) {
-    var route = require("./routes/" + routes[i].router);
-    console.log('loaded', routes[i].url);
-    app.use(routes[i].url, route);
+  for(let route of routes) {
+    let router = require('./routes/' + route.router);
+    console.log('loaded', route.url);
+    app.use(route.url, router);
   }
+  
+  let various = require('./routes/various');
+  app.use(various);
 
   //app.use('/', home);
   //app.use('/signup', signup);
@@ -81,9 +84,17 @@ module.exports = function (session) {
     app.use(function(err, req, res, next) {
       res.status(err.status || 500);
       console.error(err, err.stack);
-      res.render('error', {
-        message: err.message,
-        error: err
+      res.format({
+        'text/html': function () {
+          res.render('error', {
+            message: err.message,
+            error: err
+          });
+        },
+        'application/json': function () {
+          err.status = err.status || 200;
+          res.status(err.status).send({error: err.message});
+        }
       });
     });
   }
@@ -92,9 +103,14 @@ module.exports = function (session) {
   // no stacktraces leaked to user
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: {}
+    res.format({
+      'text/html': function () {
+        res.render('error', {message: err.message, error: {}});
+      },
+      'application/json': function () {
+        err.status = err.status || 200;
+        res.status(err.status).send({error: err.message});
+      }
     });
   });
 

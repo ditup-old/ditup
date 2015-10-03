@@ -33,7 +33,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
 
   var source = function (request, response) {
     $.ajax({
-      url: '/ajax/search-tags',
+      url: '/search-tags',
       async: true,
       method: 'POST',
       data: {string: request.term},
@@ -73,7 +73,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
 
     //save tag to list of user tags
     $.ajax({
-      url: '/ajax/add-tag-to-dit',
+      url: '/add-tag-to-dit',
       async: true,
       method: 'POST',
       data: {name: name, url: url},
@@ -101,7 +101,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
         console.log(tagData.name);
         //remove tag of user from database
         $.ajax({
-          url: '/ajax/remove-tag-from-dit',
+          url: '/remove-tag-from-dit',
           async: true,
           method: 'POST',
           data: {tagname: tagData.name, url: url},
@@ -123,7 +123,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
 
   //show tags
   $.ajax({
-    url: '/ajax/read-tags-of-dit',
+    url: '/read-tags-of-dit',
     async: true,
     method: 'POST',
     data: {url: url},

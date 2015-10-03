@@ -33,7 +33,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
 
   var source = function (request, response) {
     $.ajax({
-      url: '/ajax/search-tags',
+      url: '/search-tags',
       async: true,
       method: 'POST',
       data: {string: request.term},
@@ -73,7 +73,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
 
     //save tag to list of user tags
     $.ajax({
-      url: '/ajax/add-tag',
+      url: '/add-tag',
       async: true,
       method: 'POST',
       data: {name: name},
@@ -102,7 +102,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
         console.log(tagData.name);
         //remove tag of user from database
         $.ajax({
-          url: '/ajax/remove-tag',
+          url: '/remove-tag',
           async: true,
           method: 'POST',
           data: {name: tagData.name},
@@ -124,7 +124,7 @@ require(['tags/Tag', 'jquery', 'jqueryui'], function (Tag, $) {
 
   //show tags
   $.ajax({
-    url: '/ajax/read-tags-of-user',
+    url: '/read-tags-of-user',
     async: true,
     method: 'POST',
     data: {username: username}, //just for testing purposes! how to get username?

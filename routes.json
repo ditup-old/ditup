@@ -1,6 +1,5 @@
 [
   {"url":"/", "router":"home"},
-  {"url":"/ajax", "router":"ajax"},
   {"url":"/account", "router":"account"},
   {"url":"/login", "router":"login"},
   {"url":"/signup", "router":"signup"},

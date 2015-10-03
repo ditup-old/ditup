@@ -40,7 +40,7 @@ require(['jquery', 'jqueryui'], function ($) {
 
   var source = function (request, response) {
     $.ajax({
-      url: '/ajax/search-users',
+      url: '/search-users',
       async: true,
       method: 'POST',
       data: {string: request.term},
@@ -71,7 +71,7 @@ require(['jquery', 'jqueryui'], function ($) {
 
   function inviteUser(username) {
     $.ajax({
-      url: '/ajax/invite-user-to-dit',
+      url: '/invite-user-to-dit',
       async: true,
       method: 'POST',
       data: {username: username, url: url},

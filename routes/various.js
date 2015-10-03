@@ -34,7 +34,10 @@ router.post(['/dit/:url/invite-user', '/invite-user-to-dit'], function (req, res
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      res.format({
+        'text/html': function () {res.render('sysinfo', {msg: 'user ' + username + ' successfully invited', session: sessUser});},
+        'application/json': function () {res.send({success: true});}
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -59,7 +62,14 @@ router.post(['/dit/:url/invite-user/cancel', '/invite-user-to-dit/cancel'], func
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'invitation of user ' + username + ' successfully canceled', session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -83,7 +93,14 @@ router.post(['/dit/:url/accept-user', '/accept-user-to-dit'], function (req, res
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'user ' + username + ' accepted to ' + url, session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -107,7 +124,14 @@ router.post(['/dit/:url/not-accept-user', '/not-accept-user-to-dit'], function (
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      return res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'user ' + username + ' not accepted to ' + url, session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -130,7 +154,14 @@ router.post(['/dit/:url/join', '/join-dit'], function (req, res, next) {
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      return res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'joined ' + url, session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -146,7 +177,14 @@ router.post(['/dit/:url/join/cancel', '/join-dit/cancel'], function (req, res, n
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      return res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'joining ' + url + ' canceled', session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -162,7 +200,14 @@ router.post(['/dit/:url/accept-invitation', '/accept-invitation-to-dit'], functi
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      return res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'you have become a member of ' + url, session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -178,7 +223,14 @@ router.post(['/dit/:url/not-accept-invitation, /not-accept-invitation-to-dit'], 
     .then(function (response) {
       console.log(response);
       //TODO response analysis
-      return res.send({success: true});
+      return res.format({
+        'text/html': function () {
+          res.render('sysinfo', {msg: 'successfuly refused invitation to ' + url, session: sessUser});
+        },
+        'application/json': function () {
+          res.send({success: true});
+        }
+      });
     })
     .then(null, function (err) {
       next(err);
@@ -190,7 +242,14 @@ router.post('/search-users', function (req, res, next) {
   
   return database.searchUsers(string)
     .then(function (_users) {
-      return res.send(_users);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(_users);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -202,7 +261,14 @@ router.post('/search-tags', function (req, res, next) {
   
   return database.searchTags(string)
     .then(function (_tags) {
-      return res.send(_tags);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(_tags);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -227,7 +293,14 @@ router.post('/read-tags-of-user', function (req, res, next) {
       return database.readTagsOfUser({username: username})
     })
     .then(function (_tags) {
-      return res.send(_tags);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(_tags);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -262,7 +335,14 @@ router.post('/read-tags-of-dit', function (req, res, next) {
       return database.readTagsOfDit({url: url});
     })
     .then(function (_tags) {
-      return res.send(_tags);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(_tags);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -279,7 +359,14 @@ router.post('/add-tag', function (req, res, next) {
   
   return database.addTagToUser({name: name}, {username: sessUser.username})
     .then(function (response) {
-      return res.send(response);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(response);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -294,7 +381,14 @@ router.post('/remove-tag', function (req, res, next) {
   
   return database.deleteTagFromUser({name: name}, {username: sessUser.username})
     .then(function (response) {
-      return res.send(response);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(response);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -332,7 +426,14 @@ router.post('/add-tag-to-dit', function (req, res, next) {
       return database.addTagToDit({name: name}, {url: url});
     })
     .then(function (response) {
-      return res.send(response);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(response);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
@@ -370,16 +471,18 @@ router.post('/remove-tag-from-dit', function (req, res, next) {
       return database.deleteTagFromDit({name: name}, {url: url});
     })
     .then(function (response) {
-      return res.send(response);
+      return res.format({
+        'text/html': function () {
+          return res.render('sysinfo', {msg: 'todo html version of POST: ' + req.originalUrl, session: sessUser});
+        },
+        'application/json': function () {
+          return res.send(response);
+        }
+      });
     })
     .then(null, function (err) {
       return next(err);
     });
-});
-
-router.use(function(err, req, res, next) {
-  err.status = err.status || 200;
-  res.status(err.status).send({error: err.message});
 });
 
 module.exports = router;

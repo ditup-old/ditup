@@ -29,7 +29,7 @@ require(['tags/Tag', 'jquery'], function (Tag, $) {
 
   //asynchronously loading and showing tags
   $.ajax({
-    url: '/ajax/read-tags-of-user',
+    url: '/read-tags-of-user',
     async: true,
     method: 'POST',
     data: {username: username},
