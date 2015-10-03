@@ -541,7 +541,7 @@ module.exports = {
       'REMOVE ud IN memberOf'
       :'FOR d IN dits FILTER d.url == @url ' +
       'FOR u IN users FILTER u.username == @username ' +
-      'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to && ud.relation == @rel' +
+      'FOR ud IN memberOf FILTER u._id == ud._from && d._id == ud._to && ud.relation == @rel ' +
       'REMOVE ud IN memberOf';
 
     var params = relation === undefined
