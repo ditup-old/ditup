@@ -33,7 +33,7 @@ router.post(['/dit/:url/invite-user', '/invite-user-to-dit'], function (req, res
     })
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      if(response.success !== true) throw new Error(response.err);
       res.format({
         'text/html': function () {res.render('sysinfo', {msg: 'user ' + username + ' successfully invited', session: sessUser});},
         'application/json': function () {res.send({success: true});}
@@ -61,7 +61,7 @@ router.post(['/dit/:url/invite-user/cancel', '/invite-user-to-dit/cancel'], func
     })
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      if(response.success !== true) throw new Error(response.err);
       res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'invitation of user ' + username + ' successfully canceled', session: sessUser});
@@ -92,7 +92,8 @@ router.post(['/dit/:url/accept-user', '/accept-user-to-dit'], function (req, res
     })
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      //response analysis
+      if(response.success !== true) throw new Error(response.err);
       res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'user ' + username + ' accepted to ' + url, session: sessUser});
@@ -123,7 +124,8 @@ router.post(['/dit/:url/not-accept-user', '/not-accept-user-to-dit'], function (
     })
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      //response analysis
+      if(response.success !== true) throw new Error(response.err);
       return res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'user ' + username + ' not accepted to ' + url, session: sessUser});
@@ -153,7 +155,8 @@ router.post(['/dit/:url/join', '/join-dit'], function (req, res, next) {
     })
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      //response analysis
+      if(response.success !== true) throw new Error(response.err);
       return res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'joined ' + url, session: sessUser});
@@ -176,7 +179,8 @@ router.post(['/dit/:url/join/cancel', '/join-dit/cancel'], function (req, res, n
   return database.deleteUserFromDit({username: sessUser.username}, {url: url}, 'join')
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      //response analysis
+      if(response.success !== true) throw new Error(response.err);
       return res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'joining ' + url + ' canceled', session: sessUser});
@@ -199,7 +203,8 @@ router.post(['/dit/:url/accept-invitation', '/accept-invitation-to-dit'], functi
   return database.updateUserDit({username: sessUser.username}, {url: url}, 'member', 'invited')
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      //response analysis
+      if(response.success !== true) throw new Error(response.err);
       return res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'you have become a member of ' + url, session: sessUser});
@@ -222,7 +227,8 @@ router.post(['/dit/:url/not-accept-invitation, /not-accept-invitation-to-dit'], 
   return database.deleteUserFromDit({username: sessUser.username}, {url: url}, 'invited')
     .then(function (response) {
       console.log(response);
-      //TODO response analysis
+      //response analysis
+      if(response.success !== true) throw new Error(response.err);
       return res.format({
         'text/html': function () {
           res.render('sysinfo', {msg: 'successfuly refused invitation to ' + url, session: sessUser});

@@ -41,12 +41,12 @@ var scripts = [];
       <form class="inline" method="post" action="/accept-user-to-dit" >
         <input type="hidden" name="url" value="<%= dit.url %>">
         <input type="hidden" name="username" value="<%= users[i].user.username %>">
-        <input type="submit" name="" value="accept">
+        <input type="submit" value="accept">
       </form>
       <form class="inline" method="post" action="/not-accept-user-to-dit" >
         <input type="hidden" name="url" value="<%= dit.url %>">
         <input type="hidden" name="username" value="<%= users[i].user.username %>">
-        <input type="submit" name="" value="reject">
+        <input type="submit" value="reject">
       </form>
            <%
           }

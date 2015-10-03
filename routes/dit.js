@@ -6,7 +6,7 @@ var router = express.Router();
 var validate = require('../services/validation');
 var process = require('../services/processing');
 var database = require('../services/data');
-var rights = require('../services/rights');
+var rightService = require('../services/rights');
 
 router.get('/', function (req, res, next) {
   var url = '/'+req.originalUrl.replace(/^[\/]+|[\/]+$/,'');
@@ -75,6 +75,8 @@ router.get('/:url', function (req, res, next) {
     })
     .then(function (_rights) {
       rights = _rights;
+      rights.join = rightService.dit.join(dit);
+      console.log(rights);
       if(rights.view !== true) {
         throw new Error('you don\'t have rights to see the dit');
       }

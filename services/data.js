@@ -426,7 +426,14 @@ module.exports = {
     var query = 'FOR d IN dits FILTER d.url == @url LET to = d._id ' +
       'FOR u IN users FILTER u.username == @username LET from = u._id ' +
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), relation: @rel} IN memberOf';
-    return db.query(query, {url: dit.url, username: user.username, rel: relation});
+    return db.query(query, {url: dit.url, username: user.username, rel: relation})
+      .then(function (cursor) {
+        console.log(cursor);
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'no success with adding'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with creating user (maybe some relation already exists or other error)');
+      });
       //.then(function (cursor) {
       //  console.log(cursor);
       //  //return cursor.extra.stats.writesExecuted === 1 ? true : false;
@@ -518,7 +525,14 @@ module.exports = {
       ? {url: dit.url, username: user.username, rel: relation}
       : {url: dit.url, username: user.username, rel: relation, oldRel: oldRelation}
  
-    return db.query(query, params);
+    return db.query(query, params)
+      .then(function (cursor) {
+        console.log(cursor);
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'no relation to update'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with updating relation');
+      });
   },
   upsertUserDit: function (user, dit, relation) {
     var query = 
@@ -549,7 +563,14 @@ module.exports = {
     : {url: dit.url, username: user.username, rel: relation};
 ;
 
-    return db.query(query, params);
+    return db.query(query, params)
+      .then(function (cursor) {
+        console.log(cursor);
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) return {success: false, err: 'no relation to remove'};
+        if (writes === 1) return {success: true};
+        throw new Error('problems with removing user');
+      });
   },
   isMember: function (user, dit) {
     var query = 'FOR d IN dits FILTER d.url == @url ' +

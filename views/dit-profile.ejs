@@ -37,9 +37,48 @@ var scripts = [];
   <div>
     <span class="profile-dittype" ><%= (data.dittype==='dit' ? '?' : data.dittype) %></span>: <span class="profile-name" ><%= data.name %></span>
     <span class="data-url"><%= data.url %></span>
-    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/invite">Invite User</a></span><% } %>
-    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit</a></span><% } %>
-    <% if (rights.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/settings">Settings</a></span><% } %>
+    <%
+      var relation = rights.relation || 'no relation';
+    %>
+    <span>(<%= relation %>)</span>
+    <%
+      var actionButtons = {
+        invite: rights.edit === true,
+        edit: rights.edit === true,
+        settings: rights.edit === true,
+        join: rights.join === true && rights.relation === null,
+        cancelJoin: rights.relation === 'join',
+        acceptInvite: rights.relation === 'invited',
+        rejectInvite: rights.relation === 'invited'
+      };
+    %>
+    <% if (actionButtons.invite === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/people">Invite User</a></span><% } %>
+    <% if (actionButtons.edit === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/edit">Edit</a></span><% } %>
+    <% if (actionButtons.settings === true) { %><span><a class="button" href="/<%= data.dittype %>/<%= data.url %>/settings">Settings</a></span><% } %>
+    <% if (actionButtons.join === true) { %><span>
+      <form class="inline" method="post" action="/join-dit" >
+        <input type="hidden" name="url" value="<%= data.url %>">
+        <input type="submit" value="join">
+      </form>
+    </span><% } %>
+    <% if (actionButtons.cancelJoin === true) { %><span>
+      <form class="inline" method="post" action="/join-dit/cancel" >
+        <input type="hidden" name="url" value="<%= data.url %>">
+        <input type="submit" value="cancel join">
+      </form>
+    </span><% } %>
+    <% if (actionButtons.acceptInvite === true) { %><span>
+      <form class="inline" method="post" action="/accept-invitation-to-dit" >
+        <input type="hidden" name="url" value="<%= data.url %>">
+        <input type="submit" value="accept invitation">
+      </form>
+    </span><% } %>
+    <% if (actionButtons.rejectInvite === true) { %><span>
+      <form class="inline" method="post" action="/not-accept-invitation-to-dit" >
+        <input type="hidden" name="url" value="<%= data.url %>">
+        <input type="submit" value="reject invitation">
+      </form>
+    </span><% } %>
   </div>
   <div><%= data.summary %></div>
   <div><!-- tags -->
