@@ -24,8 +24,40 @@ var scripts = [];
 <h1>Members of <%= dit.dittype %> <%= dit.url %></h1>
   <ul>
 <% for (var i = 0, len=users.length; i < len; i++) {%>
-    <li><a href="/user/<%= users[i].user.username %>"><%= users[i].user.username %></a> (<%= users[i].relation %>)</li><% } %>
-  </ul><% if (rights.relation === 'admin') { %>
+    <li>
+      <a href="/user/<%= users[i].user.username %>"><%= users[i].user.username %></a>
+      (<%= users[i].relation %>)<%
+        if (rights.relation === 'admin') {
+          if(users[i].relation === 'invited') {
+           %>
+      <form class="inline" method="post" action="/invite-user-to-dit/cancel" >
+        <input type="hidden" name="url" value="<%= dit.url %>">
+        <input type="hidden" name="username" value="<%= users[i].user.username %>">
+        <input type="submit" value="cancel invitation">
+      </form><%
+        }
+        if(users[i].relation === 'join') {
+         %>
+      <form class="inline" method="post" action="/accept-user-to-dit" >
+        <input type="hidden" name="url" value="<%= dit.url %>">
+        <input type="hidden" name="username" value="<%= users[i].user.username %>">
+        <input type="submit" name="" value="accept">
+      </form>
+      <form class="inline" method="post" action="/not-accept-user-to-dit" >
+        <input type="hidden" name="url" value="<%= dit.url %>">
+        <input type="hidden" name="username" value="<%= users[i].user.username %>">
+        <input type="submit" name="" value="reject">
+      </form>
+           <%
+          }
+        }
+      %>
+    </li>
+<% } %>
+      
+  </ul><% 
+  
+  if (rights.relation === 'admin') { %>
   <div id="invite-user" >invite user
     <input id="autocomplete" title="select user" class="ui-autocomplete-input" />
   </div><% } %>
