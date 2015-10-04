@@ -1,0 +1,36 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/users-with-my-tags.css',
+  '/css/avatar.css'
+];
+var title = 'search results';
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+<style>
+</style>
+<!--<%= JSON.stringify(data) %>-->
+<div>
+<h1>users with similar tags to me</h1>
+  <ul><% 
+  for (var i = 0, len = data.length; i < len; i++) {
+    var dat = data[i];
+    var avatar = dat.user;
+  %><li>
+      <% include ./partial/avatar.ejs %>
+      <%
+        var userTags = dat.tags;
+        for (var j = 0, len2 = userTags.length; j<len2; j++) {
+          var tag = userTags[j];
+          %> <a title="<%= tag.description %>" href="/tag/<%= tag.name %>" >#<%= tag.name %></a> <%
+        }
+      %>
+    </li><%
+  } %>
+  </ul>
+</div>
+<% include ./partial/page-bottom.ejs %>

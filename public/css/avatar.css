@@ -1,0 +1,30 @@
+span.avatar>a {
+    display: inline-block;
+}
+
+/*span.avatar * {
+
+    height: 100%;
+    vertical-align: middle;
+}*/
+
+span.avatar>a{
+  height: 30px;
+  display: inline-block
+}
+
+span.avatar-username {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+span.avatar {
+    display: inline-block;
+    /* align-self: stretch; */
+}
+
+span.avatar-image {
+  height: 30px;
+  width: 30px;
+  border-radius: 15px;
+}

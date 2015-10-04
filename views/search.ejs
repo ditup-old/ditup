@@ -1,0 +1,24 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/search.css'
+];
+var title = 'search';
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+</style>
+<div>
+  <h1>Find users who share my tags</h1>
+  <form method="post" >
+    <div>
+      <input type="submit" name="search" value="users with my tags" class="button" />
+    </div>
+  </form>
+</div>
+<% include ./partial/page-bottom.ejs %>
