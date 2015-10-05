@@ -81,8 +81,13 @@ div.main-menu-top>ul>li:hover ul
   display:block;
   padding:5px 2px;
 }
+
 .nav>li li a:hover {
   background-color: #ddf;
+}
+
+.nav>li li a[href=""] {
+  color: gray;
 }
 
 /**colors**/
