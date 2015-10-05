@@ -655,45 +655,4 @@ module.exports.feedback.create = function (data) {
   return db.query(query, params);
 };
 
-module.exports.search = {};
-
-module.exports.search.usersWithTags = function (tags) {};
-
-/**
- * @param {Object} user
- * @param {string} user.username
- * @returns {Promise<Array.<Object>>} returns array of found users
- */
-module.exports.search.usersWithTagsOfUser = function (user) {
-  var query = `LET username = @username
-    LET tagsOfUser = (FOR u IN users FILTER u.username == username
-      FOR ut IN userTag FILTER ut._from == u._id
-        FOR t IN tags FILTER t._id == ut._to
-        RETURN t)
-    LET output = (FOR t IN tagsOfUser
-      FOR ut IN userTag FILTER ut._to == t._id
-        FOR u IN users FILTER u._id == ut._from && u.username != username
-        RETURN {user: u, tag: t})
-    FOR pt IN output
-      COLLECT usn = pt.user INTO tags = {name: pt.tag.name, description: pt.tag.description}
-      LET tagno = LENGTH(tags)
-      SORT tagno DESC, usn.account.last_login DESC
-      LET user = {username: usn.username}
-      RETURN {user: user, tags: tags, tagno: tagno}`;
-
-  var params = {username: user.username};
-
-  return db.query(query, params)
-    .then(function (cursor) {
-      return cursor.all();
-    });
-};
-module.exports.search.ditsWithTags = function (tags) {};
-module.exports.search.ditsWithTagsOfUser = function (user) {};
-
-/****
-  TODO search??
-  fulltext
-  find dits that other people with similar tags like, follow, are in
-
-****/
+module.exports.search = require('./data/search')(db);

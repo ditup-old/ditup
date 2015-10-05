@@ -85,7 +85,7 @@ dit.profile = dit.profileEdit = function (dit) {
   return Q.resolve({
     url: dit.url,
     dittype: dit.dittype || 'dit',
-    created: 'Joined ' + countPastTime(dit.created) + '.',
+    created: 'Created ' + countPastTime(dit.created) + '.',
     name: dit.profile.name,
     summary: dit.profile.summary,
     about: dit.profile.about,

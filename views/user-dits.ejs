@@ -1,7 +1,8 @@
 <%
 var css = [
   '/css/header.css',
-  '/css/user-dits.css'
+  '/css/user-dits.css',
+  'css/dit-avatar.css'
 ];
 var title = 'dits of ' + user.username ;
 
@@ -15,8 +16,10 @@ var scripts = [];
 <div>
 <h1>Dits of <%= user.username %></h1>
   <ul>
-<% for (var i = 0, len=dits.length; i < len; i++) {%>
-    <li><a href="/<%= dits[i].dit.dittype || 'dit' %>/<%= dits[i].dit.url %>"><%= dits[i].dit.url %></a> (<%= dits[i].relation %>)</li><% } %>
+<%  for (var i = 0, len=dits.length; i < len; i++) {
+      var avatar = dits[i].dit;
+%>
+    <li><% include ./partial/dit-avatar.ejs %> (<%= dits[i].relation %>)</li><% } %>
   </ul>
 </div>
 <% include ./partial/page-bottom.ejs %>

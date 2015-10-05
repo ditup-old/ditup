@@ -15,18 +15,19 @@ var scripts = [];
 </style>
 <!--<%= JSON.stringify(data) %>-->
 <div>
-<h1>users with similar tags to me</h1>
+<a href="/search">back to search</a>
+<h1>dits with similar tags to me</h1>
   <ul><% 
   for (var i = 0, len = data.length; i < len; i++) {
     var dat = data[i];
-    var avatar = dat.user;
+    var avatar = dat.dit;
   %><li>
-      <% include ./partial/avatar.ejs %>
+      <% include ./partial/dit-avatar.ejs %>
       <div>
       <%
-        var userTags = dat.tags;
-        for (var j = 0, len2 = userTags.length; j<len2; j++) {
-          var tag = userTags[j];
+        var ditTags = dat.tags;
+        for (var j = 0, len2 = ditTags.length; j<len2; j++) {
+          var tag = ditTags[j];
           %> <a title="<%= tag.description %>" href="/tag/<%= tag.name %>" >#<%= tag.name %></a> <%
         }
       %>

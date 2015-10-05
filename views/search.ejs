@@ -1,11 +1,19 @@
 <%
 var css = [
   '/css/header.css',
+  '/libs/jquery-ui-1.11.4/jquery-ui.css',
   '/css/search.css'
 ];
 var title = 'search';
 
-var headScripts = [];
+var headScripts = [
+  {
+    src: '/libs/js/require.js',
+    properties: {
+      'data-main': '/js/search/main'
+    }
+  }
+];
 var scripts = [];
 
 %><% include ./partial/page-top.ejs %>
@@ -14,10 +22,30 @@ var scripts = [];
 <style>
 </style>
 <div>
+  <h1>Find users or dits by tags</h1>
+  <form method="post" >
+    <div>
+      <span id="tagnames" ><!-- tagnames --></span>
+      <input id="hidden-tag-list" type="hidden" name="" value="" />
+      <input id="autocomplete-tag" type="text" name="tagnames" placeholder="comma or space separated tags" /><br />
+      <input type="submit" name="search" value="users with tags" class="button" />
+      <input type="submit" name="search" value="dits with tags" class="button" />
+    </div>
+  </form>
+</div>
+<div>
   <h1>Find users who share my tags</h1>
   <form method="post" >
     <div>
       <input type="submit" name="search" value="users with my tags" class="button" />
+    </div>
+  </form>
+</div>
+<div>
+  <h1>Find dits who share my tags</h1>
+  <form method="post" >
+    <div>
+      <input type="submit" name="search" value="dits with my tags" class="button" />
     </div>
   </form>
 </div>

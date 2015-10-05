@@ -2,7 +2,8 @@
 var css = [
   '/css/header.css',
   '/css/dit-members.css',
-  '/libs/jquery-ui-1.11.4/jquery-ui.css'
+  '/libs/jquery-ui-1.11.4/jquery-ui.css',
+  '/css/avatar.css'
 ];
 var title = 'members of ' + dit.url ;
 
@@ -24,8 +25,9 @@ var scripts = [];
 <h1>Members of <%= dit.dittype %> <%= dit.url %></h1>
   <ul>
 <% for (var i = 0, len=users.length; i < len; i++) {%>
-    <li>
-      <a href="/user/<%= users[i].user.username %>"><%= users[i].user.username %></a>
+    <li><%
+        var avatar = users[i].user;
+      %><% include ./partial/avatar.ejs %>
       (<%= users[i].relation %>)<%
         if (rights.relation === 'admin') {
           if(users[i].relation === 'invited') {
