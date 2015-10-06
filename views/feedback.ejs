@@ -1,0 +1,48 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/feedback.css'
+];
+var title = 'feedback';
+
+var headScripts = [];
+var scripts = [];
+
+var username = session.logged === true ? session.username : 'visitor';
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+
+<style>
+#feedback-form {
+  border:20px solid #6ca6ca;
+  padding: 10px;
+}
+
+#feedback-form input[type="text"], #feedback-form textarea {
+  width: 400px;
+}
+
+#feedback-form textarea {
+  height: 100px;
+}
+
+</style>
+<h1>Feedback</h1>
+<div>Dear <%= username %>, you can write your feedback below. Thank you!</div>
+<form id="feedback-form" method="post">
+  From<% if(session.logged === true) { %> <span><%= session.username %></span><% }
+      else { %>:<br /><input type="text" name="from" placeholder="your name or nickname (optional)" value="<%= values.from.username %>" /><%= errors.username %><br />
+  Email (optional):<br />
+  <input type="text" name="email" placeholder="email or leave empty" value="<%= values.email %>" /><%= errors.email %>
+      <% } %><br />
+  Subject:<br />
+  <input type="text" name="subject" placeholder="" value="<%= values.subject %>" /><%= errors.subject %><br />
+  <input type="hidden" name="context" value="/feedback" />
+  Text:<br />
+  <textarea name="text"><%= values.text %></textarea><%= errors.text %><br />
+  <input type="checkbox" name="public" value="public" <%= values.public ? 'checked' : '' %>/> Public?<br />
+  <% if(session.logged === true) { %><input type="checkbox" name="anonymous" value="anonymous" /> Anonymous?<br /><% } %>
+  <input class="button" type="submit" value="Send feedback!" />
+</form>
+<% include ./partial/page-bottom.ejs %>

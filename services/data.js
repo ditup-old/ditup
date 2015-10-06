@@ -608,51 +608,8 @@ module.exports = {
   }
 };
 
-module.exports.feedback = {};
-
-/**
- * @param {Object} data
- * @param {Object} data.from //user
- * @param {string} data.from.username
- * @param {boolean} [data.from.logged=false]
- * @param {string} [data.context]
- * @param {string} text
- * @returns {Promise}
- */
-module.exports.feedback.create = function (data) {
-  var logged = (data.from.logged === true) ? true : false;
-  var context = data.context || '';
-
-  var loggedQuery = `FOR u IN users FILTER u.username == @username
-    INSERT {
-      from: {
-        username: @username,
-        id: u._id
-      },
-      text: @text,
-      context: @context,
-      timestamp: @timestamp
-    } IN feedbacks`;
-
-  var nologQuery = `INSERT {
-      from: {
-        username: @username
-      },
-      text: @text,
-      context: @context,
-      timestamp: @timestamp
-    } IN feedbacks`;
-  
-  var query = logged === true ? loggedQuery : nologQuery;
-
-  var params = {
-    username: data.from.username,
-    context: context,
-    text: data.text,
-    timestamp: Date.now()
-  };
-
-  return db.query(query, params);
-};
 
 module.exports.search = require('./data/search')(db);
+module.exports.feedback = require('./data/feedback')(db);
+module.exports.user = require('./data/user')(db);
+module.exports.dit = require('./data/dit')(db);

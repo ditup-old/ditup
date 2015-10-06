@@ -51,10 +51,13 @@ exports.user.username = function (username, errors) {
  * @param {Array.<string>} [errors=[]] Array to push string errors to.
  * @returns {boolean}
  */
-exports.user.email = function (email, errors) {
+exports.user.email = function (email, errors, values) {
   var errors = errors || [];
+  var values = values || {};
   //username regex
   var regex = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+
+  values.email = email.substring(0, 1024);
 
   if(regex.test(email) === true) return true;
 
@@ -468,7 +471,43 @@ tag.create = valiterate(['name', 'description']);
  * Validates text of feedback (length <= 8192)
  *
  */
-exports.feedback.text = checkLength(1, 8192, 'feedback text must have 1 - 8192 characters');
+exports.feedback.text = checkLength (1, 8192, 'feedback text must have 1 - 8192 characters', 'text');
+exports.feedback.subject = checkLength (1,256,'subject must have 1 - 256 characters', 'subject');
+exports.feedback.context = checkLength (0,512,'subject must have 0 - 512 characters', 'context');
+exports.feedback.username = checkLength (0,512,'subject must have 0 - 512 characters', 'username');
+exports.feedback.email = function (email, errors, values) {
+  errors = errors || [];
+  if (!email) {
+    values = values || {};
+    values.email = null;
+    return true;
+  }
+  else return exports.user.email(email, errors, values);
+};
+
+exports.feedback.all = function (data, errors, values) {
+  var values = values || {};
+  var errors = errors || {};
+
+  var isPublic = data.public === 'public';
+  var anonymous = data.anonymous === 'anonymous';
+  var logged = data.from.logged === true;
+  var username = data.from.username || '';
+  //if anonymous is true, we reset username & logged to null & false;
+  if(anonymous === true) {
+    username = '';
+    logged = false;
+  }
+
+  //username && logged
+  values.from = {};
+  var validUsername = this.username(username, errors, values.from);
+  values.from.logged = logged;
+  var valid5 = valiterate(['email', 'subject', 'context', 'text']).call(this, data, errors, values);
+  values.public = isPublic;
+
+  return valid5 && validUsername;
+};
 
 /**
  * @param {number} min
@@ -476,9 +515,9 @@ exports.feedback.text = checkLength(1, 8192, 'feedback text must have 1 - 8192 c
  * @param {string} [errorMessage]
  * @returns {function}
  */
-function checkLength(min, max, errorMessage) {
+function checkLength(min, max, errorMessage, name) {
   var errorMessage = errorMessage || 'string must be '+min+' to '+max+'characters long';
-  return function (str, errors, values, name) {
+  return function (str, errors, values) {
     var errors = errors || [];
 
     if(values && name) values[name] = str.substr(0, max);
