@@ -9,5 +9,44 @@
   var scripts = [];
 %><%include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
-<div > Welcome <%= user.username %>!</div>
+<style>
+  #welcome {
+    font-size: 2.2em;
+    padding: 20px;
+    /*font-weight: bold;*/
+  }
+
+  #stats {
+    padding:10px;
+    padding-left:20px;
+    /*border:10px solid #6ca6ca;*/
+    font-size:1.1em;
+  }
+
+  #stats-count {
+    padding-left:30px;
+  }
+
+  #stats-dittype-count {
+    padding-left:30px;
+  }
+</style>
+<div id="welcome" > Welcome <%= user.username %>!</div>
+<div id="stats" >
+  Currently there exist<br />
+  <div id="stats-count">
+    <%= data.userno %> <a href="/users" >users</a><br />
+    <%= data.ditno %> <a href="/dits">dits</a>
+    out of which are
+    <div id="stats-dittype-count">
+    <%= data.dittypeno.idea %> <a href="/ideas" >ideas</a>,<br />
+    <%= data.dittypeno.project %> <a href="/projects" >projects</a>,<br />
+    <%= data.dittypeno.challenge %> <a href="/challenges" >challenges</a>,<br />
+    <%= data.dittypeno.interest %> <a href="/interests" >interests</a>,<br />
+    and 
+    <%= data.dittypeno.dit %> unspecified.<br />
+    </div>
+  </div>
+
+</div>
 <% include ./partial/page-bottom.ejs %>
