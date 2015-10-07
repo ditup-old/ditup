@@ -4,10 +4,44 @@ var express = require('express');
 var router = express.Router();
 var validate = require('../services/validation');
 var database = require('../services/data');
+var process = require('../services/processing');
 
 router.get('/', function (req, res, next) {
   //TODO
-  res.end('TODO:  general '+ req.originalUrl.substr(1) +' page');
+  var sessUser = req.session.user;
+  var dittype = req.originalUrl.substr(1).slice(0, -1);
+
+
+  var options = dittype === 'dit' ? {} : {dittype: dittype};
+  var clone = function (object) {
+    return JSON.parse(JSON.stringify(object));
+  };
+    return Promise.all([database.dit.popular(clone(options)), database.dit.newest(clone(options)), database.dit.random(clone(options))])
+      .then(function (_ret) {
+        var popular = [];
+        for(let p of _ret[0]) {
+          let pp = p.dit;
+          pp.relno = p.relno;
+          popular.push(pp);
+        };
+        var newest = _ret[1];
+        for (let n of newest) {
+          n.created = process.cpt(n.created);
+        }
+        var random = _ret[2];
+
+        return res.render('dits/main', {
+          data: {
+            dittype: dittype,
+            popular: popular,
+            newest: newest,
+            random: random
+          }, session: sessUser
+        });
+      })
+      .then(null, function (err) {
+        return next(err);
+      });
 });
 
 //check if user is logged in
@@ -23,10 +57,12 @@ router.all('/create', function (req, res, next) {
 });
 
 router.get('/create', function (req, res, next) {
-    var sessUser = req.session.user;
+  var sessUser = req.session.user;
+  var urlArray = req.originalUrl.replace(/^[\/]+|[\/]+$/,'').split('/');
+  var dittype = urlArray[0].slice(0, -1);
 
-    //render dit creating form
-    res.render('dit-create', {session: sessUser, errors: {}, values: {}});
+  //render dit creating form
+  return res.render('dit-create', {session: sessUser, errors: {}, values: {dittype: dittype === 'dit' ? '' : dittype}});
 });
 
 router.post('/create', function (req, res, next) {

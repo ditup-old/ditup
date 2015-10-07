@@ -173,3 +173,5 @@ function countPastTime(timestamp) {
     return '' + year + ' year' + (year>1 ? 's' : '') + ' ago';
   }
 }
+
+module.exports.cpt = countPastTime;

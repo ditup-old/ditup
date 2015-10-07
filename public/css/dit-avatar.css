@@ -1,0 +1,29 @@
+span.dit-avatar>a {
+    display: inline-block;
+}
+
+/*span.avatar * {
+
+    height: 100%;
+    vertical-align: middle;
+}*/
+
+span.dit-avatar>a{
+  height: 30px;
+  display: inline-block
+}
+
+span.dit-avatar-name {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+span.dit-avatar {
+    display: inline-block;
+    /* align-self: stretch; */
+}
+
+span.dit-avatar-logo {
+  height: 30px;
+  width: 30px;
+}

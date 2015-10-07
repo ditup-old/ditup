@@ -1,0 +1,71 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/dits/main.css',
+  '/css/dit-avatar.css'
+];
+var title = data.dittype+'s';
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ../partial/page-top.ejs %>
+<% include ../partial/header.ejs %>
+<!--<%= JSON.stringify(data) %>-->
+<style>
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+
+  div.main {
+    border: 10px solid #5b95b9;
+    padding: 20px;
+  }
+
+</style>
+<div class="main" >
+<h1><%= data.dittype %>s</h1>
+  <div id="explanation" >
+    here should be some explanation of dits or the particular dit usage (<%= data.dittype %>)
+  </div>
+  <div><a href="/<%= data.dittype %>s/create">create new <%= data.dittype %></a></div>
+  <div>
+    <h2>popular</h2>
+    <ul><% 
+    for (var i = 0, len = data.popular.length; i < len; i++) {
+      var avatar = data.popular[i];
+    %><li>
+        <% include ../partial/dit-avatar.ejs %>
+        (<%= avatar.relno %> members)
+      </li><%
+    } %>
+    </ul>
+  </div>
+  <div>
+    <h2>new</h2>
+    <ul><% 
+    for (var i = 0, len = data.newest.length; i < len; i++) {
+      var avatar = data.newest[i];
+    %><li>
+        <% include ../partial/dit-avatar.ejs %>
+        (created <%= avatar.created %>)
+      </li><%
+    } %>
+    </ul>
+  </div>
+  <div>
+    <h2>random</h2>
+    <ul><% 
+    for (var i = 0, len = data.random.length; i < len; i++) {
+      var avatar = data.random[i];
+    %><li>
+        <% include ../partial/dit-avatar.ejs %>
+      </li><%
+    } %>
+    </ul>
+  </div>
+</div>
+<% include ../partial/page-bottom.ejs %>
