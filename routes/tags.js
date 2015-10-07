@@ -6,10 +6,34 @@ var router = express.Router();
 
 var database = require('../services/data');
 var validate = require('../services/validation');
+var process = require('../services/processing');
 
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
-  res.render('tags', {session: sessUser});
+
+  return Promise.all([database.tag.popular(), database.tag.newest(), database.tag.random()])
+    .then(function (_res) {
+      //return res.send(_res);
+      var popular = _res[0];
+      var newest = _res[1];
+      for(let n of _res[1]) {
+        n.created = process.cpt(n.created);
+      }
+      var random = _res[2];
+
+
+      var data = {
+        popular: popular,
+        newest: newest,
+        random: random
+      };
+      return res.render('tags', {data: data, session: sessUser});
+    })
+    .then(null, function (err) {
+      return next(err);
+    });
+
+
 });
 
 router.all('/create', function (req, res, next) {

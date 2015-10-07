@@ -3,15 +3,15 @@ var css = [
   '/css/header.css',
   '/css/tags.css'
 ];
-var title = 'ditup tags';
+var title = 'tags';
 
 var headScripts = [
-  {
+/*  {
     src: '/libs/js/require.js',
     properties: {
       'data-main': '/js/tags/main'
     }
-  }
+  }*/
 ];
 var scripts = [];
 
@@ -19,10 +19,61 @@ var scripts = [];
 <% include ./partial/header.ejs %>
 
 <style>
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  div.main {
+    border: 10px solid #5b95b9;
+    padding: 20px;
+  }
 </style>
-<h1>Tags page</h1>
-<div><a href="/tags/create">create new tag</a></div>
-<div>most popular tags</div>
-<div>brainstorm: recently added tags, random tags...</div>
+<!--<%= JSON.stringify(data) %>-->
+
+<div class="main" >
+<h1>Tags</h1>
+  <div><a href="/tags/create">create new tag</a></div>
+  <div>
+    <h2>popular</h2>
+    <ul><% 
+    for (var i = 0, len = data.popular.length; i < len; i++) {
+      var tag = data.popular[i];
+    %><li>
+        <a title="<%= tag.description %>" href="/tag/<%= tag.name %>" >#<%= tag.name %></a> (<%= tag.no %> uses)
+      </li><%
+    } %>
+    </ul>
+  </div>
+  <div>
+    <h2>new</h2>
+    <ul><% 
+    for (var i = 0, len = data.newest.length; i < len; i++) {
+      var tag = data.newest[i];
+    %><li>
+        <a title="<%= tag.description %>" href="/tag/<%= tag.name %>" >#<%= tag.name %></a> (<%= tag.created %>)
+      </li><%
+    } %>
+    </ul>
+  </div>
+  <div>
+    <h2>random</h2>
+    <ul><% 
+    for (var i = 0, len = data.random.length; i < len; i++) {
+      var tag = data.random[i];
+    %><li>
+        <a title="<%= tag.description %>" href="/tag/<%= tag.name %>" >#<%= tag.name %></a>
+      </li><%
+    } %>
+    </ul>
+  </div>
+</div>
+
+
+
 <div id="tag-search" ><input type="text" id="tag-search-input" /><ul id="tag-search-output" ></ul></div>
+
 <% include ./partial/page-bottom.ejs %>

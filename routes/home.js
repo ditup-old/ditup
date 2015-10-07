@@ -8,7 +8,7 @@ var database = require('../services/data');
 router.get('/', function(req, res, next) {
   var sessUser = req.session.user;
   if(sessUser.logged === true) {
-    return Promise.all([database.user.count(), database.dit.count()])
+    return Promise.all([database.user.count(), database.dit.count(), database.tag.count()])
       .then(function (results) {
         var data = {};
         data.userno = results[0].count;
@@ -20,6 +20,9 @@ router.get('/', function(req, res, next) {
           project: results[1].project || 0,
           interest: results[1].interest || 0
         };
+        data.tagno = results[2].tagno;
+        data.usertagno = results[2].usertagno;
+        data.dittagno = results[2].dittagno;
       
         return res.render('main-logged', {data: data, session: sessUser, user: sessUser});
       })

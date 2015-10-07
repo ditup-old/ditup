@@ -318,22 +318,6 @@ module.exports = {
         return cursor.all();
       });
   },
-  tag: {
-    nameExists: function (name) {
-      return db.query('FOR t IN tags FILTER t.name == @name ' +
-        'COLLECT WITH COUNT INTO number ' +
-        'RETURN number', {name: name})
-        .then(function (cursor) {
-          return cursor.all();
-        })
-        .then(function (output) {
-          var number = output[0];
-          if(number === 0) return false;
-          else if (number === 1) return true;
-          throw new Error('weird database error: more than 1 tag with unique name exists');
-        });
-    }
-  },
   updateTag: function (tag) {
     return db.query('FOR x IN tags FILTER x.name == @name UPDATE x WITH @tag IN tags', {name: tag.name, tag: tag});
   },
@@ -613,3 +597,4 @@ module.exports.search = require('./data/search')(db);
 module.exports.feedback = require('./data/feedback')(db);
 module.exports.user = require('./data/user')(db);
 module.exports.dit = require('./data/dit')(db);
+module.exports.tag = require('./data/tag')(db);

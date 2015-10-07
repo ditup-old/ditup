@@ -27,7 +27,7 @@ include ./partial/header.ejs %>
     padding-left:30px;
   }
 
-  #stats-dittype-count {
+  #stats-dittype-count, #stats-tag-uses {
     padding-left:30px;
   }
 </style>
@@ -45,6 +45,10 @@ include ./partial/header.ejs %>
     <%= data.dittypeno.interest %> <a href="/interests" >interests</a>,<br />
     and 
     <%= data.dittypeno.dit %> unspecified.<br />
+    </div>
+    <%= data.tagno %> <a href="/tags">tags</a> used
+    <div id="stats-tag-uses">
+    <%= data.usertagno + data.dittagno %> times by users and dits
     </div>
   </div>
 
