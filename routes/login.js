@@ -18,6 +18,7 @@ router.all('*', function (req, res, next) {
 
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
+  console.log(sessUser);
   res.render('login', {session: sessUser});
 });
 

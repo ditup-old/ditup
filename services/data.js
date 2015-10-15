@@ -598,3 +598,4 @@ module.exports.feedback = require('./data/feedback')(db);
 module.exports.user = require('./data/user')(db);
 module.exports.dit = require('./data/dit')(db);
 module.exports.tag = require('./data/tag')(db);
+module.exports.talk = require('./data/talk')(db);

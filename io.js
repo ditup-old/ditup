@@ -2,7 +2,7 @@
 
 module.exports = function (session, server) {
   var io = require('socket.io')();
-  io.attach(server/*, {transports: ['websocket', 'polling']}*/);
+  io.attach(server, {transports: ['websocket', 'polling']});
   var ioTalkMiddleware = require('./io/talk-io.js');
 
   io.serveClient(false);
@@ -13,10 +13,10 @@ module.exports = function (session, server) {
 
   var ioTalk = io.of('/talk-io');
 
-  var ioUsers = {};
+//  var ioUsers = {};
   ioTalk
     .on('connection', function (socket) {
-      ioTalkMiddleware(socket, {users: ioUsers}, ioTalk);
+      ioTalkMiddleware(socket, {/*users: ioUsers*/}, ioTalk);
     });
 
   return io;

@@ -1,127 +1,84 @@
 'use strict';
 
-//var func = require('./talk-io/functions.js');
+var database = require('../services/data');
 
 module.exports = function  (socket, params, io) {
-  //console.log(socket.request, socket.request.session, socket.request.session.data);
-  var sessUser = socket.request.session.user = socket.request.session.user || {logged: false, username: null};
-  var users = params.users;
-  //var logged = (sessUser && sessUser.logged === true) ? true : false;
-  //var username = logged ? sess.username : null;
-  //var myId = logged ? sess.id : null;
-  
-  if (sessUser.logged === true) {
-    var username = sessUser.username;
-    users[username] = users[username] || {
-      username: username
-    };
-    users[username].sockets = users[username].sockets || [];
-    users[username].sockets.push(socket);
+  var session = socket.request.session;
+
+  socket.emit('auth', session.user);
+  //var session.user = session.user = socket.request.session.user || {logged: false, username: null};
+
+  //***user joins her own room (what is it good for?)
+  //***it is possible to broadcast to all sockets of that user.
+  if(session.user.logged === true) {
+    /* joining group of user's sockets */
+    socket.join('/user/'+session.user.username);
+
+    /* testing number of sockets of user */
+    let room = io.adapter.rooms['/user/' + session.user.username];
+    let connectno = Object.keys(room).length;
+    console.log('**********', room, connectno);
+    /* and sending number of already connected sockets to other user connections */
+    socket.broadcast.to('/user/'+session.user.username).emit('new-connection', {username: session.user.username, connectno: connectno});
   }
 
-  socket.emit('auth', sessUser);
 
-  
-  //find talks in which user is involved and send them to user.
-  /***func.getTalks(sessUser.username, {})
-    .then(function (tks) {
-      return func.processTalks(tks, sessUser);
-    })
-    .then(function (talks) {
-      console.log('emitting', talks);
-      for(var i=0, len=talks.length; i<len; i++){
-        socket.join(talks[i].url);
-      }
-      socket.emit('list talks', {talks: talks});
-    });
-***/
-  
-  //when user wrote a new message, send it to everybody, who cares and has rights to care.
-  socket.on('new message', function (data) {
-    console.log(data);
-    //validate data
-    //save message to database
-    func.saveMessage(data, {username: sessUser.username})
-      .then(function (saved) {
-        io.to(data.talk).emit('show message', {msg: saved, talk: data.talk});
-      });
-    //send message to the correct talk room.
+  /**
+   * @param {Object} data
+   * @param {string} [data.topic=""] Topic of new talk
+   * @param {string} data.usernames Comma separated list of usernames
+   * @param {string} data.message Initial message from user
+   *
+   */
+  socket.on('new-talk', function (data) {
+    session.reload();
+    if(session.user.logged === true) {
+      let userInput = data.usernames; 
+      let rawUsernames = tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*|\s+/); 
+      let users = [{username: session.user.username}]; 
+      for(let raw of rawUsernames){ 
+        let valid = validate.username(raw); 
+        if(valid === true) users.push({username: raw}); 
+      } 
+      console.log({topic: data.topic, users: users, message: data.message});
+    }
+    else {
+      
+    }
   });
 
-  //saving new talk
-  socket.on('new talk', function (data) {
-    console.log(data);
-    data.me = username;
-    data.usernames = data.users;
-    //validate data {users[], dits[], message}
-    func.validateNewTalk(data)
-      .then(function () {
-        console.log(1);
-        return func.saveNewTalk(data);
-      })
-      .then(function (newTalk) {
-        console.log(2, newTalk);
-        return func.processTalk(newTalk, {logged: logged, username: username});
-      })
-      .then(function (newTalkProcessed) {
-        console.log(3, newTalkProcessed);
-        //join the talk room by me (all my active sockets)
-        var sckts = users[username].sockets;
-        for (var i = 0, len = sckts.length; i<len; i++) {
-          console.log('joining', i);
-          sckts[i].join(newTalkProcessed.url);
-        }
-        //join the talk room by all the other users (all their active sockets)
-        var talkUsers = newTalkProcessed.participants.users;
-        for (var i=0, len=talkUsers.length; i<len; i++) {
-          var usrnm = talkUsers[i].username;
-          console.log(users, usrnm);
-          if(users.hasOwnProperty(usrnm)) {
-            var sckts = users[usrnm].sockets;
-            for (var j=0, len2=sckts.length; j<len2; j++) {
-              console.log('others joining', j);
-              sckts[j].join(newTalkProcessed.url);
-            }
-          }
-        }
-        console.log('ready to show');
-        //io.to(newTalkProcessed.url).emit('add talk to list', newTalkProcessed);
-        return showTalk({talk: newTalkProcessed});
-      })
-      .catch(function (e) {
-        console.log('error', e);
-      });
-    //save talk to database
-    //put talk to users array
-    //return data to callback
-  });
 
-  function showTalk(data) {
-    //data should be list of participants and messages (last several messages)
-    socket.emit('start talk', data);
-    console.log('showTalk', data);
-  }
+  //if user is logged in, generating and sending talk list
+  //console.log('before talk-list logged',session.user.logged);
+  if(session.user.logged === true) {
+    //let oldUsername = session.user.username;
+    return database.talk.readTalksOfUser({username: session.user.username})
+      .then(function (talks) {
+        //session.reload();
+        //if(session.user.logged === true && oldUsername === session.user.username)
+          console.log(talks);
+          socket.emit('talk-list', {talks});
 
-  socket.on('start talk', function (talk) {
-    console.log(talk);
-    func.setTalkViewed(true, talk.url, myId)
-      .then(function (tak) {
-        console.log('set', tak);
-        return func.getTalk(talk);
       })
-      .then(function (tk) {
-        return func.processTalk(tk, {logged: logged, username: username});
-      })
-      .then(function (tk) {
-        showTalk({talk: tk});
-      })
-      .catch(function (err) {
+      .then(null, function (err) {
         console.log(err);
+        socket.emit('talk-list', {error: err});
       });
-  });
+  }
+    
+  /*
+    if(session.user.logged === true) {
+      var username = session.user.username;
+      users[username] = users[username] || {
+        username: username
+      };
+      users[username].sockets = users[username].sockets || [];
+      users[username].sockets.push(socket);
+    }
+  */
 
   socket.on('disconnect', function () {
-    delete users[username];
+//    delete users[username];
     //give information to others that the user was disconnected
     console.log('client disconnected');
   });

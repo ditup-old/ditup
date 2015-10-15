@@ -1,30 +1,55 @@
 'use strict';
 
 require.config({
-  baseUrl: '/js/talk/',
+  urlArgs: "bust=" + (new Date()).getTime(),
+  baseUrl: '/js',
   paths: {
     jquery: '/libs/js/jquery',
+    jqueryui: '/libs/jquery-ui-1.11.4/jquery-ui',
+    'jquery-private': '/libs/js/jquery-private',
     socketio: '/socket.io/socket.io'
+  },
+  map: {
+    // '*' means all modules will get 'jquery-private'
+    // for their 'jquery' dependency.
+    '*': { 'jquery': 'jquery-private' },
+    '*': { '$': 'jquery-private' },
+    '*': { 'jQuery': 'jquery-private' },
+
+    // 'jquery-private' wants the real jQuery module
+    // though. If this line was not here, there would
+    // be an unresolvable cyclic dependency.
+    'jquery-private': { 'jquery': 'jquery' }
   }
 });
 
-require(['TalkList', 'Talk', 'jquery', 'socketio'], function (TL, TK, $, io) {
-  //DOM elements
-  var $chat = $('#chat');
-  var $sendMessage = $('#send-message');
-  var $message = $('#message');
-  var $newTalkFormWrap = $('#new-talk-form-wrap');
-  var $newTalkForm = $('#new-talk-form');
-  var $newTalkMsg = $('#new-talk-msg');
+require(['talk/NewTalk','users/User', 'jquery', 'socketio', 'jqueryui'], function (NewTalk, User, $, io) {
+
+//DOM elements
+//  var $chat = $('#chat');
+//  var $sendMessage = $('#send-message');
+//  var $message = $('#message');
+//  var $newTalkFormWrap = $('#new-talk-form-wrap');
+
+  /* connecting dom objects to talk form*/
+  var newTalk = new NewTalk({
+    dom: {
+      main: $('#new-talk-div'),
+      form: $('#new-talk-form'),
+      userList: $('#user-list')
+    },
+    submit: function (data) {
+      return sendForm(data);
+    }
+  });
+//  var $newTalkMsg = $('#new-talk-msg');
+//  var $newTalkButton = $('#new-talk-button');
+//  var $talkList = $('#talk-list');
   var $newTalkButton = $('#new-talk-button');
-  var $talkList = $('#talk-list');
 
-
-  //variables
-  var newTalkUsers = [];
-  var newTalkDits = [];
-
-  var activeTalk;
+  $newTalkButton.on('click', function () {
+    newTalk.toggle();
+  });
 
   var me = {logged: false, username: 'guest'};
 
@@ -33,155 +58,116 @@ require(['TalkList', 'Talk', 'jquery', 'socketio'], function (TL, TK, $, io) {
   var socket = io(':3000/talk-io');
   //var socket = io();
 
-  var TalkList = new TL({
-    dom: {
-      list: $talkList
-    },
-    socket: socket
-  });
-
   socket.on('connect', function () {
-    $chat.append('connected to the server<br />');
+    //$chat.append('connected to the server<br />');
   });
 
   socket.on('auth', function (sess) {
-    $chat.append('you are '+(sess.logged !== true ? 'not ': '')+'logged in'+(sess.logged === true ? (' as '+ sess.username) : '')+'.<br />');
-    me = {logged: sess.logged, username: sess.username || me.username}
+    console.log('auth', sess);
+    /*
+    var msgLogged = 'you are logged in as ' + sess.username + '.';
+    var msgNotLogged = 'you are not logged in.'
+    var msg = sess.logged === true ? msgLogged : msgNotLogged;
+    $chat.append(msg + '<br />');
+    me = {logged: sess.logged, username: sess.username || me.username}*/
   });
   
-  //show available talks
-  socket.on('list talks', function (data) {
-    //console.log(JSON.stringify(data));
-    var talks = data.talks;
-    for(var len=talks.length-1; len>=0; len--) {
-      TalkList.addTalk(talks[len]);
-    }
+  socket.on('new-connection', function (user) {
+    var msg = 'you ' + user.username + ' connected from different place. altogether it\'s '+user.connectno+' connections.';
+    $chat.append(msg + '<br />');
   });
 
-  //open a talk
-  socket.on('start talk', function (data) {
-    //console.log('start a talk', data);
-    window.history.pushState({html: 'talk/' + encodeURIComponent(data.talk.url), pageTitle: 'talk ' + data.talk.url}, '', '/talk/' + encodeURIComponent(data.talk.url));
-    activeTalk = new TK({
-      dom: {
-        chat: $chat
-      },
-      talk: data.talk
-    });
-    TalkList.addTalk({
-      url: data.talk.url,
-      viewed: data.talk.viewed,
-      lastMessage: data.talk.messages[data.talk.messages.length-1]
-    });
-    TalkList.sort();
+  socket.on('talk-list', function (talks){
+    console.log('talks', talks);
   });
-
-  socket.on('show message', function (data) {
-    console.log(data);
-    if(activeTalk.url === data.talk){
-      activeTalk.addMessage(data.msg);
-    }
-    var talkFragment = {
-      url: data.talk,
-      viewed: data.msg.from.username === me.username ? true : false,
-      lastMessage: data.msg
-    };
-    TalkList.addTalk(talkFragment);
-
-  });
-
-  //socket.on('add talk to list', function (talk) {
-  //  console.log('add talk to list', talk);
-    //TalkList.addTalk(talk);
-  //});
 
   socket.on('disconnect', function () {
-    $chat.append('disconnected from the server<br />');
+    //$chat.append('disconnected from the server<br />');
   });
 
-  $sendMessage.on('submit', function (e) {
-    e.preventDefault();
-    var msg = $message.val();
-    $message.val('');
-    socket.emit('new message', {msg: msg, talk: activeTalk.url});
-  });
-  
-  //this piece shows or hides form which starts a new talk to users
-  $newTalkButton.on('mouseup', function (e) {
-    console.log('clicked');
-    e.preventDefault();
-    hideShowNewTalk(ntbOn);
-  });
-
-  var ntbOn = false;
-  function hideShowNewTalk(show) {
-    ntbOn = !ntbOn;
-    if(ntbOn === true){
-      console.log('show');
-      $newTalkFormWrap.show();
-      $newTalkButton.text('Cancel the new talk');
-    }
-    else {
-      console.log('hide');
-      $newTalkFormWrap.hide();
-      $newTalkButton.text('Start a new talk');
-    }
+  function sendForm(data) {
+    socket.emit('new-talk', data);
   }
 
-  $newTalkForm.on('submit', function (e) {
-    e.preventDefault();
-    var msg = $newTalkMsg.val();
-    if(newTalkUsers.length + newTalkDits.length > 0 && msg) {
-      socket.emit('new talk', {
-        users: newTalkUsers,
-        dits: newTalkDits,
-        message: msg
-      });
 
-      clearNewTalk();
-      hideShowNewTalk(false);
-    }
-  });
+  //DOM elements
+  //variables
 
-  function clearNewTalk() {
-    newTalkUsers = [];
-    newTalkDits = [];
-    $('#new-talk-participants').empty();
-    $newTalkMsg.val('');
-    $('#new-talk-form input[type=text]').val('');
-  }
+  var urlPath = window.location.pathname.replace(/^\/*|\/*$/g, '').split('/');
+  console.log(urlPath);
 
-  $('#new-talk-form input[type=text]')
-  //.bind('keypress', false)
-  .on('focusout',function(){    
-    var txt= this.value.replace(/[^a-zA-Z0-9\+\-\.\#]/g,''); // allowed characters
-    if(txt) {
-      if(newTalkUsers.indexOf(txt) === -1) {
-        newTalkUsers.push(txt);
-        $('#new-talk-participants').append(' <span class="new-participant" style="background-color:blue;" >'+ txt.toLowerCase() +'</span> ');
+  var source = function (request, response) {
+    $.ajax({
+      url: '/search-users',
+      async: true,
+      method: 'POST',
+      data: {string: request.term},
+      dataType: 'json'
+    })
+    .then(function (data){
+      console.log(data);
+      var users = [];
+      for (var i = 0, len = data.length; i<len; i++) {
+        var username = data[i].username;
+        users.push({value: username, label: username});
       }
-    }
-    this.value='';
-  }).on('keypress',function( e ){
-  // if: comma,enter (delimit more keyCodes with | pipe)
-    if(/(188|13)/.test(e.which)){
-      console.log('pressed enter', e);
-      $(this).focusout(); 
-      e.preventDefault();
+      return response(users);
+      //return response(data);
+    });
+  };
+  
+  var $userList = $('#user-list');
+  var $userInput = $('#add-user-input');
+  var $hiddenUserList = $('#hidden-user-list');
+  $userInput.attr({name: '', placeholder: 'search user'});
+  $hiddenUserList.attr({name: 'usernames'});
+
+  var selectedUsers = [];
+
+  $userInput.autocomplete({
+    source: source,
+    //appendTo: '#add-tag',
+    delay: 600,
+    minLength: 2,
+    select: function (e, ui) {
+      if(selectedUsers.indexOf(ui.item.value) !== -1) return false;
+      selectedUsers.push(ui.item.value);
+      $hiddenUserList.val(selectedUsers.join(', '));
+      addUser(ui.item.value);
+      $userInput.val('');
       return false;
     }
   });
 
+  function addUser(username) {
+    //show unsaved tag in the list
+    console.log('clicked tag');
+    var user = new User({
+      user: {username: username},
+      click: userFunctions.click.call(user, {username: username}),
+      close: userFunctions.close.call(user, {username: username}),
+      saved: true
+    });
 
-  $('#new-talk-participants').on('click','.new-participant',function(){
-    console.log('click');
-    var index = newTalkUsers.indexOf($(this).text());
-    if (index > -1) {
-      newTalkUsers.splice(index, 1);
-      console.log('removed');
+    user.dom.main.appendTo($userList);
+  }
+
+  var userFunctions = {
+    click: function (userData) {
+      //link to the user page
+      return function () {};
+    },
+    close: function (userData) {
+      return function () {
+
+        var index = selectedUsers.indexOf(this.user.username);
+        if (index > -1) {
+          selectedUsers.splice(index, 1);
+        }
+        $hiddenUserList.val(selectedUsers.join(', '));
+        //remove this tag from th
+        this.remove();
+      };
     }
-    $(this).remove(); 
-  });
-
-
+  };
 });

@@ -1,7 +1,9 @@
 <%
 var css = [
   '/css/header.css',
-  '/css/talk.css'
+  '/libs/jquery-ui-1.11.4/jquery-ui.css',
+  '/css/talk.css',
+  '/css/avatar.css'
 ];
 
 //TODO fix for require.js
@@ -24,8 +26,75 @@ var title = 'talk';
 
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
+<style>
+/*#content-wrap {
+  height: 100%;
+  width: 100%;
+  background-color: #c11;
+}
 
-    <div id="content-wrap" >
+#chat {
+  height: 300px;
+}
+
+#chat-wrap {
+  float:left;
+  border: 1px solid lightgray;
+  width:60%;
+}
+
+#talk-list {
+  border: 1px solid lightgray;
+  width: 40%;
+  float: left;
+  height: 323px;
+}
+
+#send-message {
+  position:fixed;
+  bottom:0;
+}
+
+#new-talk-form-wrap {
+  display: none;
+}
+
+.msg {}
+
+.error {
+  color:red;
+}
+
+/*
+.whisper {
+  color:gray;
+  font-style:italic;
+}
+*/
+</style>
+  <div id="chat-div" style="top:40px;position:absolute;left:0px;right:300px;border:1px solid green;bottom:0px;">
+    <div id="new-talk-div" style="display:none;" >
+      <h1>Start New Talk</h1>
+      <form id="new-talk-form" method="post" >
+        Topic:<br />
+        <input type="text" name="topic" /><br />
+        Users:<br />
+        <span id="user-list" ></span>
+        <input id="hidden-user-list" type="hidden" name="user-list" value="" />
+        <input type="text" name="add-user" id="add-user-input" /><br />
+        Initial Message:<br />
+        <textarea></textarea><br />
+        <input class="button" type="submit" value="Talk!" />
+      </form>
+    </div>
+  </div>
+  <div style="position:absolute;top:40px;width:300px;right:0px;border:1px solid black;bottom:0px;" >
+    <input style="width:100%;" class="button" id="new-talk-button" type="submit" value="start a new talk" />
+    <div id="talk-list" >
+      tags loading ...
+    </form>
+  </div>
+    <!--div id="content-wrap" >
       <div id="chat-wrap" >
         <button id="new-talk-button" >Start a new talk</button>
         <input id="save-talk" type="checkbox" checked="checked"> save talk to database
@@ -46,6 +115,6 @@ var title = 'talk';
       <div id="talk-list">
         <form method="post" id="talk-search-form" ><input type="text" id="talk-search" /><input type="submit" value="search" /></form>
       </div>
-    </div>
+    </div-->
 
 <% include ./partial/page-bottom.ejs %>
