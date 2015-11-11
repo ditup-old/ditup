@@ -7,16 +7,14 @@ up - start it up
 
 ## development
 
-old (unfinished & abandoned) version written in php: https://github.com/ditup/ditup-php
-old (unfinished & abandoned) version using mongodb: https://github.com/ditup/ditup-node-mongodb
+[old (unfinished & abandoned) version written in php](https://github.com/ditup/ditup-php)
+[old (unfinished & abandoned) version using mongodb](https://github.com/ditup/ditup-node-mongodb)
 
 ### technology
 * server: nodejs
 * database: arangodb
 
-npm library sharp depends on installing libvips (library for processing images)
-https://github.com/lovell/sharp
-https://github.com/jcupitt/libvips
+npm library [sharp](https://github.com/lovell/sharp) depends on installing [libvips](https://github.com/jcupitt/libvips) (library for processing images)
 
 ## License
 
