@@ -17,3 +17,7 @@ old (unfinished & abandoned) version using mongodb: https://github.com/ditup/dit
 npm library sharp depends on installing libvips (library for processing images)
 https://github.com/lovell/sharp
 https://github.com/jcupitt/libvips
+
+## License
+
+[The MIT License](http://opensource.org/licenses/MIT)
