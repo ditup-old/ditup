@@ -1,19 +1,92 @@
-<html>
-<head>
+<%
+var css = [
+  '/css/signup.css'
+];
+
+var title = 'login';
+var headScripts = [];
+var scripts = [];
+%><%include ./partial/page-top.ejs %>
 <style>
+  
+  *, body {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #eeeeee;
+  }
+
+  #out-wrapper { 
+    width: 100%;
+    position:relative;
+    min-height: 100%
+  }
+
+  #in-wrapper {
+    margin: 0px auto;
+    padding-top: 40px;
+    padding-top: 40px;
+    position:relative;
+    width: 300px;
+  }
+
+  input, input[type=submit]{
+    display: block;
+    width: 100%;
+    position:relative;
+    padding: 5px;
+    margin:0px;
+    border:2px solid #011149;
+    background: none;
+    margin-top:2px;
+  }
+
+  input[type=submit] {
+    margin-top:20px;
+    color: #eeeeee;
+    background-color: #011149;
+    cursor:pointer;
+  }
+
+  .error-message {
+    margin-bottom: 10px;
+    margin-top:2px;
+    color: #cd3554;
+  }
+
+  .error-input {
+    border-color: #cd3554;
+  }
+
+  a, a:active {
+    color: #0194fe;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #eeeeee;
+    background-color: #011149;
+  }
+
 </style>
-</head>
-<body>
-<form method="post">
-<table>
-    <!--tr><td>name</td><td><input type="text" name="name" value="<%= values.name %>" placeholder="Name" /></td><td><%= errors.name %></td></tr>
-    <tr><td>surname</td><td><input type="text" name="surname" value="<%= values.surname %>" placeholder="Surname" /></td><td><%= errors.surname %></td></tr-->
-    <tr><td>username</td><td><input type="text" name="username" value="<%= values.username %>" placeholder="username" /></td><td><%= errors.username %></td></tr>
-    <tr><td>email</td><td><input type="text" name="email" value="<%= values.email %>" placeholder="email@example.com" /></td><td><%= errors.email %></td></tr>
-    <tr><td>password</td><td><input type="password" name="password" value="" placeholder="password" /></td><td><%= errors.password %></td></tr>
-    <tr><td>retype password</td><td><input type="password" name="password2" value="" placeholder="retype pass" /></td><td><%= errors.password2 %></td></tr>
-    <tr><td></td><td><input type="submit" name="signup" value="Sign Up!" /></td><td></td></tr>
-</table>
-</form>
-</body>
-</html>
+<div id="out-wrapper">
+  <div id="in-wrapper">
+  <form method="post" id="signup-form" >
+    username
+    <input type="text" name="username" value="<%= values.username %>" <% if  (errors.username.hasOwnProperty('length') && errors.username.length > 0) {%> class="error-input" <% } %> placeholder="username" />
+    <div class="error-message"><%= errors.username %></div>
+    email
+    <input type="text" name="email" value="<%= values.email %>" <% if  (errors.email.hasOwnProperty('length') && errors.email.length > 0) {%> class="error-input" <% } %> placeholder="email@example.com" />
+    <div class="error-message"><%= errors.email %></div>
+    password
+    <input type="password" name="password" value="" <% if  (errors.password.hasOwnProperty('length') && errors.password.length > 0) {%> class="error-input" <% } %> placeholder="password" />
+    <div class="error-message"><%= errors.password %></div>
+    retype password
+    <input type="password" name="password2" value="" <% if  (errors.password2.hasOwnProperty('length') && errors.password2.length > 0) {%> class="error-input" <% } %> placeholder="retype pass" />
+    <div class="error-message"><%= errors.password2 %></div>
+    <input type="submit" name="signup" value="sign up" />
+  </form>
+  </div>
+</div>
+<% include ./partial/page-bottom.ejs %>

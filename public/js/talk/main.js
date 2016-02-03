@@ -79,6 +79,9 @@ require(['talk/NewTalk','users/User', 'jquery', 'socketio', 'jqueryui'], functio
 
   socket.on('talk-list', function (talks){
     console.log('talks', talks);
+    for(var i=0, len=talks.length; i<len; i++){
+      //show each talk in talk list
+    }
   });
 
   socket.on('disconnect', function () {

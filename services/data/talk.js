@@ -116,6 +116,8 @@ module.exports = function (db) {
         LET users = (FOR ut IN userTalk FILTER t._id == ut._to
           FOR u IN users FILTER u._id == ut._from
             RETURN {username: u.username})
+        SORT FIRST(mesu).sent DESC
+        LIMIT 0,10
         RETURN {
           talk: MERGE(t, {messages: mesu}),
           users: users

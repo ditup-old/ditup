@@ -7,10 +7,69 @@ var title = 'login';
 var headScripts = [];
 var scripts = [];
 %><%include ./partial/page-top.ejs %>
-<form method="post" id="login-form" >
-<input type="text" name="username" placeholder="username" />
-<input type="password" name="password" placeholder="password" />
-<input type="submit" name="login" value="Login!" />
-</form>
-<a href="/account/reset-password">Forgotten login details?</a>
+<style>
+  
+  *, body {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #eeeeee;
+  }
+
+  #out-wrapper { 
+    width: 100%;
+    position:relative;
+    min-height: 100%
+  }
+
+  #in-wrapper {
+    margin: 0px auto;
+    padding-top: 40px;
+    padding-top: 40px;
+    position:relative;
+    width: 300px;
+  }
+
+  input, input[type=submit]{
+    width: 100%;
+    position:relative;
+    padding: 5px;
+    margin:0px;
+    border:2px solid #011149;
+    background: none;
+    margin-bottom:10px;
+    margin-top:2px;
+  }
+
+  input[type=submit] {
+    margin-top:20px;
+    color: #eeeeee;
+    background-color: #011149;
+    cursor:pointer;
+  }
+
+  a, a:active {
+    color: #0194fe;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #eeeeee;
+    background-color: #011149;
+  }
+
+</style>
+<div id="out-wrapper">
+  <div id="in-wrapper">
+  <form method="post" id="login-form" >
+    username
+    <input type="text" name="username" placeholder="username" />
+    password
+    <input type="password" name="password" placeholder="password" />
+    <input type="submit" name="login" value="log in" />
+  </form>
+  <a href="/account/reset-password">forgotten login details?</a>
+  </div>
+</div>
 <% include ./partial/page-bottom.ejs %>

@@ -17,7 +17,7 @@ module.exports = function (db) {
 
     if(!options.dittype){
       query=`LET dt = (FOR d IN dits FILTER true RETURN {url: d.url, dittype: d.dittype})
-        LET all = LENGTH(dt)
+        LET alll = LENGTH(dt)
         FOR d IN dt
         COLLECT dittype = d.dittype INTO dts = d.url
         LET num = LENGTH(dts)
@@ -25,7 +25,7 @@ module.exports = function (db) {
         RETURN {
           dittype: dittype,
           no: num,
-          all: all
+          "all": alll
         }`;
       params = {};
     }

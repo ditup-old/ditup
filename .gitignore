@@ -4,6 +4,7 @@ public/img/*
 files/uploads/*
 files/img/avatars/*
 public/libs
+public/fonts
 config/*
 services/mailer/config.json
 npm-debug.log
