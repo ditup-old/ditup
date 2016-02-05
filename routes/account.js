@@ -255,11 +255,12 @@ router.post('/delete-user', function (req, res, next) {
     })
     .then(function () {
       var username = sessUser.username;
-      //log out
-      req.session.destroy();
+      req.session.user.logged = false;
+      req.session.user.username = null;
 
       var message = 'Dear ' + username + ', your account was successfuly deleted. Thank you for the time we spent together.' + (fbValid === true ? ' Thank you for your feedback.' : '');
-      return res.render('sysinfo', {msg: message, session: {logged: false, username: undefined}});
+      req.session.messages.push(message);
+      return res.redirect('/');
     })
     .then(null, function (err) {
       return next(err);

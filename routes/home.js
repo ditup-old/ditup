@@ -31,7 +31,7 @@ router.get('/', function(req, res, next) {
       });
   }
   else {
-    return res.render('main');
+    return res.render('main', {session: sessUser});
   }
 });
 

@@ -7,6 +7,7 @@ var title = 'login';
 var headScripts = [];
 var scripts = [];
 %><%include ./partial/page-top.ejs %>
+<%include ./partial/messages %>
 <style>
   
   *, body {
@@ -74,16 +75,16 @@ var scripts = [];
   <div id="in-wrapper">
   <form method="post" id="signup-form" >
     username
-    <input type="text" name="username" value="<%= values.username %>" <% if  (errors.username.hasOwnProperty('length') && errors.username.length > 0) {%> class="error-input" <% } %> placeholder="username" />
+    <input type="text" name="username" value="<%= values.username %>" <% if (errors.username && errors.username.hasOwnProperty('length') && errors.username.length > 0) {%> class="error-input" <% } %> placeholder="username" />
     <div class="error-message"><%= errors.username %></div>
     email
-    <input type="text" name="email" value="<%= values.email %>" <% if  (errors.email.hasOwnProperty('length') && errors.email.length > 0) {%> class="error-input" <% } %> placeholder="email@example.com" />
+    <input type="text" name="email" value="<%= values.email %>" <% if (errors.email && errors.email.hasOwnProperty('length') && errors.email.length > 0) {%> class="error-input" <% } %> placeholder="email@example.com" />
     <div class="error-message"><%= errors.email %></div>
     password
-    <input type="password" name="password" value="" <% if  (errors.password.hasOwnProperty('length') && errors.password.length > 0) {%> class="error-input" <% } %> placeholder="password" />
+    <input type="password" name="password" value="" <% if (errors.password && errors.password.hasOwnProperty('length') && errors.password.length > 0) {%> class="error-input" <% } %> placeholder="password" />
     <div class="error-message"><%= errors.password %></div>
     retype password
-    <input type="password" name="password2" value="" <% if  (errors.password2.hasOwnProperty('length') && errors.password2.length > 0) {%> class="error-input" <% } %> placeholder="retype pass" />
+    <input type="password" name="password2" value="" <% if (errors.password2 && errors.password2.hasOwnProperty('length') && errors.password2.length > 0) {%> class="error-input" <% } %> placeholder="retype pass" />
     <div class="error-message"><%= errors.password2 %></div>
     <input type="submit" name="signup" value="sign up" />
   </form>

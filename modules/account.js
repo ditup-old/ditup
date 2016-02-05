@@ -248,15 +248,20 @@ exports.updatePassword = function (data) {
  * @param {string} data.password
  * @returns {Promise<boolean>}
  */
-exports.matchPassword = function (data) {
+exports.matchPassword = function (data, returnUserData) {
   if(!data.hasOwnProperty('username') || !data.hasOwnProperty('password')) throw badInput;
-
+  returnUserData = returnUserData || {};
   var username = data.username;
   var password = data.password;
   var hash, salt, iterations;
 
   return database.readUser({username: username})
     .then(function (user) {
+      if(!user) throw new Error('user not exist');
+      returnUserData.name = user.profile.name;
+      returnUserData.surname = user.profile.surname;
+      returnUserData.username = user.username;
+      returnUserData.email = user.email;
       hash = user.login.hash;
       salt = user.login.salt;
       iterations = user.login.iterations;
@@ -272,6 +277,9 @@ exports.matchPassword = function (data) {
       }
 
       return false;
+    })
+    .then(null, function (err) {
+      if(err.message === 'user not exist') {return false;}
     });
 };
 

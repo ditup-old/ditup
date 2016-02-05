@@ -48,6 +48,15 @@ module.exports = function (session) {
     next();
   });
 
+  app.use(function (req, res, next) {
+    req.app = req.app || {};
+    req.app.messages = req.session.messages;
+    req.session.messages = req.session.messages || [];
+    req.session.user.messages = req.session.messages;
+    req.session.messages = [];
+    next();
+  });
+
 
   //load routes to express
   var routes = require('./routes.json');
@@ -60,10 +69,6 @@ module.exports = function (session) {
   
   let various = require('./routes/various');
   app.use(various);
-
-  //app.use('/', home);
-  //app.use('/signup', signup);
-  //app.use('/login', login);
 
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {
@@ -92,7 +97,7 @@ module.exports = function (session) {
           });
         },
         'application/json': function () {
-          err.status = err.status || 200;
+          err.status = err.status || 500;
           res.status(err.status).send({error: err.message});
         }
       });
@@ -108,7 +113,7 @@ module.exports = function (session) {
         res.render('error', {message: err.message, error: {}});
       },
       'application/json': function () {
-        err.status = err.status || 200;
+        err.status = err.status || 500;
         res.status(err.status).send({error: err.message});
       }
     });

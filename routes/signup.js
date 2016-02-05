@@ -13,7 +13,8 @@ var ITERATIONS = accountConfig.password.iterations;
 router.all('*', function(req, res, next) {
   var sessUser = req.session.user;
   if(sessUser.logged === true) {
-    return res.render('sysinfo', {msg: 'you are logged in as <a href="/user/'+ sessUser.username +'" >' + sessUser.username + '</a>. To sign up you need to <a href="/logout">log out</a> first.', session: sessUser});
+    sessUser.messages.push('you are logged in as <a href="/user/'+ sessUser.username +'" >' + sessUser.username + '</a>. To sign up you need to <a href="/logout">log out</a> first.');
+    return res.render('sysinfo', {session: sessUser});
   }
   else {
     next();
@@ -21,12 +22,13 @@ router.all('*', function(req, res, next) {
 });
 
 router.get('/', function(req, res, next){
+  var sessUser = req.session.user;
   //
-  return res.render('signup', {errors: {}, values: {}});
+  return res.render('signup', {errors: {}, values: {}, session: sessUser});
 });
 
 router.post('/', function(req, res, next){
-  var user = req.session.user;
+  var sessUser = req.session.user;
   var form = req.body;
   var formData = {
     username: form.username,
@@ -56,7 +58,6 @@ router.post('/', function(req, res, next){
       else
         return invalidBranch();
     })
-    //error handling
     .then(null, function (err) {
       console.log(err.stack);
       next(err);
@@ -115,15 +116,18 @@ router.post('/', function(req, res, next){
       })
       .then(function () {
         //generate success message
+        sessUser.username = formData.username;
+        sessUser.logged = true;
         var message = 'Welcome ' + formData.username + '. Your new account was created and verification email was sent to ' + formData.email + '. It should arrive soon. In the meantime why don\'t you fill up your profile?';
-        return res.render('sysinfo', {msg: message, session: user});
+        req.session.messages.push(message);
+        return res.redirect('/user/' + formData.username + '/edit');
       
       });
   }
 
   function invalidBranch() {
-    res.render('signup', { errors: errors, values: formData });
-    return Q.resolve();
+    sessUser.messages.push('there were some errors in processing signup request');
+    return res.render('signup', { errors: errors, values: formData, session: sessUser});
   }
 });
 

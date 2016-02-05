@@ -1,3 +1,4 @@
+<% var msg = msg || '';%>
 <div class="main-menu-top">
   <ul class="nav left" >
     <li><a href="/" ><span id="header-ditup-logo" class="span-image" style="background-image:url(/img/logo3.png)"></span><%
@@ -68,7 +69,4 @@
  --><li><a href="/talk" ><span class="fa fa-comments" ></span></a></li><% } %>
   </ul>
 </div>
-<div >
-  <%= session.message %>
-  <%= session.error %>
-</div>
+<% include ./messages %>

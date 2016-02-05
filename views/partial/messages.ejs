@@ -1,0 +1,26 @@
+<style>
+  .popup-message.info {
+    position:relative;
+    padding: 15px 20px;
+    background-color: #c4d3e0
+  }
+
+  .popup-close {
+    position: absolute;
+    right:20px;
+    top:40%;
+    cursor:pointer;
+  }
+
+</style>
+
+<% for (var m in session.messages) { %>
+<div class="popup-message info" ><span class="popup-text"><%- session.messages[m] %></span><span class="fa fa-times popup-close"></span></div>
+  <% } %>
+<script src="/libs/js/jquery.js"></script>
+<script>
+  var popupClose = $('.popup-close');
+  popupClose.on('click', function (e) {
+    popupClose.parent().hide('slow', function(){ $(this).remove(); });
+  });
+</script>
