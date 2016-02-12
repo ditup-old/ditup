@@ -1,0 +1,20 @@
+<%
+  var css = [
+    '/css/header.css'
+  ];
+
+  var title = 'home';
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+<h1>Discussions</h1>
+<% if (logged !== true) {%><div id="login-signup-msg"><a href="/login" >log in</a> or <a href="/signup" >sign up</a> to see more</div><%}%>
+<% if (logged === true) {%><a id="new-discussion" href="/discussions/new" >start a new discussion</a><%}%>
+</div>
+<% include ./partial/page-bottom.ejs %>

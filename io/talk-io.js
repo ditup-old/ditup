@@ -1,6 +1,7 @@
 'use strict';
 
 var database = require('../services/data');
+var validate = require('../services/validation');
 
 module.exports = function  (socket, params, io) {
   var session = socket.request.session;
@@ -10,7 +11,7 @@ module.exports = function  (socket, params, io) {
 
   //***user joins her own room (what is it good for?)
   //***it is possible to broadcast to all sockets of that user.
-  if(session.user.logged === true) {
+  if(session.user && session.user.logged === true) {
     /* joining group of user's sockets */
     socket.join('/user/'+session.user.username);
 
@@ -34,10 +35,10 @@ module.exports = function  (socket, params, io) {
     session.reload();
     if(session.user.logged === true) {
       let userInput = data.usernames; 
-      let rawUsernames = tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*|\s+/); 
+      let rawUsernames = userInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*|\s+/); 
       let users = [{username: session.user.username}]; 
       for(let raw of rawUsernames){ 
-        let valid = validate.username(raw); 
+        let valid = validate.user.username(raw); 
         if(valid === true) users.push({username: raw}); 
       } 
       console.log({topic: data.topic, users: users, message: data.message});
@@ -50,7 +51,7 @@ module.exports = function  (socket, params, io) {
 
   //if user is logged in, generating and sending talk list
   //console.log('before talk-list logged',session.user.logged);
-  if(session.user.logged === true) {
+  if(session.user && session.user.logged === true) {
     //let oldUsername = session.user.username;
     return database.talk.readTalksOfUser({username: session.user.username})
       .then(function (talks) {

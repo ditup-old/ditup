@@ -2,7 +2,7 @@
 
 module.exports = function (session) {
 
-  require('./log-place');
+  //require('./log-place');
 
   var express = require('express');
   var path = require('path');
@@ -63,7 +63,7 @@ module.exports = function (session) {
 
   for(let route of routes) {
     let router = require('./routes/' + route.router);
-    console.log('loaded', route.url);
+    //console.log('loaded', route.url);
     app.use(route.url, router);
   }
   
