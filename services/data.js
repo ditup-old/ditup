@@ -599,3 +599,4 @@ module.exports.user = require('./data/user')(db);
 module.exports.dit = require('./data/dit')(db);
 module.exports.tag = require('./data/tag')(db);
 module.exports.talk = require('./data/talk')(db);
+module.exports.discussion = require('./data/discussion')(db);

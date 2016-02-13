@@ -96,7 +96,7 @@ router.post('/', function(req, res, next){
               verified: false
             },
             active_account: true,
-            last_login: null,
+            last_login: Date.now(),
             last_message_visit: null
           },
           login: {
