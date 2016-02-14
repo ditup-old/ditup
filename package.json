@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "test": "mocha ./test",
-    "unit-test": "mocha ./test/unit",
-    "unit-watch": "mocha ./test/unit --watch",
+    "test-unit": "mocha ./test/unit",
+    "watch-unit": "mocha ./test/unit --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {
