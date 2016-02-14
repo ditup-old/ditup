@@ -110,8 +110,9 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('addMessage', function () {});
-  describe('removeMessage', function () {});
+  describe('addPost', function () {});
+  describe('updatePost', function () {});
+  describe('removePost', function () {});
   describe('addTag', function () {});
   describe('removeTag', function () {});
   describe('follow', function () {});

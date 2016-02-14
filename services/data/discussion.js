@@ -53,7 +53,13 @@ module.exports = function (db) {
     var query = 'FOR d IN discussions FILTER d._key == @id REMOVE d IN discussions';
     var params = {id: id};
 
-    return db.query(query, params);
+    return db.query(query, params)
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) throw new Error(404);
+        else if (writes === 1) return {success: true}
+        else throw new Error('problems with removing tag (this should never happen)');
+      });
   };
 
   return discussion;
