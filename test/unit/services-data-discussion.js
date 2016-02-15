@@ -110,7 +110,33 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('addPost', function () {});
+  describe('addPost', function () {
+    var post = 'this is some post text. Lorem ipsum dolor sic amet';
+
+    context('when discussion with :id exists', function () {
+      var existentId;
+      beforeEach(function(done) {
+        discussion.create(completeData)
+          .then(function (obj) {
+            existentId = obj.id;
+          })
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      it('should add post to the database and return promise and fulfill it with post id', function () {
+        return expect(discussion.addPost({discussionId: existentId, post: post, creator: author})).to.eventually.have.property('id');
+      });
+    });
+
+    context('when discussion with :id doesn\'t exist', function () {
+      var nonexistentId = String(211111111111111);
+      it('should return promise and reject it with proper error (404)', function () {
+        return expect(discussion.delete(nonexistentId)).to.eventually.be.rejectedWith(404);
+      });
+    });
+  });
   describe('updatePost', function () {});
   describe('removePost', function () {});
   describe('addTag', function () {});
