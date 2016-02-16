@@ -179,7 +179,15 @@ describe('database/discussion', function () {
 
   describe('updatePost', function () {
     context('when discussion doesn\'t exist', function () {
-      it('should return a promise and reject it with 404 error');
+      var nonexistentId = '2111111111';
+      it('should return a promise and reject it with 404 error', function () {
+        return expect(discussion.updatePost(nonexistentId, {
+            index: 0,
+            user: 'mrkvon',
+            text: 'this is a new post text2',
+            updated: Date.now()
+          })).to.eventually.be.rejectedWith('404');
+      });
     });
 
     context('when discussion exists', function () {
@@ -300,7 +308,85 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('removePost', function () {});
+  describe('removePost(discussinId, {index: number, user: string, deleted: date}, directEditingRights)', function () {
+    context('when discussion doesn\'t exist', function () {
+      var nonexistentId = '2111111111';
+      it('should return a promise and reject it with 404 error', function () {
+        return expect(discussion.removePost(nonexistentId, {
+            index: 0,
+            user: 'mrkvon',
+            deleted: Date.now()
+          })).to.eventually.be.rejectedWith('404');
+      });
+    });
+    context('when discussion exists', function () {
+      //create discussion and add some posts to it
+      var completeData = {
+        topic: 'discussion topic',
+        creator: 'test1',
+        created: Date.now()
+      };
+      var existentId;
+      beforeEach(function(done) {
+        discussion.create(completeData)
+          .then(function (obj) {
+            existentId = obj.id;
+            return discussion.addPost(existentId, {creator: 'mrkvon', text: 'this is some post text'});
+          })
+          .then(function () {
+            return discussion.addPost(existentId, {creator: 'test1', text: 'this is some post text 2'});
+          })
+          .then(function () {
+            return discussion.addPost(existentId, {creator: 'mrkvon', text: 'this is some post text 3'});
+          })
+          .then(function () {
+            done();
+          }, done);
+      });
+      afterEach(function(done) {
+        db.query('FOR d IN discussions REMOVE d IN discussions')
+          .then(function () {
+            done();
+          }, done);
+      });
+      context('when post doesn\'t exist', function () {
+        it('should return a promise and reject it with 404 error', function () {
+          return expect(discussion.removePost(existentId, {
+              index: 5,
+              user: 'mrkvon',
+              deleted: Date.now()
+            })).to.eventually.be.rejectedWith('404');
+        });
+        
+      });
+      context('when post exists', function () {
+        context('when user has rights to delete post (either creator or admin)', function () {
+          it('should delete the post and return a promise and resolve it', function (done) {
+            Promise.all([
+              discussion.removePost(existentId, {index: 1, user: 'test1'}),
+              discussion.removePost(existentId, {index: 2, user: 'test2'}, true)
+            ])
+              .then(function () {
+                return discussion.read(existentId);
+              })
+              .then(function (discussion) {
+                expect(discussion.posts[1]).to.be.deep.equal(null);
+                expect(discussion.posts[2]).to.be.deep.equal(null);
+              })
+              .then(done, done);
+          });
+        });
+        context('when user doesn\'t have rights to delete the post', function () {
+          it('should return a promise and reject it with 401 error', function () {
+            return expect(discussion.removePost(existentId, {
+                index: 2,
+                user: 'test1'
+              }, false)).to.eventually.be.rejectedWith('401');
+          });
+        });
+      });
+    });
+  });
   describe('addTag', function () {});
   describe('removeTag', function () {});
   describe('follow', function () {});

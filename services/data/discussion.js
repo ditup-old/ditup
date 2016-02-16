@@ -89,7 +89,7 @@ module.exports = function (db) {
   discussion.updatePost = function (id, post, editable) {
     editable = editable || false;
 
-    if(!post.user || !post.text || !post.index || !id ) return Promise.reject(400);
+    if(!post.user || !post.text || typeof post.index !== 'number' || !id ) return Promise.reject(400);
     //find out if user can edit the post
     var canEdit;
     //if she has special rights, can edit.
@@ -132,6 +132,52 @@ module.exports = function (db) {
         var params = {id: id, text: post.text, /*user: post.user, */updated: post.updated || Date.now(), index: post.index };
         return db.query(query, params);
     });
+  };
+
+  discussion.removePost = function (id, post, editable) {
+    var canEdit;
+    //if she has special rights, can edit.
+    if(editable === true) {
+      canEdit = Promise.resolve('admin');
+    }
+    else {
+        
+      //this query should resolve if user & post creator match.
+      //else it should return promise and reject it(with some error codes).
+      var canEditQuery = `FOR d IN discussions FILTER d._key == @id
+      FOR u IN users FILTER u.username == @username
+          RETURN TO_BOOL(NTH(d.posts, @index)) ? ( u._id == d.posts[@index].creator ? true : 401) : 404
+        `;
+      var canEditParams = {id: id, index: post.index, username: post.user};
+      canEdit = db.query(canEditQuery, canEditParams)
+        .then(function (cursor) {
+          return cursor.all();
+        })
+        .then(function (can) {
+          //if discussion or user was not found
+          if(can.length === 0) throw new Error(404);
+          if(can.length > 1) throw new Error(500);
+          if(can[0] === true) return 'user';
+          if(can[0] === 401) throw new Error(401);
+          if(can[0] === 404) throw new Error(404);
+          throw new Error('uncaught');
+        });
+    }
+
+    return canEdit
+      .then(function () {
+        var query = `FOR d IN discussions FILTER d._key == @id
+        UPDATE d WITH {
+            posts: UNION(
+                SLICE(d.posts, 0, @index),
+                [null],
+                SLICE(d.posts, @index+1)
+            )
+        } IN discussions
+        RETURN NEW`;
+        var params = {id: id, index: post.index };
+        return db.query(query, params);
+      });
   };
 
   return discussion;
