@@ -134,6 +134,8 @@ module.exports = function (db) {
     });
   };
 
+  discussion.canEditPost = function () {};
+
   discussion.removePost = function (id, post, editable) {
     var canEdit;
     //if she has special rights, can edit.
@@ -177,6 +179,26 @@ module.exports = function (db) {
         RETURN NEW`;
         var params = {id: id, index: post.index };
         return db.query(query, params);
+      });
+  };
+
+  discussion.addTag = function (id, tagname, username) {
+    var query = `FOR d IN discussions FILTER d._key == @id
+      FOR t IN tags FILTER t.name == @tagname
+        FOR u IN users FILTER u.username == @username
+          INSERT {_from: d._id, _to: t._id, unique: CONCAT (d._id, '-', t._id), creator: u._id, created: @created} INTO discussionTag
+          RETURN NEW`;
+    var params = {id: id, tagname: tagname, username: username, created: Date.now()};
+    
+    return db.query(query, params)
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if(writes === 0) throw new Error(404);
+        if(writes > 1) throw new Error('more than one tag added. This should never happen.');
+      })
+      .then(null, function (err) {
+        if(err.code === 409) throw new Error(409);
+        throw err;
       });
   };
 

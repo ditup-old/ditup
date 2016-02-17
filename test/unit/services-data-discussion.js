@@ -176,6 +176,8 @@ describe('database/discussion', function () {
       });
     });
   });
+  
+  describe('readPost(id, index)', function () {});
 
   describe('updatePost', function () {
     context('when discussion doesn\'t exist', function () {
@@ -387,11 +389,80 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('addTag', function () {});
+  describe('addTag', function () {
+    var existentTag = 'test-tag-1';
+    var user = 'test1';
+    context('when discussion exists', function () {
+      //create discussion and add some posts to it
+      var completeData = {
+        topic: 'discussion topic',
+        creator: 'test1',
+        created: Date.now()
+      };
+      var existentId;
+      beforeEach(function(done) {
+        discussion.create(completeData)
+          .then(function (obj) {
+            existentId = obj.id;
+          })
+          .then(done, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR d IN discussions REMOVE d IN discussions')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      
+      context('when user has rights to add tag', function () {
+        context('when tag exists', function () {
+          context('when discussion is already tagged with this tag', function () {
+            it('should return a promise and reject it with 409 code', function () {
+                return expect(
+                  discussion.addTag(existentId, existentTag, user)
+                    .then(function () {
+                      return discussion.addTag(existentId, existentTag, user);
+                    })
+                  ).to.eventually.be.rejectedWith('409');
+            });
+          });
+          context('when discussion was not tagged yet', function () {
+            it('should return a promise, create proper changes in database and fulfill the promise', function () {
+              return expect(discussion.addTag(existentId, existentTag, user)).to.eventually.be.fulfilled;
+            });
+          });
+        });
+        context('when tag doesn\'t exist', function () {
+          it('should return a promise and reject it with 404 code', function () {
+            return expect(discussion.addTag(existentId, 'nonexistent-tag', user)).to.eventually.be.rejectedWith('404');
+          });
+        });
+      });
+      context('when user doesn\'t have rights to add tag', function () {
+        it('should return a promise and reject it with 401');
+      });
+    });
+    context('when discussion doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code', function () {
+        return expect(discussion.addTag('211111111111111', existentTag, user)).to.eventually.be.rejectedWith('404');
+      });
+    });
+  });
   describe('removeTag', function () {});
+  describe('tags', function () {});
   describe('follow', function () {});
+  describe('following', function () {});
   describe('unfollow', function () {});
   describe('hide', function () {});
-  describe('readTagDiscussions', function () {});
+  describe('readDiscussionsByTags', function () {});
 
 });
