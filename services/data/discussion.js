@@ -262,5 +262,20 @@ module.exports = function (db) {
     return this.follow(id, username, true);
   }
 
+  discussion.unfollow = function (id, username) {
+    var query = `FOR d IN discussions FILTER d._key == @id
+      FOR u IN users FILTER u.username == @username
+        FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd._to == d._id && ufd.hide == false
+        REMOVE ufd IN userFollowDiscussion`;
+    var params = {id: id, username: username};
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if(writes == 0) throw new Error(404);
+        if(writes > 1) throw new Error('more than 1 unfollowed. this should never happen');
+      });
+  };
+
   return discussion;
 };

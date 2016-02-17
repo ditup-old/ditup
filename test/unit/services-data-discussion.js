@@ -677,7 +677,84 @@ describe('database/discussion', function () {
   //does user follow a discussion? bool.
   describe('followingOne', function () {});
   describe('followers', function () {});
-  describe('unfollow', function () {});
+  describe('unfollow(id, username)', function () {
+    var username = 'test1';
+    context('when discussion doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code', function () {
+        return expect(discussion.unfollow('211111111111111111', username)).to.eventually.be.rejectedWith('404');
+      });
+    })
+    context('when discussion exists', function () {
+      //create discussion
+      var completeData = {
+        topic: 'discussion topic',
+        creator: 'test1',
+        created: Date.now()
+      };
+      var existentId;
+      beforeEach(function(done) {
+        discussion.create(completeData)
+          .then(function (obj) {
+            existentId = obj.id;
+          })
+          .then(done, done);
+      });
+      afterEach(function(done) {
+        db.query('FOR d IN discussions REMOVE d IN discussions')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      context('when user doesn\'t exist', function () {
+        it('should return a promise and reject it with 404 code', function () {
+          return expect(discussion.unfollow(existentId, 'non-existent-user')).to.eventually.be.rejectedWith('404');
+        });
+      });
+
+      context('when user exists', function () {
+        context('when user is following', function () {
+          it('should remove the follow from database, return a promise and resolve it', function (done) {
+            return discussion.follow(existentId, username)
+              .then(function () {
+                return expect(discussion.unfollow(existentId, username)).to.eventually.be.fulfilled;
+              })
+              .then(function () {done();}, done);
+          });
+        });
+
+        context('when user is not following', function () {
+          it('should return a promise and reject it with 404 code', function () {
+            return expect(discussion.unfollow(existentId, username)).to.eventually.be.rejectedWith('404');
+          });
+        });
+
+        context('when user has the discussion hidden', function () {
+          it('should return a promise and reject it with 404 code', function (done) {
+            return discussion.follow(existentId, username, true)
+              .then(function () {
+                return expect(discussion.unfollow(existentId, username)).to.eventually.be.rejectedWith('404');
+              })
+              .then(function () {done();}, done);
+          });
+        });
+      });
+    });
+  });
   describe('hide', function () {
     var username = 'test1';
     context('when discussion doesn\'t exist', function () {
