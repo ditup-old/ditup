@@ -277,5 +277,9 @@ module.exports = function (db) {
       });
   };
 
+  discussion.following = function (username) {
+    return db.query('');
+  }
+
   return discussion;
 };

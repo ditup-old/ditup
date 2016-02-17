@@ -673,7 +673,73 @@ describe('database/discussion', function () {
     });
   });
   //what discussions is user following
-  describe('following', function () {});
+  describe('following(username)', function () {
+    var username = 'test1';
+    var topics = ['discussion1', 'discussion2', 'discussion3', 'discussion4'];
+    //create discussion
+    var existentIds = [];
+    beforeEach(function(done) {
+      var dpromises = [];
+      for(let i = 0, len = topics.length; i < len; i++) {
+        dpromises[i] = discussion.create({topic: topics[i], created: Date.now(), creator: username});
+      }
+      Promise.all(dpromises)
+        .then(function (objArray) {
+          for(let i = 0, len = objArray.length; i<len; i++){
+            existentIds[i] = objArray[i].id;
+          }
+        })
+        .then(done, done);
+    });
+    afterEach(function(done) {
+      db.query('FOR d IN discussions REMOVE d IN discussions')
+        .then(function () {
+          done();
+        }, done);
+    });
+
+    afterEach(function(done) {
+      db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+        .then(function () {
+          done();
+        }, done);
+    });
+
+    afterEach(function(done) {
+      db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
+        .then(function () {
+          done();
+        }, done);
+    });
+
+
+    context('when user exists', function () {
+      it('should return a promise and resolve it with an array of discussions user follows: []', function () {
+        return expect(discussion.following(username)).to.eventually.deep.equal([]);
+      });
+      it('should return a promise and resolve it with an array of discussions user follows: [discussion0, discussion1, discussion3]', function (done) {
+        Promise.all([
+          discussion.follow(existentIds[0], username),
+          discussion.follow(existentIds[1], username),
+          discussion.follow(existentIds[3], username)
+        ])
+          .then(function () {
+            return discussion.following(username);
+          })
+          .then(function (tags) {
+            expect(tags).to.include.a.thing.that.has.property('topic', 'discussion0');
+            expect(tags).to.include.a.thing.that.has.property('topic', 'discussion1');
+            expect(tags).to.include.a.thing.that.has.property('topic', 'discussion3');
+          })
+          .then(done, done);
+      });
+    });
+    context('when user doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code', function () {
+        return expect(discussion.following('nonexistent-user')).to.eventually.be.rejectedWith('404');
+      });
+    });
+  });
   //does user follow a discussion? bool.
   describe('followingOne', function () {});
   describe('followers', function () {});
