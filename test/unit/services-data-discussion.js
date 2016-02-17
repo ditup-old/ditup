@@ -7,6 +7,7 @@ var chai = require('chai')
 var expect = chai.expect;
 
 chai.use(require('chai-as-promised'));
+chai.use(require('chai-things'));
 
 var db = new Database({url: config.url, databaseName: config.dbname});
 
@@ -389,6 +390,7 @@ describe('database/discussion', function () {
       });
     });
   });
+
   describe('addTag', function () {
     var existentTag = 'test-tag-1';
     var user = 'test1';
@@ -457,12 +459,147 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('removeTag', function () {});
-  describe('tags', function () {});
+
+  describe('removeTag', function () {
+    var existentTag = 'test-tag-1';
+    var user = 'test1';
+    context('when discussion exists', function () {
+      //create discussion
+      var completeData = {
+        topic: 'discussion topic',
+        creator: 'test1',
+        created: Date.now()
+      };
+      var existentId;
+      beforeEach(function(done) {
+        discussion.create(completeData)
+          .then(function (obj) {
+            existentId = obj.id;
+          })
+          .then(done, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR d IN discussions REMOVE d IN discussions')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      
+      context('when user has rights to remove tag', function () {
+        context('when tag exists', function () {
+          context('when discussion is not tagged with this tag', function () {
+            it('should return a promise and reject it with 404 code', function () {
+                return expect(discussion.removeTag(existentId, existentTag)).to.eventually.be.rejectedWith('404');
+            });
+          });
+          context('when discussion is tagged', function () {
+            beforeEach(function (done) {
+              return discussion.addTag(existentId, existentTag, user)
+                .then(function () {
+                  done()
+                }, done);
+            });
+
+            afterEach(function(done) {
+              db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+                .then(function () {
+                  done();
+                }, done);
+            });
+
+            it('should return a promise, create proper changes in database and fulfill the promise', function () {
+              return expect(discussion.removeTag(existentId, existentTag)).to.eventually.be.fulfilled;
+            });
+          });
+        });
+        context('when tag doesn\'t exist', function () {
+          it('should return a promise and reject it with 404 code', function () {
+            return expect(discussion.removeTag(existentId, 'nonexistent-tag')).to.eventually.be.rejectedWith('404');
+          });
+        });
+      });
+      context('when user doesn\'t have rights to remove tag', function () {
+        it('should return a promise and reject it with 401');
+      });
+    });
+    context('when discussion doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code', function () {
+        return expect(discussion.removeTag('211111111111111', existentTag)).to.eventually.be.rejectedWith('404');
+      });
+    });
+    
+  });
+
+  describe('tags(id)', function () {
+    var existentTags = ['test-tag-1', 'test-tag-2'];
+    var user = 'test1';
+    //this function should read tags of discussion
+    context('when discussion exists', function () {
+      //create discussion
+      var completeData = {
+        topic: 'discussion topic',
+        creator: 'test1',
+        created: Date.now()
+      };
+      var existentId;
+      beforeEach(function(done) {
+        discussion.create(completeData)
+          .then(function (obj) {
+            existentId = obj.id;
+          })
+          .then(done, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR d IN discussions REMOVE d IN discussions')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      afterEach(function(done) {
+        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+          .then(function () {
+            done();
+          }, done);
+      });
+
+      it('should return a promise and resolve it with an array of all discussion tags (empty)', function () {
+        return expect(discussion.tags(existentId)).to.eventually.deep.equal([]);
+      });
+
+      it('should return a promise and resolve it with an array of all discussion tags (some tags)', function (done) {
+        Promise.all([
+          discussion.addTag(existentId, existentTags[0], user),
+          discussion.addTag(existentId, existentTags[1], user)
+        ])
+          .then(function () {
+            return discussion.tags(existentId);
+          })
+          .then(function (tags) {
+            expect(tags).to.include.a.thing.that.has.property('name', 'test-tag-1');
+            expect(tags).to.include.a.thing.that.has.property('name', 'test-tag-2');
+          })
+          .then(done, done);
+      });
+    });
+    context('when discussion doesn\'t exist', function () {
+    });
+  });
   describe('follow', function () {});
   describe('following', function () {});
   describe('unfollow', function () {});
   describe('hide', function () {});
+  describe('unhide', function () {});
   describe('readDiscussionsByTags', function () {});
 
 });

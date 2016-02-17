@@ -202,5 +202,36 @@ module.exports = function (db) {
       });
   };
 
+  discussion.removeTag = function (id, tagname) {
+    var query = `FOR d IN discussions FILTER d._key == @id
+      FOR t IN tags FILTER t.name == @tagname
+        FOR dt IN discussionTag FILTER dt._from == d._id && dt._to == t._id
+          REMOVE dt IN discussionTag`;
+    var params = {id: id, tagname: tagname};
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if(writes === 0) throw new Error(404);
+        if(writes > 1) throw new Error('more than one tag removed. This should never happen.');
+      });
+  };
+
+  discussion.tags = function (id) {
+    var query = `
+      FOR d IN discussions FILTER d._key == @id
+        FOR dt IN discussionTag FILTER dt._from == d._id
+          FOR t IN tags FILTER t._id == dt._to
+            RETURN t`
+    var params = {id: id};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (tags) {
+        return tags;
+      });
+  };
+
   return discussion;
 };
