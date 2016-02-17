@@ -233,5 +233,34 @@ module.exports = function (db) {
       });
   };
 
+  discussion.follow = function (id, username, hide) {
+    hide = hide === true ? true : false;
+    var query = `FOR d IN discussions FILTER d._key == @id
+      FOR u IN users FILTER u.username == @username
+        UPSERT {_from: u._id, _to: d._id, hide: !@hide}
+        INSERT {_from: u._id, _to: d._id, hide: @hide, unique: CONCAT(u._id, '-', d._id), created: @created}
+        UPDATE {hide: @hide, created: @created}
+        IN userFollowDiscussion
+        RETURN IS_NULL(OLD) ? 201 : 200`;
+    var params = {id: id, username: username, created: Date.now(), hide: hide};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (codes) {
+        if(codes.length === 0) throw new Error(404);
+        if(codes.length > 1) throw new Error('found more than one unique discussion id or username. this should never happen');
+        return codes[0];
+      })
+      .then(null, function (err) {
+        if(err.code === 409) throw new Error(409);
+        throw err;
+      });
+  };
+
+  discussion.hide = function(id, username) {
+    return this.follow(id, username, true);
+  }
+
   return discussion;
 };
