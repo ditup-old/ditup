@@ -262,12 +262,13 @@ module.exports = function (db) {
     return this.follow(id, username, true);
   }
 
-  discussion.unfollow = function (id, username) {
+  discussion.unfollow = function (id, username, hide) {
+    hide = hide === true ? true : false;
     var query = `FOR d IN discussions FILTER d._key == @id
       FOR u IN users FILTER u.username == @username
-        FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd._to == d._id && ufd.hide == false
+        FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd._to == d._id && ufd.hide == @hide
         REMOVE ufd IN userFollowDiscussion`;
-    var params = {id: id, username: username};
+    var params = {id: id, username: username, hide: hide};
 
     return db.query(query, params)
       .then(function (cursor) {
@@ -277,12 +278,44 @@ module.exports = function (db) {
       });
   };
 
+  discussion.unhide = function(id, username) {
+    return this.unfollow(id, username, true);
+  }
+
   discussion.following = function (username) {
     var query = `FOR u IN users FILTER u.username == @username
       FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd.hide == false
         FOR d IN discussions FILTER ufd._to == d._id
           RETURN d`;
     var params = {username: username};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      });
+  };
+
+  discussion.followingUser = function (id, username) {
+    var query = `FOR d IN discussions FILTER d._key == @id
+      FOR u IN users FILTER u.username == @username
+        FOR ufd IN userFollowDiscussion FILTER u._id == ufd._from && d._id == ufd._to && ufd.hide == false
+          RETURN ufd`;
+    var params = {id: id, username: username};
+    
+    return db.query(query, params)
+      .then(function (cursor) {return cursor.all();})
+      .then(function (resp) {
+        if(resp.length > 1) throw new Error('multiple follows. should never happen');
+        if(resp.length === 1) return true;
+        if(resp.length === 0) return false;
+      });
+  }
+
+  discussion.followers = function (id) {
+    var query = `FOR d IN discussions FILTER d._key == @id
+      FOR ufd IN userFollowDiscussion FILTER ufd._to == d._id && ufd.hide == false
+        FOR u IN users FILTER u._id == ufd._from
+          RETURN u`;
+    var params = {id: id};
     return db.query(query, params)
       .then(function (cursor) {
         return cursor.all();

@@ -20,6 +20,45 @@ var completeData = {
 };
 
 describe('database/discussion', function () {
+
+  //create discussion
+  var completeData = {
+    topic: 'discussion topic',
+    creator: 'test1',
+    created: Date.now()
+  };
+  var existentId;
+  beforeEach(function(done) {
+    discussion.create(completeData)
+      .then(function (obj) {
+        existentId = obj.id;
+      })
+      .then(done, done);
+  });
+  afterEach(function(done) {
+    db.query('FOR d IN discussions REMOVE d IN discussions')
+      .then(function () {
+        done();
+      }, done);
+  });
+
+  afterEach(function(done) {
+    db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+      .then(function () {
+        done();
+      }, done);
+  });
+
+  afterEach(function(done) {
+    db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
+      .then(function () {
+        done();
+      }, done);
+  });
+
+
+
+
   describe('create', function () {
     context('when data is incomplete', function () {
       var incompleteData = {
@@ -726,10 +765,10 @@ describe('database/discussion', function () {
           .then(function () {
             return discussion.following(username);
           })
-          .then(function (tags) {
-            expect(tags).to.include.a.thing.that.has.property('topic', 'discussion0');
-            expect(tags).to.include.a.thing.that.has.property('topic', 'discussion1');
-            expect(tags).to.include.a.thing.that.has.property('topic', 'discussion3');
+          .then(function (discussions) {
+            expect(discussions).to.include.a.thing.that.has.property('topic', 'discussion0');
+            expect(discussions).to.include.a.thing.that.has.property('topic', 'discussion1');
+            expect(discussions).to.include.a.thing.that.has.property('topic', 'discussion3');
           })
           .then(done, done);
       });
@@ -741,15 +780,8 @@ describe('database/discussion', function () {
     });
   });
   //does user follow a discussion? bool.
-  describe('followingOne', function () {});
-  describe('followers', function () {});
-  describe('unfollow(id, username)', function () {
-    var username = 'test1';
-    context('when discussion doesn\'t exist', function () {
-      it('should return a promise and reject it with 404 code', function () {
-        return expect(discussion.unfollow('211111111111111111', username)).to.eventually.be.rejectedWith('404');
-      });
-    })
+  describe('followingUser(id, username)', function () {
+    context('when discussion doesn\'t exist', function () {});
     context('when discussion exists', function () {
       //create discussion
       var completeData = {
@@ -757,7 +789,9 @@ describe('database/discussion', function () {
         creator: 'test1',
         created: Date.now()
       };
+
       var existentId;
+      var username = 'test1';
       beforeEach(function(done) {
         discussion.create(completeData)
           .then(function (obj) {
@@ -765,15 +799,9 @@ describe('database/discussion', function () {
           })
           .then(done, done);
       });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
 
       afterEach(function(done) {
-        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+        db.query('FOR d IN discussions REMOVE d IN discussions')
           .then(function () {
             done();
           }, done);
@@ -785,6 +813,64 @@ describe('database/discussion', function () {
             done();
           }, done);
       });
+      context('when user doesn\'t exist', function () {});
+      context('when user exists', function () {
+        context('when user follows the discussion', function () {
+          it('should return a promise and resove it with true', function () {
+            return expect(discussion.follow(existentId, username)
+                .then(function () {
+                  return discussion.followingUser(existentId, username)
+                })).to.eventually.deep.equal(true);
+          });
+        });
+        context('when user doesn\'t follow the discussion', function () {
+          it('should return a promise and resove it with false', function () {
+            return expect(discussion.followingUser(existentId, username)).to.eventually.deep.equal(false);
+          });
+        });
+      });
+    });
+  });
+
+  describe('followers(id)', function () {
+    context('when discussion doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code');
+    });
+    context('when discussion exists', function () {
+      it('should return a promise and resolve it with []', function () {
+        return expect(discussion.followers(existentId)).to.eventually.deep.equal([]);
+      });
+      it('should return a promise and resolve it with [user, user, user]', function (done) {
+        Promise.all([
+          discussion.follow(existentId, 'test1'),
+          discussion.follow(existentId, 'test4'),
+          discussion.follow(existentId, 'test5'),
+          discussion.hide(existentId, 'test6')
+        ])
+          .then(function () {
+            return discussion.followers(existentId);
+          })
+          .then(function (users) {
+            expect(users).to.include.a.thing.that.has.property('username', 'test1');
+            expect(users).to.include.a.thing.that.has.property('username', 'test4');
+            expect(users).to.include.a.thing.that.has.property('username', 'test5');
+            expect(users).to.not.include.a.thing.that.has.property('username', 'test6');
+          })
+          .then(done, done);
+      });
+    });
+  });
+
+  describe('unfollow(id, username)', function () {
+    var username = 'test1';
+
+    context('when discussion doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code', function () {
+        return expect(discussion.unfollow('211111111111111111', username)).to.eventually.be.rejectedWith('404');
+      });
+    });
+
+    context('when discussion exists', function () {
 
       context('when user doesn\'t exist', function () {
         it('should return a promise and reject it with 404 code', function () {
@@ -827,43 +913,8 @@ describe('database/discussion', function () {
       it('should return a promise and reject it with 404 code', function () {
         return expect(discussion.hide('211111111111111111', username)).to.eventually.be.rejectedWith('404');
       });
-    })
+    });
     context('when discussion exists', function () {
-      //create discussion
-      var completeData = {
-        topic: 'discussion topic',
-        creator: 'test1',
-        created: Date.now()
-      };
-      var existentId;
-      beforeEach(function(done) {
-        discussion.create(completeData)
-          .then(function (obj) {
-            existentId = obj.id;
-          })
-          .then(done, done);
-      });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
-          .then(function () {
-            done();
-          }, done);
-      });
-
       context('when user doesn\'t exist', function () {
         it('should return a promise and reject it with 404 code', function () {
           return expect(discussion.hide(existentId, 'non-existent-user')).to.eventually.be.rejectedWith('404');
@@ -898,8 +949,52 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('unhide', function () {});
+  describe('unhide', function () {
+    var username = 'test1';
+
+    context('when discussion doesn\'t exist', function () {
+      it('should return a promise and reject it with 404 code', function () {
+        return expect(discussion.unhide('211111111111111111', username)).to.eventually.be.rejectedWith('404');
+      });
+    });
+
+    context('when discussion exists', function () {
+      context('when user doesn\'t exist', function () {
+        it('should return a promise and reject it with 404 code', function () {
+          return expect(discussion.unhide(existentId, 'non-existent-user')).to.eventually.be.rejectedWith('404');
+        });
+      });
+
+      context('when user exists', function () {
+        context('when user has the discussion hidden', function () {
+          it('should remove the hide from database, return a promise and resolve it', function (done) {
+            return discussion.hide(existentId, username)
+              .then(function () {
+                return expect(discussion.unhide(existentId, username)).to.eventually.be.fulfilled;
+              })
+              .then(function () {done();}, done);
+          });
+        });
+
+        context('when user has not the discussaion hidden', function () {
+          it('should return a promise and reject it with 404 code', function () {
+            return expect(discussion.unhide(existentId, username)).to.eventually.be.rejectedWith('404');
+          });
+        });
+
+        context('when user follows the discussion', function () {
+          it('should return a promise and reject it with 404 code', function (done) {
+            return discussion.follow(existentId, username)
+              .then(function () {
+                return expect(discussion.unhide(existentId, username)).to.eventually.be.rejectedWith('404');
+              })
+              .then(function () {done();}, done);
+          });
+        });
+      });
+    });
+  });
   describe('readDiscussionsByTags', function () {});
-  describe('last-visit', function () {});
+  describe('lastVisit', function () {});
 
 });
