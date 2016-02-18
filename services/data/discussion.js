@@ -278,8 +278,16 @@ module.exports = function (db) {
   };
 
   discussion.following = function (username) {
-    return db.query('');
-  }
+    var query = `FOR u IN users FILTER u.username == @username
+      FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd.hide == false
+        FOR d IN discussions FILTER ufd._to == d._id
+          RETURN d`;
+    var params = {username: username};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      });
+  };
 
   return discussion;
 };
