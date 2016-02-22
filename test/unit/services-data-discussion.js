@@ -994,7 +994,184 @@ describe('database/discussion', function () {
       });
     });
   });
-  describe('readDiscussionsByTags', function () {});
-  describe('lastVisit', function () {});
+  describe('readDiscussionsByTags(array tags, ?username)', function () {
+    var username = 'test1';
+    var username2 = 'test4';
+    var username3 = 'test5';
+    var discussionTags = [
+      {topic: 'discussion0', id: null, tags: ['test-tag-2', 'music']},
+      {topic: 'discussion1', id: null, tags: ['art', 'test-tag-1', 'test-tag-2']},
+      {topic: 'discussion2', id: null, tags: ['music', 'test-tag-2']},
+      {topic: 'discussion3', id: null, tags: ['test-tag-1', 'travel', 'busking']},
+      {topic: 'discussion4', id: null, tags: ['test-tag-1', 'test-tag-2', 'travel', 'busking']},
+      {topic: 'discussion5', id: null, tags: ['art']}
+    ];
+    //create discussion
+    beforeEach(function(done) {
+      var dpromises = [];
+      for(let dt of discussionTags) {
+        dpromises.push(discussion.create({topic: dt.topic, created: Date.now(), creator: username}));
+      }
+      Promise.all(dpromises)
+        .then(function (objArray) {
+          for(let i = 0, len = objArray.length; i<len; i++){
+            discussionTags[i].id = objArray[i].id;
+          }
+
+          var exePromises = [];
+          for(let dt of discussionTags) {
+            for(let tg of dt.tags) {
+              exePromises.push(discussion.addTag(dt.id, tg, username2));
+            }
+          }
+
+          exePromises.push(discussion.hide(discussionTags[0].id, username3));
+          exePromises.push(discussion.hide(discussionTags[2].id, username3));
+          exePromises.push(discussion.follow(discussionTags[1].id, username3));
+          
+          return Promise.all(exePromises);
+        })
+        .then(function () {})
+        .then(done, done);
+    });
+
+    afterEach(function(done) {
+      db.query('FOR d IN discussions REMOVE d IN discussions')
+        .then(function () {
+          done();
+        }, done);
+    });
+
+    afterEach(function(done) {
+      db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
+        .then(function () {
+          done();
+        }, done);
+    });
+
+    afterEach(function(done) {
+      db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
+        .then(function () {
+          done();
+        }, done);
+    });
+
+    it('when tag array is empty: should return a proper array of discussions found: []', function () {
+      return expect(discussion.readDiscussionsByTags([])).to.eventually.be.deep.equal([]);
+    });
+
+    it('when tag array contains only non-existent tags should return a proper array of discussions found: []', function () {
+      return expect(discussion.readDiscussionsByTags(['non-existent-tag'])).to.eventually.be.deep.equal([]);
+    });
+
+    it('when tag array contains valid tags: should return a proper array of discussions found: [{discussion: {...}, tags: [...]}, {...}]', function (done) {
+      return discussion.readDiscussionsByTags(['test-tag-1'])
+        .then(function (finds) {
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion1');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion3');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion4');
+
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion0');
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion2');
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion5');
+        })
+        .then(done, done);
+    });
+
+    it('when tag array contains more valid tags: should return a proper array of discussions found: [{discussion: {...}, tags: [...]}, {...}]', function (done) {
+      return discussion.readDiscussionsByTags(['test-tag-2', 'travel', 'busking'])
+        .then(function (finds) {
+          expect(finds[0]).to.have.a.deep.property('discussion.topic', 'discussion4');
+          expect(finds[0].tagno).to.deep.equal(3);
+
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion0');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion1');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion2');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion3');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion4');
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion5');
+        })
+        .then(done, done);
+    });
+
+    it('when tag array contains more valid tags and username: should return a proper array of discussions found: [{discussion: {...}, tags: [...]}, {...}], and hidden discussions not included', function (done) {
+      return discussion.readDiscussionsByTags(['test-tag-2', 'travel', 'busking'], username3)
+        .then(function (finds) {
+          expect(finds[0]).to.have.a.deep.property('discussion.topic', 'discussion4');
+          expect(finds[0].tagno).to.deep.equal(3);
+
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion1');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion3');
+          expect(finds).to.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion4');
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion0');
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion2');
+          expect(finds).to.not.include.a.thing.that.has.a.deep.property('discussion.topic', 'discussion5');
+        })
+        .then(done, done);
+    });
+  });
+
+  describe('visit(id, username)', function () {
+    var username = 'test6';
+    context('when discussion exists', function () {
+      context('when username exists', function () {
+        context('when user follows discussion', function () {
+          beforeEach(function (done) {
+            return discussion.follow(existentId, username)
+              .then(function () {done ();}, done);
+          });
+          it('should return a promise and resolve it with true', function () {
+            return expect(discussion.visit(existentId, username)).to.eventually.equal(true);
+          });
+        });
+        context('when user doesn\'t follow discussion', function () {
+          it('should return a promise and resolve it with false', function () {
+            return expect(discussion.visit(existentId, username)).to.eventually.equal(false);
+          });
+        });
+      });
+    });
+  });
+
+  describe('lastVisit(id, username)', function () {
+    var username = 'test5';
+    context('when discussion exists', function () {
+      context('when username exists', function () {
+        context('when user follows discussion', function () {
+          beforeEach(function (done) {
+            discussion.follow(existentId, username)
+              .then(function () {
+                return discussion.visit(existentId, username);
+              })
+              .then(function () {done();}, done);
+          });
+
+          it('should return a timestamp of user\'s last visit', function () {
+            return expect(discussion.lastVisit(existentId, username)).to.eventually.be.within(Date.now()-10000, Date.now()+10000);
+          });
+        });
+
+        context('when user follows discussion but never visited it', function () {
+          beforeEach(function (done) {
+            discussion.follow(existentId, username)
+              .then(function () {done();}, done);
+          });
+          it('should return 0', function () {
+            return expect(discussion.lastVisit(existentId, username)).to.eventually.equal(0);
+          });
+        });
+
+        context('when user doesn\'t follow discussion', function () {
+          beforeEach(function (done) {
+            discussion.visit(existentId, username)
+              .then(function () {done();}, done);
+          });
+          it('should return null', function () {
+            return expect(discussion.lastVisit(existentId, username)).to.eventually.equal(null);
+          });
+        });
+      });
+    });
+  });
 
 });
