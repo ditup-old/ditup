@@ -23,6 +23,7 @@
     "/challenges",
     ""
   ], "router":"dits"},
+  {"url": "/discussion", "router": "discussion"},
   {"url": "/discussions", "router": "discussions"},
   {"url":"/tag", "router":"tag"},
   {"url":"/tags", "router":"tags"},

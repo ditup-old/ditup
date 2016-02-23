@@ -4,6 +4,7 @@ var express = require('express');
 var entities = require('entities');
 var router = express.Router();
 var validate = require('../services/validation');
+var db = require('../services/data');
 
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
@@ -79,8 +80,38 @@ router.post('/new', function (req, res, next) {
   if(valid !== true) {
     return res.render('discussions-new', {session: sessUser, values: values});
   }
-  return res.redirect('/discussion/12345679/discussion-title-shortcut');
+
+  var id;
+  return db.discussion.create({topic: values.topic, creator: sessUser.username})
+    .then(function (_id) {
+      id = _id;
+      
+      //TODO add tags to discussion (first check that they exist...)
+
+      var url = generateUrl(values.topic);
+      
+      req.session.messages.push('the new discussion was successfully started.');
+      return res.redirect('/discussion/'+id.id+'/'+url);
+    })
+    .then(null, function (err) {
+      return res.end(err);
+    });
+
 });
+
+function generateUrl(string) {
+  var wordArray = string.replace(/[^a-zA-Z0-9]+/g,' ').trim().toLowerCase().split(' ');
+  var notIncluded = ['a', 'an', 'the'];
+  var finalArray = [];
+
+  for(let i = 0, len = wordArray.length; i<len; ++i) {
+    if(notIncluded.indexOf(wordArray[i])===-1) {
+      finalArray.push(wordArray[i]);
+    }
+  }
+
+  return finalArray.join('-') || 'url';
+}
 
 
 module.exports = router;

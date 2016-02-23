@@ -430,7 +430,7 @@ describe('database/discussion', function () {
     });
   });
 
-  describe('addTag', function () {
+  describe('addTag(id, tagname, username)', function () {
     var existentTag = 'test-tag-1';
     var user = 'test1';
     context('when discussion exists', function () {

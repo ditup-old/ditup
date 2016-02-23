@@ -1,0 +1,18 @@
+<%
+  var css = [
+    '/css/header.css'
+  ];
+
+  var title = 'discussion';
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+<h1>discussion</h1>
+</div>
+<% include ./partial/page-bottom.ejs %>

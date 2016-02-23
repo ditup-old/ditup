@@ -244,7 +244,7 @@ describe('user visits /discussions', function () {
       });
 
       it('should accept a valid submitted form and redirect to the newly created discussion', function (done) {
-        var topic = 'What is a purpose of test?';
+        var topic = 'What is a ))_??#@#:@ purpose of test?';
         var tags = 'hitch-hiking, test-tag-1';
         var post = 'What do you think, people? Well, this is just a test.';
         let browser = this.browser;
@@ -260,7 +260,7 @@ describe('user visits /discussions', function () {
           .then(() => {
             browser.assert.success();
             browser.assert.redirected();
-            browser.assert.url(/^\/discussion\/[0-9]*\/what-purpose-test\/?$/);
+            browser.assert.url(/^.*\/discussion\/[0-9]*\/what-is-purpose-of-test\/?$/);
             browser.assert.text('h1', 'discussion');
             browser.assert.text('div.popup-message.info', /^.*the new discussion was successfully started.*$/);
           })
