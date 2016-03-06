@@ -1,9 +1,12 @@
 <%
+
+  //view needs discussion = {topic: '', posts:[{text: '', creator: ''}]}
+
   var css = [
     '/css/header.css'
   ];
 
-  var title = 'discussion';
+  var title = discussion.topic;
   var headScripts = [];
   var scripts = [];
   var session = session || {logged:false, username: null};
@@ -14,5 +17,27 @@ include ./partial/header.ejs %>
 </style>
 <div>
 <h1>discussion</h1>
+<div id="discussion-topic" ><%= discussion.topic %></div>
+<% for (var i = 0, len = discussion.posts.length; i < len; ++i) { 
+  if(discussion.posts[i]) {%>
+  <div id="discussion-post-<%= i %>"><span class="text" ><%= discussion.posts[i].text %></span><span class="creator" ><%= discussion.posts[i].creator.username %></span></div>
+<%
+  }
+} %>
+<div id="new-post">
+<% if (logged === true) { %>
+  <form id="new-post-form" method="post" >
+    <textarea name="text"></textarea>
+    <input type="submit" name="post" value="post" />
+  </form>
+<% } 
+  else {
+    var redirectUrl = encodeURIComponent('/discussion/' + discussion.id + '/' + discussion.url);
+%>
+  You can't post in this discussion. Try to <a href="/login?redirect=<%= redirectUrl %>" >log in</a>.
+<%
+  }
+%>
+</div>
 </div>
 <% include ./partial/page-bottom.ejs %>

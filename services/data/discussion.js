@@ -33,7 +33,16 @@ module.exports = function (db) {
   };
 
   discussion.read = function (id) {
-    var query = 'FOR d IN discussions FILTER d._key == @id RETURN d';
+    var query = `FOR d IN discussions FILTER d._key == @id
+      LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
+      //LET posts = (FOR p IN d.posts
+      //  LET cr = (FOR u IN users FILTER u._id == p.creator RETURN u)
+      //    RETURN MERGE(p, {creator: {username: u.username}}))
+      FOR c IN creator
+        //RETURN d
+        RETURN MERGE(d, {creator: {username: c.username}})
+        `;
+
     var params = {id: id};
 
     return db.query(query, params)
@@ -41,8 +50,35 @@ module.exports = function (db) {
         return cursor.all();
       })
       .then(function (discs) {
+        console.log(discs);
         if(discs.length === 1) {
-          return discs[0];
+          var result = discs[0];
+
+          //find creators of posts
+          var promises = [];
+          for(let i = 0, len = result.posts.length; i<len; ++i) {
+            //if post was not deleted
+            if(result.posts[i]) {
+              let query = 'FOR u IN users FILTER u._id == @id RETURN {username: u.username}';
+              let params = {id: result.posts[i].creator};
+              promises.push(db.query(query, params).then(function (cursor) {
+                return cursor.all();
+              }).then(function (_res) {
+                var user = _res[0];
+                result.posts[i].creator = user;
+                return result.posts[i];
+              }));
+            }
+            else{
+              //post was deleted
+              promises.push(Promise.resolve(null));
+            }
+          }
+          return Promise.all(promises)
+            .then(function (posts) {
+              result.posts = posts;
+              return result;
+            });
         }
         else if(discs.length === 0) {
           throw new Error(404);

@@ -3,8 +3,8 @@
 // force the test environment to 'test'
 process.env.NODE_ENV = 'test';
 // get the application server module
-var app = require('../../app');
-var session = require('../../session');
+var app = require('../../../app');
+var session = require('../../../session');
 // use zombie.js as headless browser
 var Browser = require('zombie');
 
@@ -38,7 +38,7 @@ describe('user visits /discussions', function () {
       browser.assert.link('div#login-signup-msg a', 'sign up', '/signup');
     });
     
-    it('should not show a start a new discussion link', function () {
+    it('should not show a `start a new discussion` link', function () {
       var browser = this.browser;
       browser.assert.elements('a#new-discussion', 0);
     });
@@ -178,7 +178,7 @@ describe('user visits /discussions', function () {
             return browser
               .fill('topic', topic)
               .fill('post', post)
-              .pressButton('start the discussion')
+              .pressButton('start the discussion');
           })
           .then(() => {
             browser.assert.success();
@@ -291,6 +291,5 @@ describe('user visits /discussions', function () {
   after(function (done) {
     this.server.close(done);
   });
-
 });
 
