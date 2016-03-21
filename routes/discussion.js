@@ -8,7 +8,29 @@ var generateUrl = functions.generateUrl;
 var validate = require('../services/validation');
 var db = require('../services/data');
 
-router.get('/:id/:url', function (req, res, next) {
+router.post('/:id/:url', function (req, res, next) {
+  var sessUser = req.session.user;
+  var id = req.params.id;
+  var url = req.params.url;
+  var text = req.body.text;
+  console.log(text, '^^^^^^^^^^^^^6', id, url);
+  if(sessUser.logged === true) {
+    return db.discussion.addPost(id, {text: text , creator:sessUser.username})
+      .then(function () {
+        sessUser.messages.push('post successfuly added');
+        return next();
+      }, function (err) {
+        console.log(err);
+        return next(err);
+      });
+  }
+  else {
+    sessUser.messages.push('you don\'t have rights to add a post to the discussion. Try to <a href="/login?redirect='+encodeURIComponent(url)+'">log in</a>');
+    next();
+  }
+});
+
+router.all('/:id/:url', function (req, res, next) {
   var sessUser = req.session.user;
   var id = req.params.id;
   var url = req.params.url;
@@ -28,5 +50,6 @@ router.get('/:id/:url', function (req, res, next) {
     })
     .then(null, next);
 });
+
 
 module.exports = router;

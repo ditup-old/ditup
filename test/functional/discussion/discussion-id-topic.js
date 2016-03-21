@@ -112,19 +112,28 @@ describe('user visits /discussion/:id/:topic', function () {
         });
 
         context('POST a new post', function () {
-          it('should add a new post to the database and show it', function (done) {
-            var browser = this.browser;
-            browser.visit('/discussion/' + existentDiscussion.id + '/'+existentDiscussion.url)
-              .then(function () {
-                browser
-                  .fill('text', 'added post')
-                  .pressButton('post');
-              })
-              .then(function () {
-                console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-                browser.assert.text('*', 'asdf');
-              })
+          beforeEach(function (done) {
+            this.browser
+              .visit('/discussion/' + existentDiscussion.id + '/'+existentDiscussion.url)
               .then(done, done);
+          });
+          context('valid post', function () {
+            it('should add a new post to the database and show it', function (done) {
+              var browser = this.browser;
+              return browser
+                .fill('text', 'added post')
+                .pressButton('post')
+                .then(function () {
+                  browser.assert.success();
+                  browser.assert.text('#discussion-post-2 .text', 'added post');
+                  browser.assert.text('#discussion-post-2 .creator', 'test1');
+                })
+                .then(done, done);
+            });
+          });
+
+          context('invalid post', function () {
+            it('should complain about invalid data (empty or too long etc)');
           });
         });
 
@@ -148,6 +157,26 @@ describe('user visits /discussion/:id/:topic', function () {
               browser.assert.link('a', 'log in', '/login?redirect='+encodeURIComponent(url));
             })
             .then(done, done);
+        });
+
+        context('POST', function () {
+          it('should complain about rights to log in and suggest logging in', function (done) {
+            var browser = this.browser;
+            var url = '/discussion/' + existentDiscussion.id + '/' + existentDiscussion.url;
+            return browser.visit(url)
+              .then(function () {
+                return browser
+                  .fill('text', 'added post')
+                  .pressButton('post');
+              })
+              .then(function () {
+                browser.assert.elements('#new-post-form textarea', 0);
+                browser.assert.elements('#new-post-form input[type=submit]', 0);
+                browser.assert.text('#new-post', 'You can\'t post in this discussion. Try to log in.');
+                browser.assert.link('a', 'log in', '/login?redirect='+encodeURIComponent(url));
+              })
+              .then(done, done);
+          });
         });
       });
     });
