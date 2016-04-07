@@ -15,6 +15,11 @@ router.post('/:id/:url', function (req, res, next) {
   var text = req.body.text;
   console.log(text, '^^^^^^^^^^^^^6', id, url);
   if(sessUser.logged === true) {
+    if(!text) {
+      req.ditup.discussion = {newPost: {errors: ['error: the message is empty']}};
+      return next();
+
+    }
     return db.discussion.addPost(id, {text: text , creator:sessUser.username})
       .then(function () {
         sessUser.messages.push('post successfuly added');
@@ -41,6 +46,9 @@ router.all('/:id/:url', function (req, res, next) {
       var expectedUrl = generateUrl(discussion.topic);
       discussion.url = expectedUrl;
       discussion.id = id;
+      for(var param in req.ditup.discussion) {
+        discussion[param] = req.ditup.discussion[param];
+      }
       if(expectedUrl === url) {
         return res.render('discussion', {session: sessUser, discussion: discussion});
       }

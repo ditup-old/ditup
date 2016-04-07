@@ -1,6 +1,8 @@
 <%
 
-  //view needs discussion = {topic: '', posts:[{text: '', creator: ''}]}
+  //view needs discussion = {topic: '', posts:[{text: '', creator: ''}], newPost: {errors: [string, string]}}
+
+  discussion.newPost = discussion.newPost || {errors: []};
 
   var css = [
     '/css/header.css'
@@ -28,6 +30,9 @@ include ./partial/header.ejs %>
 <% if (logged === true) { %>
   <form id="new-post-form" method="post" action="" >
     <textarea name="text"></textarea>
+    <% for (var i=0, len=discussion.newPost.errors.length; i<len; i++) {%>
+      <div class="error"><%= discussion.newPost.errors[i] %></div>
+    <% } %>
     <input type="submit" name="post" value="post" />
   </form>
 <% } 

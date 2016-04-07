@@ -35,6 +35,12 @@ module.exports = function (session) {
     req.session.user = req.session.user || {logged: false, username: null};
     next();
   });
+  
+  //initialize object for storing variables through middlewares
+  app.use(function(req,res,next){
+    req.ditup = {};
+    next();
+  });
 
   //saving last visited page for redirects (after login)
   app.use(function (req, res, next) {

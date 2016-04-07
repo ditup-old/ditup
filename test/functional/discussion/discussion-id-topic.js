@@ -133,7 +133,17 @@ describe('user visits /discussion/:id/:topic', function () {
           });
 
           context('invalid post', function () {
-            it('should complain about invalid data (empty or too long etc)');
+            it('should complain about invalid data (empty)', function (done) {
+              var browser = this.browser;
+              return browser
+                .fill('text', '')
+                .pressButton('post')
+                .then(function () {
+                  browser.assert.text('#new-post .error', 'error: the message is empty');
+                })
+                .then(done, done);
+            });
+            it('should complain about invalid data (too long)');
           });
         });
 
@@ -152,6 +162,7 @@ describe('user visits /discussion/:id/:topic', function () {
           browser.visit(url)
             .then(function () {
               browser.assert.elements('#new-post-form textarea', 0);
+
               browser.assert.elements('#new-post-form input[type=submit]', 0);
               browser.assert.text('#new-post', 'You can\'t post in this discussion. Try to log in.');
               browser.assert.link('a', 'log in', '/login?redirect='+encodeURIComponent(url));
@@ -166,8 +177,8 @@ describe('user visits /discussion/:id/:topic', function () {
             return browser.visit(url)
               .then(function () {
                 return browser
-                  .fill('text', 'added post')
-                  .pressButton('post');
+                  //.fill('text', 'added post')
+                  //.pressButton('post');
               })
               .then(function () {
                 browser.assert.elements('#new-post-form textarea', 0);
