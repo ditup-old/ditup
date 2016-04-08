@@ -78,6 +78,7 @@ describe('user visits /discussion/:id/:topic', function () {
           })
           .then(done, done);
       });
+
       context('has rights to add post', function () {
         
         //beforeEach: log in as test1
@@ -143,12 +144,34 @@ describe('user visits /discussion/:id/:topic', function () {
                 })
                 .then(done, done);
             });
-            it('should complain about invalid data (too long)');
+
+            it('should complain about invalid data (too long)', function (done) {
+              //too long means 16384 characters
+              //generate very long message
+              var longMessage = '12345678';
+              for (var i = 0; i < 13; ++i) {
+                longMessage += longMessage;
+              }
+              var browser = this.browser;
+              return browser
+                .fill('text', longMessage)
+                .pressButton('post')
+                .then(function () {
+                  browser.assert.text('#new-post .error', 'error: the message is too long');
+                })
+                .then(done, done);
+            });
           });
         });
 
         context('has admin rights', function () {});
         context('doesn\'t have admin rights', function () {});
+      });
+
+      context('discussion contains her own post', function () {
+        it('should show edit link at the post');
+        it('should show delete link at the post');
+        it('shouldn\'t show edit nor delete lin at posts of different users');
       });
 
       context('doesn\'t have rights to add post', function () {

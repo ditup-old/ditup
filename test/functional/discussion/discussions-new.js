@@ -8,6 +8,11 @@ var session = require('../../../session');
 // use zombie.js as headless browser
 var Browser = require('zombie');
 
+var Database = require('arangojs');
+var config = require('../../../services/db-config');
+var db = new Database({url: config.url, databaseName: config.dbname});
+var dbDiscussion = require('../../../services/data/discussion')(db);
+
 describe('user visits /discussions', function () {
   before(function () {
     this.server = app(session).listen(3000);
@@ -224,7 +229,7 @@ describe('user visits /discussions', function () {
         var post = '';
         let browser = this.browser;
           
-        browser.visit('/discussions/new')
+        return browser.visit('/discussions/new')
           .then(() => {
             return browser
               .fill('topic', topic)
@@ -243,28 +248,42 @@ describe('user visits /discussions', function () {
           .then(done, done);
       });
 
-      it('should accept a valid submitted form and redirect to the newly created discussion', function (done) {
-        var topic = 'What is a ))_??#@#:@ purpose of test?';
-        var tags = 'hitch-hiking, test-tag-1';
-        var post = 'What do you think, people? Well, this is just a test.';
-        let browser = this.browser;
-          
-        browser.visit('/discussions/new')
-          .then(() => {
-            return browser
-              .fill('topic', topic)
-              .fill('tags', tags)
-              .fill('post', post)
-              .pressButton('start the discussion');
-          })
-          .then(() => {
-            browser.assert.success();
-            browser.assert.redirected();
-            browser.assert.url(/^.*\/discussion\/[0-9]*\/what-is-purpose-of-test\/?$/);
-            browser.assert.text('h1', 'discussion');
-            browser.assert.text('div.popup-message.info', /^.*the new discussion was successfully started.*$/);
-          })
-          .then(done, done);
+      context('data is valid', function () {
+
+        let createdDiscussionId; //for later deleting it
+
+        it('should accept a valid submitted form and redirect to the newly created discussion', function (done) {
+          var topic = 'What is a ))_??#@#:@ purpose of test?';
+          var tags = 'hitch-hiking, test-tag-1';
+          var post = 'What do you think, people? Well, this is just a test.';
+          let browser = this.browser;
+            
+          browser.visit('/discussions/new')
+            .then(() => {
+              return browser
+                .fill('topic', topic)
+                .fill('tags', tags)
+                .fill('post', post)
+                .pressButton('start the discussion');
+            })
+            .then(() => {
+              let url = browser.url;
+              let arr = url.split('/');
+              createdDiscussionId = arr[4];
+              
+              browser.assert.success();
+              browser.assert.redirected();
+              browser.assert.url(/^.*\/discussion\/[0-9]*\/what-is-purpose-of-test\/?$/);
+              browser.assert.text('h1', 'discussion');
+              browser.assert.text('div.popup-message.info', /^.*the new discussion was successfully started.*$/);
+              
+            })
+            .then(done, done);
+        });
+        
+        after(function (done) {
+          return dbDiscussion.delete(createdDiscussionId).then(() => {done();}, done);
+        });
       });
 
       after(logout);

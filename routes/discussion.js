@@ -8,17 +8,23 @@ var generateUrl = functions.generateUrl;
 var validate = require('../services/validation');
 var db = require('../services/data');
 
+const MAX_POST_LENGTH = 16384;
+
 router.post('/:id/:url', function (req, res, next) {
   var sessUser = req.session.user;
   var id = req.params.id;
   var url = req.params.url;
   var text = req.body.text;
-  console.log(text, '^^^^^^^^^^^^^6', id, url);
+  //console.log(text, '^^^^^^^^^^^^^6', id, url);
   if(sessUser.logged === true) {
     if(!text) {
       req.ditup.discussion = {newPost: {errors: ['error: the message is empty']}};
       return next();
 
+    }
+    if(text.length > 16384) {
+      req.ditup.discussion = {newPost: {errors: ['error: the message is too long']}};
+      return next();
     }
     return db.discussion.addPost(id, {text: text , creator:sessUser.username})
       .then(function () {

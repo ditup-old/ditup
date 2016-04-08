@@ -22,7 +22,7 @@ include ./partial/header.ejs %>
 <div id="discussion-topic" ><%= discussion.topic %></div>
 <% for (var i = 0, len = discussion.posts.length; i < len; ++i) { 
   if(discussion.posts[i]) {%>
-  <div id="discussion-post-<%= i %>"><span class="text" ><%= discussion.posts[i].text %></span><span class="creator" ><%= discussion.posts[i].creator.username %></span></div>
+  <div id="discussion-post-<%= i %>"><span class="text" ><%= discussion.posts[i].text %></span><span class="creator" ><a href="/user/<%= discussion.posts[i].creator.username %>" ><%= discussion.posts[i].creator.username %></a></span></div>
 <%
   }
 } %>
