@@ -8,6 +8,7 @@
     "test-unit": "mocha ./test/unit",
     "watch-unit": "mocha ./test/unit --watch",
     "watch-discussion": "mocha ./test/functional/discussion --watch",
+    "watch-challenge": "mocha ./test/functional/challenge --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {
