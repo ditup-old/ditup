@@ -41,7 +41,7 @@ router.post('/:id/:url', function (req, res, next) {
   }
 });
 
-router.all('/:id/:url', function (req, res, next) {
+router.all(['/:id/:url', '/:id'], function (req, res, next) {
   var sessUser = req.session.user;
   var id = req.params.id;
   var url = req.params.url;

@@ -51,6 +51,7 @@ describe('user visits /discussion/:id/:topic', function () {
       .then(function () {done();}, done);
   });
 
+
   context('the discussion exists', function () {
     context('user has rights to view discussion', function () {
       context('url has an incorrect topic', function () {
@@ -63,6 +64,21 @@ describe('user visits /discussion/:id/:topic', function () {
               browser.assert.url(new RegExp('^.*/discussion/'+ existentDiscussion.id + '/' + existentDiscussion.url + '/?$'));
             })
             .then(done, done);
+        });
+      });
+
+      context('user visits only /discussion/:id', function () {
+        context('has rights to view the discussion', function () {
+          it('should permanent redirect to the url with correct topic', function (done) {
+            var browser = this.browser;
+            browser.visit('/discussion/' + existentDiscussion.id)
+              .then(function () {
+                browser.assert.success();
+                browser.assert.redirected();
+                browser.assert.url(new RegExp('^.*/discussion/'+ existentDiscussion.id + '/' + existentDiscussion.url + '/?$'));
+              })
+              .then(done, done);
+          });
         });
       });
 
@@ -220,7 +236,9 @@ describe('user visits /discussion/:id/:topic', function () {
     });
   });
 
-  context('the discussion doesn\'t exist', function () {});
+  context('the discussion doesn\'t exist', function () {
+    it('should show a proper not found page.');
+  });
 
   after(function (done) {
     this.server.close(done);
