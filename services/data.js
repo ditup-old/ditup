@@ -227,7 +227,6 @@ module.exports = {
       })
       .then(function (ditArray){
         var len = ditArray.length;
-        console.log('*********', ditArray)
         if(len === 0) return null;
         if(len === 1) return ditArray[0];
         throw new Error('weird amount of dits ' + dit.url + ' found');
@@ -266,8 +265,6 @@ module.exports = {
     for(var name in data) {
       if(name !== 'dittype') profile[name] = data[name];
     }
-    console.log('*************** dittype ************', dittype);
-    console.log('*************** profile ************', profile);
     return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {dittype: @dittype, profile: @profile} IN dits', {url: dit.url, profile: profile, dittype: dittype});
   },
   updateDitSettings: function (dit, settings) {
@@ -288,9 +285,7 @@ module.exports = {
     };
     return db.query(query, params);
       /*.then(null, function (err) {
-        console.log('***********caught error************');
         if(err.errorNum === 1210){
-          console.log('****************correct number***');
         }
         return false;
       });*/
@@ -337,7 +332,6 @@ module.exports = {
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN userTag';
     return db.query(query, {username: user.username, name: tag.name})
       .then(function (cursor) {
-        console.log(cursor);
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) return {success: false, err: 'tag not found'};
         if (writes === 1) return {success: true};
@@ -374,7 +368,6 @@ module.exports = {
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN ditTag';
     return db.query(query, {url: dit.url, name: tag.name})
       .then(function (cursor) {
-        console.log(cursor);
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) return {success: false, err: 'dit or tag not found'};
         if (writes === 1) return {success: true};
@@ -398,7 +391,6 @@ module.exports = {
       'REMOVE dt IN ditTag';
     return db.query(query, {url: dit.url, name: tag.name})
       .then(function (cursor) {
-        console.log(cursor);
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) return {success: false, err: 'dit doesn\'t have the tag'};
         if (writes === 1) return {success: true};
@@ -412,14 +404,12 @@ module.exports = {
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), relation: @rel} IN memberOf';
     return db.query(query, {url: dit.url, username: user.username, rel: relation})
       .then(function (cursor) {
-        console.log(cursor);
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) return {success: false, err: 'no success with adding'};
         if (writes === 1) return {success: true};
         throw new Error('problems with creating user (maybe some relation already exists or other error)');
       });
       //.then(function (cursor) {
-      //  console.log(cursor);
       //  //return cursor.extra.stats.writesExecuted === 1 ? true : false;
       //});
   },
@@ -511,7 +501,6 @@ module.exports = {
  
     return db.query(query, params)
       .then(function (cursor) {
-        console.log(cursor);
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) return {success: false, err: 'no relation to update'};
         if (writes === 1) return {success: true};
@@ -549,7 +538,6 @@ module.exports = {
 
     return db.query(query, params)
       .then(function (cursor) {
-        console.log(cursor);
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) return {success: false, err: 'no relation to remove'};
         if (writes === 1) return {success: true};

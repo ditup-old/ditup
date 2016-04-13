@@ -1,37 +1,13 @@
 'use strict';
 
+var proto = require('./proto');
+
 
 module.exports = function (db) {
   var discussion = {};
+
+  discussion.create = proto.create(['topic'], 'discussions', db, 'posts: [],');
   
-  discussion.create = function (dscn) {
-    
-    var isDataComplete = !!dscn.topic && !!dscn.creator;
-
-    if(!isDataComplete) {
-      return Promise.reject('incomplete data');
-    }
-    else {
-      var query = 'FOR u IN users FILTER u.username == @creator INSERT {topic: @topic, creator: u._id, created: @created, posts: []} IN discussions RETURN NEW._key';
-      var params = {topic: dscn.topic, creator: dscn.creator, created: dscn.created || Date.now()};
-
-      return db.query(query, params)
-        .then(function (cursor) {
-          var writes = cursor.extra.stats.writesExecuted;
-          if (writes === 0) throw new Error(404);
-          if (writes > 1) throw new Error('more than 1 discussion created. this should never happen');
-
-          return cursor.all();
-        })
-        .then(function (arrayId) {
-          return {id: arrayId[0]};
-        })
-        .then(null, function (err) {
-          return Promise.reject(err);
-        });
-    }
-  };
-
   discussion.read = function (id) {
     var query = `FOR d IN discussions FILTER d._key == @id
       LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
@@ -89,6 +65,8 @@ module.exports = function (db) {
       });
   };
 
+  discussion.update; //TODO
+
   discussion.delete = function (id) {
     var query = 'FOR d IN discussions FILTER d._key == @id REMOVE d IN discussions';
     var params = {id: id};
@@ -98,7 +76,7 @@ module.exports = function (db) {
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) throw new Error(404);
         else if (writes === 1) return {success: true}
-        else throw new Error('problems with removing tag (this should never happen)');
+        else throw new Error('problems with removing discussion (this should never happen)');
       });
   };
 
