@@ -1,24 +1,25 @@
 'use strict';
 
 var express = require('express');
-var entities = require('entities');
+//var entities = require('entities');
 var router = express.Router();
-var validate = require('../services/validation');
+//var validate = require('../services/validation');
 var db = require('../services/data');
-var generateUrl = require('./discussion/functions').generateUrl;
-
+/*
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
   return res.render('discussions', {session: sessUser});
 });
+*/
+
 
 router.all('/new', function (req, res, next) {
   var sessUser = req.session.user;
   var logged = sessUser.logged;
   if(logged !== true) {
     sessUser.messages = sessUser.messages || [];
-    sessUser.messages.push('you need to <a href="/login?redirect=%2Fdiscussions%2Fnew" >log in</a> to start a new discussion');
-    return res.render('sysinfo', {session: sessUser});
+    sessUser.messages.push('you need to <a href="/login?redirect=%2Fchallenges%2Fnew" >log in</a> to create a new challenge');
+    return res.render('login', {session: sessUser, action: '/login?redirect=%2Fchallenges%2Fnew'});
   }
 
   return next();
@@ -26,9 +27,10 @@ router.all('/new', function (req, res, next) {
 
 router.get('/new', function (req, res, next) {
   var sessUser = req.session.user;
-  return res.render('discussions-new', {session: sessUser});
+  return res.render('challenges-new', {session: sessUser});
 });
 
+/*
 router.post('/new', function (req, res, next) {
   var values = req.body;
   var sessUser = req.session.user;
@@ -36,7 +38,7 @@ router.post('/new', function (req, res, next) {
 
   //process tags
   let tagInput = values.tags; 
-  let rawTags = tagInput ? tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*/) : [];
+  let rawTags = tagInput ? tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*\/) : [];
   let tags = [];
   let invalidTags = [];
   let validTags = [];
@@ -99,6 +101,6 @@ router.post('/new', function (req, res, next) {
     });
 
 });
-
+*/
 
 module.exports = router;

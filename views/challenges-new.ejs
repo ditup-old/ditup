@@ -1,0 +1,24 @@
+<%
+  var css = [
+    '/css/header.css'
+  ];
+
+  var title = 'home';
+  var headScripts = [];
+  var scripts = [];
+
+  var values = values || {};
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+  <h1>Create a new challenge</h1>
+  <form id="new-discussion" method="post" >
+    <label>topic<input type="text" name="topic" value="<%= values.topic %>" /></label>
+    <label>tags<input type="text" name="tags" value="<%= values.tags %>" /></label>
+    <label>post<textarea type="text" name="post" ><%= values.post %></textarea></label>
+    <input type="submit" value="start the discussion" />
+  </form>
+</div>
+<% include ./partial/page-bottom.ejs %>

@@ -101,7 +101,13 @@ describe('data/challenge', function () {
     });
   });
 
-  context('tag functions', function () {
+  describe('addComment(id, data)', function () {});
+  describe('readComment(commentId)', function () {});
+  describe('readComments(id, specifics)', function () {});
+  describe('updateComment(commentId, data)', function () {});
+  describe('deleteComment(commentId)', function () {});
+
+  describe('tag functions', function () {
     var existentTag = 'test-tag-1';
     var nonexistentTag = 'nonexistent-tag-002579635';
     var addedTag = 'test-tag-2';

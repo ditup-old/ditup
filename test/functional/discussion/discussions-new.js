@@ -300,7 +300,7 @@ describe('user visits /discussions', function () {
       it('GET: should show an error and link to login page', function () {
         var browser = this.browser;
         browser.assert.text('div.popup-message.info', 'you need to log in to start a new discussion');
-        browser.assert.link('div.popup-message.info a', 'log in', '/login?return-page=%2Fdiscussions%2Fnew');
+        browser.assert.link('div.popup-message.info a', 'log in', '/login?redirect=%2Fdiscussions%2Fnew');
       });
 
       it('POST: should show an error and link to login page');//how to implement this test with zombie??

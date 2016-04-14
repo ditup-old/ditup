@@ -49,7 +49,9 @@ router.post('/', function (req, res, next) {
       //return res.render('sysinfo', {msg: 'login successful', session: sessUser});
 
       req.session.messages.push('login successful. you\'re logged in as <a href="/user/' + sessUser.username + '">' + ((sessUser.name || sessUser.surname ? sessUser.name + ' ' + sessUser.surname : '') || sessUser.username) + '</a>');
-      res.redirect(req.query.redirect || '/');
+      var redir = req.query.redirect || '/';
+      console.log(redir);
+      res.redirect(redir);
       return;
       //res.redirect(req.session.history.current);
     })

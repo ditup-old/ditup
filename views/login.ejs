@@ -6,6 +6,9 @@ var css = [
 var title = 'login';
 var headScripts = [];
 var scripts = [];
+
+var action = action || '';
+
 %><%include ./partial/page-top %>
 <%include ./partial/messages %>
 <style>
@@ -63,7 +66,7 @@ var scripts = [];
 </style>
 <div id="out-wrapper">
   <div id="in-wrapper">
-  <form method="post" id="login-form" >
+  <form method="post" id="login-form" action="<%= action %>" >
     <label>username<input type="text" name="username" placeholder="username" /></label>
     <label>password<input type="password" name="password" placeholder="password" /></label>
     <input type="submit" name="login" value="log in" />

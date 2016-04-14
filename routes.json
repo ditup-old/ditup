@@ -12,19 +12,18 @@
     "/dit",
     "/idea",
     "/interest",
-    "/project",
-    "/challenge"
+    "/project"
   ], "router":"dit"},
   {"url":[
     "/dits", 
     "/ideas",
     "/interests",
-    "/projects",
-    "/challenges",
-    ""
+    "/projects"
   ], "router":"dits"},
   {"url": "/discussion", "router": "discussion"},
   {"url": "/discussions", "router": "discussions"},
+  {"url": "/challenge", "router": "challenge"},
+  {"url": "/challenges", "router": "challenges"},
   {"url":"/tag", "router":"tag"},
   {"url":"/tags", "router":"tags"},
   {"url":"/base", "router":"base"},
