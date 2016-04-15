@@ -34,29 +34,19 @@ router.post('/new', function (req, res, next) {
   var sessUser = req.session.user;
   sessUser.messages = sessUser.messages || [];
 
-  //process tags
-  let tagInput = values.tags; 
-  let rawTags = tagInput ? tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*/) : [];
-  let tags = [];
-  let invalidTags = [];
-  let validTags = [];
-
-  var areTagsValid = true;
+  let tagInput = values.tags;
   var valid = true;
-  for(let rawTag of rawTags){ 
-    let thisValid = validate.tag.name(rawTag); 
-    if(thisValid === true) validTags.push(rawTag);
-    else invalidTags.push(rawTag);
-    tags.push(rawTag);
+  //process tags
 
-    areTagsValid = areTagsValid && thisValid;
-  }
+  var tagOutput = {};
+  var areTagsValid = validate.tag.input(tagInput, tagOutput);
 
   if(areTagsValid !== true) {
     valid = false;
     let invalidTagString = '';
+    let invalidTags = tagOutput.tags.invalid;
     for(let i=0, len = invalidTags.length; i<len; i++) {
-      invalidTagString += entities.encodeHTML(invalidTags[i]);
+      invalidTagString += entities.encodeHTML(invalidTags[i]);//sanitized!! string of tags
       if(i<len-1) invalidTagString += ', ';
     }
     sessUser.messages.push('the tags '+ invalidTagString +'  are badly formatted');
@@ -68,7 +58,7 @@ router.post('/new', function (req, res, next) {
     valid = false;
   }
 
-  if(!(tags.length > 0)) {
+  if(!(tagOutput.tags.all.length > 0)) {
     sessUser.messages.push('you need to choose 1 or more tags');
     valid = false;
   }

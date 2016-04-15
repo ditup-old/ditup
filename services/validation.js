@@ -463,6 +463,38 @@ tag.description = function (description, errors, values) {
   return true;
 };
 
+tag.input = function (tagInput, outputObject) {
+  outputObject = outputObject || {};
+  
+  //split raw tags into an Array
+  let rawTags = tagInput ? tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*/) : [];
+  //set arrays for sorting
+  let tags = []; //all tags
+  let invalidTags = [];
+  let validTags = [];
+
+  var areTagsValid = true;
+
+  //checking if every tag is valid and sorting
+  for(let rawTag of rawTags){ 
+    let thisValid = this.name(rawTag); 
+    if(thisValid === true) validTags.push(rawTag);
+    else invalidTags.push(rawTag);
+    tags.push(rawTag);
+
+    areTagsValid = areTagsValid && thisValid;
+  }
+
+  outputObject.input = tagInput;
+  outputObject.tags = {
+    valid: validTags,
+    invalid: invalidTags,
+    all: tags
+  };
+
+  return areTagsValid;
+};
+
 tag.edit = valiterate(['description']);
 
 tag.create = valiterate(['name', 'description']);
