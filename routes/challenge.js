@@ -6,8 +6,9 @@ var router = express.Router();
 //var validate = require('../services/validation');
 var db = require('../services/data');
 
-router.get('/new', function (req, res, next) {
-  res.end('hello!');
+router.get(['/:id/:url', '/:id'], function (req, res, next) {
+  var sessUser = req.session.user;
+  return res.render('challenge', {session: sessUser, challenge: {name: ''}});
 });
 
 module.exports = router;

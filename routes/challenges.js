@@ -5,6 +5,7 @@ var entities = require('entities');
 var router = express.Router();
 var validate = require('../services/validation');
 var db = require('../services/data');
+var generateUrl = require('./discussion/functions').generateUrl;
 /*
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
@@ -86,7 +87,22 @@ router.post('/new', function (req, res, next) {
     return res.render('challenges-new', {session: sessUser, values: values});
   }
 
-  return res.end('hola!');
+  var id;
+  return db.challenge.create({name: values.name, description: values.description, creator: sessUser.username})
+    .then(function (_id) {
+      id = _id;
+      
+      //TODO add tags to challenge (first check that they exist...)
+
+      var url = generateUrl(values.name);
+      
+      req.session.messages.push('the new challenge was successfully created.');
+      console.log(id, _id, url);
+      return res.redirect('/challenge/'+id.id+'/'+url);
+    })
+    .then(null, function (err) {
+      return res.end(err);
+    });
 });
 
 /*

@@ -1,0 +1,37 @@
+<%
+
+  //view needs challenge = {name: ''}
+
+  var css = [
+    '/css/header.css'
+  ];
+
+  var title = challenge.topic;
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+<h1>challenge</h1>
+<div id="challenge-name" ><%= challenge.name %></div>
+<div id="new-post">
+<% if (logged === true) { %>
+  <form id="new-post-form" method="post" action="" >
+    <textarea name="text"></textarea>
+    <input type="submit" name="post" value="post" />
+  </form>
+<% } 
+  else {
+    var redirectUrl = encodeURIComponent('/challenge/' + challenge.id + '/' + challenge.url);
+%>
+  You can't post in this challenge. Try to <a href="/login?redirect=<%= redirectUrl %>" >log in</a>.
+<%
+  }
+%>
+</div>
+</div>
+<% include ./partial/page-bottom.ejs %>

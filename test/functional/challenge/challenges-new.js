@@ -123,16 +123,20 @@ describe('visiting /challenges/new', function () {
       var badlyFormattedTags = 'test tag 1, tag2, hitch-hikin^^g';
       var emptyTags = '';
 
+      function submitForm (name, description, tags) {
+        return browser.visit('/challenges/new')
+          .then(() => {
+            return browser
+              .fill('name', name)
+              .fill('description', description)
+              .fill('tags', tags)
+              .pressButton('create the challenge');
+          });
+      }
+
       function fillForm (name, description, tags) {
         return function (done) {
-          browser.visit('/challenges/new')
-            .then(() => {
-              return browser
-                .fill('name', name)
-                .fill('description', description)
-                .fill('tags', tags)
-                .pressButton('create the challenge');
-            })
+          return submitForm(name, description, tags)
             .then(done, done);
         }
       }
@@ -176,7 +180,39 @@ describe('visiting /challenges/new', function () {
 
 
       context('good data', function () {
-        it('should create the challenge and redirect to it');
+
+        let createdChallengeId; //for later deleting it
+
+        it('should create the challenge and redirect to it', function (done) {
+          let validWeirdName = 'What is a ))_??#@#:@ purpose of test?';
+          
+          //submitForm(validWeirdName, validDescription, validTags)
+          browser.visit('/challenges/new')
+            .then(() => {
+              return browser
+                .fill('name', validWeirdName)
+                .fill('description', validDescription)
+                .fill('tags', validTags)
+                .pressButton('create the challenge');
+            })
+            .then(() => {
+              let url = browser.url;
+              let arr = url.split('/');
+              createdChallengeId = arr[4];
+              
+              browser.assert.success();
+              browser.assert.redirected();
+              browser.assert.url(/^.*\/challenge\/[0-9]*\/what-is-purpose-of-test\/?$/);
+              browser.assert.text('h1', 'challenge');
+              browser.assert.text('div.popup-message.info', /^.*the new challenge was successfully created.*$/);
+              
+            })
+            .then(done, done);
+        });
+        
+        after(function (done) {
+          return dbChallenge.delete(createdChallengeId).then(() => {done();}, done);
+        });
       });
     });
   });
