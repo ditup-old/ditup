@@ -7,6 +7,9 @@ var config = require('./db-config');
 var db = new Database({url: config.url, databaseName: config.dbname});
 //var graph = db.graph('ditg');
 
+//submodules to also export as a part of the object
+var modules = ['search', 'feedback', 'user', 'dit', 'tag', 'talk', 'discussion', 'challenge'];
+
 module.exports = {
   //user
   ////C
@@ -581,10 +584,6 @@ module.exports = {
 };
 
 
-module.exports.search = require('./data/search')(db);
-module.exports.feedback = require('./data/feedback')(db);
-module.exports.user = require('./data/user')(db);
-module.exports.dit = require('./data/dit')(db);
-module.exports.tag = require('./data/tag')(db);
-module.exports.talk = require('./data/talk')(db);
-module.exports.discussion = require('./data/discussion')(db);
+for (let md of modules) {
+  module.exports[md] = require('./data/'+md)(db);
+}
