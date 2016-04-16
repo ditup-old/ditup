@@ -88,12 +88,23 @@ router.post('/new', function (req, res, next) {
   }
 
   var id;
+  var failedTags = [];
+  var addedTags = [];
+
   return db.challenge.create({name: values.name, description: values.description, creator: sessUser.username})
     .then(function (_id) {
       id = _id;
-      
-      //TODO add tags to challenge (first check that they exist...)
+/*      var pchain = Promise.resolve();
+      for(let tg of validTags) {
+        pchain.then(db.challenge.addTag(id.id, tg)).then(function () { addedTags.push(tg); console.log('success!', tg); }, function (err) { failedTags.push(tg); console.log('fail!!!', tg); });
+      }
 
+      return pchain;
+    })
+    .then(function () {
+      console.log(failedTags, addedTags);    
+      //TODO add tags to challenge (first check that they exist...)
+*/
       var url = generateUrl(values.name);
       
       req.session.messages.push('the new challenge was successfully created.');

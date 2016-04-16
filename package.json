@@ -10,6 +10,7 @@
     "watch-unit-challenge": "mocha ./test/unit/services-data-challenge --watch",
     "watch-discussion": "mocha ./test/functional/discussion --watch",
     "watch-challenge": "mocha ./test/functional/challenge --watch",
+    "watch-challenge-id": "mocha ./test/functional/challenge/challenge-id-name --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

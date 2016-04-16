@@ -17,7 +17,8 @@ include ./partial/header.ejs %>
 </style>
 <div>
 <h1>challenge</h1>
-<div id="challenge-name" ><%= challenge.name %></div>
+<div id="challenge-name" ><%= challenge.name %></div><input type="text" id="challenge-url" value="<%= challenge.link %>" />
+<div id="challenge-description" ><%= challenge.description %></div>
 <div id="new-post">
 <% if (logged === true) { %>
   <form id="new-post-form" method="post" action="" >
