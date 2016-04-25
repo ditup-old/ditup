@@ -1,6 +1,6 @@
 <%
 
-  //view needs challenge = {name: ''}
+  //view needs challenge = {name: '', tags: []}
 
   var css = [
     '/css/header.css'
@@ -18,6 +18,12 @@ include ./partial/header.ejs %>
 <div>
 <h1>challenge</h1>
 <div id="challenge-name" ><%= challenge.name %></div><input type="text" id="challenge-url" value="<%= challenge.link %>" />
+<div id="challenge-tags"><%
+  for(var i=0, len=challenge.tags.length; i < len; ++i){
+   %><span><%= challenge.tags[i] %></span><%
+  }
+
+%></div>
 <div id="challenge-description" ><%= challenge.description %></div>
 <div id="new-post">
 <% if (logged === true) { %>

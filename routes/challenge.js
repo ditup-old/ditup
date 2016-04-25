@@ -14,18 +14,31 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
   var id = req.params.id;
   var url = req.params.url;
   req.ditup.challenge = req.ditup.challenge || {};
+  var challenge, expectedUrl;
 
   return db.challenge.read(id)
-    .then(function (challenge) {
+    .then(function (_challenge) {
+      challenge = _challenge;
       //console.log(challenge);
-      var expectedUrl = generateUrl(challenge.name);
+      expectedUrl = generateUrl(challenge.name);
       challenge.url = expectedUrl;
-      console.log(req);
+      //console.log(req);
       challenge.link = 'http://'+req.headers.host+req.originalUrl;
       challenge.id = id;
       for(var param in req.ditup.challenge) {
         challenge[param] = req.ditup.challenge[param];
       }
+
+      //read tags of challenge
+      return db.challenge.tags(id);
+    })
+    .then(function (_tags) {
+      //console.log('**************', _tags);
+      challenge.tags = [];
+      for(let _tag of _tags) {
+        challenge.tags.push(_tag.name);
+      }
+      console.log('@@@@@@@@@@@@', challenge.tags);
       if(expectedUrl === url) {
         if(sessUser.logged !== true) {
           sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');

@@ -1,7 +1,7 @@
 'use strict';
 
 // force the test environment to 'test'
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = 'development';
 // get the application server module
 var app = require('../../../app');
 var session = require('../../../session');
@@ -41,7 +41,7 @@ describe('visit /challenge/:id/:name', function () {
       .then(done, done);
   }
   
-  var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined};
+  var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined, tags: ['test-tag-3', 'test-tag-1']};
   var nonexistentChallenge = {name: 'nonexistent challenge', description: 'some description', id: '1234567890'};
   existentChallenge.url = generateUrl(existentChallenge.name);
   nonexistentChallenge.url = generateUrl(nonexistentChallenge.name);
@@ -51,9 +51,18 @@ describe('visit /challenge/:id/:name', function () {
     return dbChallenge.create({name: existentChallenge.name, description: existentChallenge.description, creator: 'test1'})
       .then(function (_id) {
         existentChallenge.id = _id.id;
+
+        //add some tags to the existentChallenge
+        let tagPromises = [];
+        for(let tag of existentChallenge.tags){
+          tagPromises.push(dbChallenge.addTag(existentChallenge.id, tag, 'test1'));
+        }
+        return Promise.all(tagPromises);
+      })
+      .then(function () {
         done();
       })
-      .then(null, function (err) {console.log(err); done(err);});
+      .then(null, done);
     //create the challenge
     //add some posts
 
@@ -61,8 +70,17 @@ describe('visit /challenge/:id/:name', function () {
   
   //delete the existent challenge
   afterEach(function (done) {
-    //delete the new challenge from database
-    dbChallenge.delete(existentChallenge.id)
+    //remove tags from the existentChallenge
+    let tagPromises = [];
+    for(let tag of existentChallenge.tags){
+      tagPromises.push(dbChallenge.removeTag(existentChallenge.id, tag));
+    }
+    return Promise.all(tagPromises)
+      .then(function () {}, function (err) {})
+      //delete the new challenge from database
+      .then(function () {
+        dbChallenge.delete(existentChallenge.id);
+      })
       .then(function () {done();}, done);
   });
 
@@ -102,6 +120,13 @@ describe('visit /challenge/:id/:name', function () {
         browser.assert.text('#challenge-description', existentChallenge.description);
       });
       it('should show activity log');
+      it('should show tags', function () {
+        for(var i = existentChallenge.tags.length-1; i>=0; i--){
+          browser.assert.text('#challenge-tags', new RegExp(existentChallenge.tags[i]));
+        }
+      });
+      it('should show followers');
+      it('should show stars')
       it('should show the challenges, tags, followers, stars, etc.');
       it('should show link for sharing the challenge', function () {
         browser.assert.input('#challenge-url', browser.url);
@@ -116,7 +141,7 @@ describe('visit /challenge/:id/:name', function () {
         beforeEach(logout);
 
         beforeEach(function (done) {
-          browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+          return browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
             .then(done, done);
         });
 
@@ -132,6 +157,15 @@ describe('visit /challenge/:id/:name', function () {
       });
 
       context('logged in', function () {
+        beforeEach(login);
+
+        beforeEach(function (done) {
+          browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+            .then(done, done);
+        });
+
+        afterEach(logout);
+
         it('should show link or field for adding a tag'); //challenge/id/name/add-tag
         it('may be possible to remove tags which user added and have 0 or negative voting');
         it('should show the tags to be votable (whether the tag is fitting or not)');
