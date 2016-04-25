@@ -166,7 +166,15 @@ describe('visit /challenge/:id/:name', function () {
 
         afterEach(logout);
 
-        it('should show link or field for adding a tag'); //challenge/id/name/add-tag
+        it('should show link or field for adding a tag', function () {
+          browser.assert.element('#add-tag-form');
+          browser.assert.attribute('#add-tag-form', 'method', 'post');
+          browser.assert.element('#add-tag-form input[type=text]');
+          browser.assert.attribute('#add-tag-form input[type=text]', 'name', 'tagname');
+          browser.assert.element('#add-tag-form input[type=submit]');
+          browser.assert.attribute('#add-tag-form input[type=submit]', 'name', 'submit');
+          browser.assert.attribute('#add-tag-form input[type=submit]', 'value', 'add tag');
+        }); //challenge/id/name/add-tag
         it('may be possible to remove tags which user added and have 0 or negative voting');
         it('should show the tags to be votable (whether the tag is fitting or not)');
         it('should show a field for adding a comment to challenge');

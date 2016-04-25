@@ -14,13 +14,27 @@
 %><%include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <style>
+  form#add-tag-form {
+    display: inline;
+  }
 </style>
 <div>
 <h1>challenge</h1>
-<div id="challenge-name" ><%= challenge.name %></div><input type="text" id="challenge-url" value="<%= challenge.link %>" />
+<div id="challenge-name" ><%= challenge.name %><input type="text" readonly="" id="challenge-url" value="<%= challenge.link %>" /></div>
 <div id="challenge-tags"><%
+  if(challenge.tags.length === 0) {
+    %>no tags<%
+  }
   for(var i=0, len=challenge.tags.length; i < len; ++i){
    %><span><%= challenge.tags[i] %></span><%
+  }
+  if(logged === true){
+    %>
+    <form id="add-tag-form" method="post" >
+      <input type="text" name="tagname" />
+      <input type="submit" name="submit" value="add tag" />
+    </form>
+    <% 
   }
 
 %></div>
