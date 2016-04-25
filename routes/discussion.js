@@ -15,7 +15,6 @@ router.post('/:id/:url', function (req, res, next) {
   var id = req.params.id;
   var url = req.params.url;
   var text = req.body.text;
-  //console.log(text, '^^^^^^^^^^^^^6', id, url);
   if(sessUser.logged === true) {
     if(!text) {
       req.ditup.discussion = {newPost: {errors: ['error: the message is empty']}};

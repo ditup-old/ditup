@@ -25,12 +25,28 @@ describe('visit /challenge/:id/:name', function () {
   after(function (done) {
     server.close(done);
   });
+
+  function login (done) {
+    browser.visit('/login')
+      .then(() => {
+        return browser.fill('username', 'test1')
+          .fill('password', 'asdfasdf')
+          .pressButton('log in');
+      })
+      .then(done, done);
+  }
+
+  function logout (done) {
+    browser.visit('/logout')
+      .then(done, done);
+  }
   
   var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined};
   var nonexistentChallenge = {name: 'nonexistent challenge', description: 'some description', id: '1234567890'};
   existentChallenge.url = generateUrl(existentChallenge.name);
   nonexistentChallenge.url = generateUrl(nonexistentChallenge.name);
 
+  //create an existent challenge for tests
   beforeEach(function (done) {
     return dbChallenge.create({name: existentChallenge.name, description: existentChallenge.description, creator: 'test1'})
       .then(function (_id) {
@@ -42,7 +58,8 @@ describe('visit /challenge/:id/:name', function () {
     //add some posts
 
   });
-
+  
+  //delete the existent challenge
   afterEach(function (done) {
     //delete the new challenge from database
     dbChallenge.delete(existentChallenge.id)
@@ -88,12 +105,30 @@ describe('visit /challenge/:id/:name', function () {
       it('should show the challenges, tags, followers, stars, etc.');
       it('should show link for sharing the challenge', function () {
         browser.assert.input('#challenge-url', browser.url);
+        //browser.assert.input('#challenge-url-short', 'http://localhost:3000/c/'+existentChallenge.id);
+        //TODO!!! check how it works in html on i.e. github...
       });
       it('should show social networking links for sharing');
       /**how does social networking work???*/
 
       context('not logged in', function () {
-        it('should suggest logging in or signing up with proper redirect in link');
+
+        beforeEach(logout);
+
+        beforeEach(function (done) {
+          browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+            .then(done, done);
+        });
+
+        it('should suggest logging in or signing up with proper redirect in link', function () {
+          var redirect = '/login?redirect=%2Fchallenge%2F' + existentChallenge.id + '%2F' + existentChallenge.url;
+          browser.assert.success();
+          browser.assert.text('div.popup-message.info', 'log in or sign up to read more and contribute');
+          browser.assert.link('div.popup-message.info a', 'log in', redirect);
+          browser.assert.link('div.popup-message.info a', 'sign up', '/signup');
+          browser.assert.attribute('#login-form', 'action', redirect);
+          browser.assert.text('#login-form label', 'usernamepassword');
+        });
       });
 
       context('logged in', function () {

@@ -10,6 +10,7 @@ var generateUrl = functions.generateUrl;
 
 router.all(['/:id/:url', '/:id'], function (req, res, next) {
   var sessUser = req.session.user;
+
   var id = req.params.id;
   var url = req.params.url;
   req.ditup.challenge = req.ditup.challenge || {};
@@ -26,6 +27,9 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
         challenge[param] = req.ditup.challenge[param];
       }
       if(expectedUrl === url) {
+        if(sessUser.logged !== true) {
+          sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
+        }
         return res.render('challenge', {session: sessUser, challenge: challenge});
       }
       else {

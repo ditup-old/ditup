@@ -28,8 +28,9 @@ include ./partial/header.ejs %>
 <% } 
   else {
     var redirectUrl = encodeURIComponent('/challenge/' + challenge.id + '/' + challenge.url);
+    var action = '/login?redirect='+redirectUrl;
 %>
-  You can't post in this challenge. Try to <a href="/login?redirect=<%= redirectUrl %>" >log in</a>.
+<% include ./partial/login-form.ejs %>
 <%
   }
 %>
