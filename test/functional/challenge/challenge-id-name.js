@@ -193,6 +193,29 @@ describe('visit /challenge/:id/:name', function () {
         context('user is not a creator', function () {});
       });
     });
+
+    context('POST', function () {
+      context('logged in', function () {
+        context('adding a tag', function () {
+          //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
+          it('should add a tag and show it');
+          it('should display info that tag was successfully added');
+        });
+        context('adding a comment', function () {
+          it('should add the comment and show it');
+          it('should display info that the comment was successfully added');
+        });
+        context('follow', function () {
+          it('should make user follow the challenge and update the button to unfollow');
+        });
+        context('unfollow', function () {
+          it('should make user unfollow the challenge and update the button to follow');
+        });
+      });
+      context('not logged in', function () {
+        it('should show error that user needs to log in to perform any editing');
+      });
+    });
   });
 
   context('challenge with :id doesn\'t exist', function () {
