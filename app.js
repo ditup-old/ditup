@@ -10,6 +10,7 @@ module.exports = function (session) {
   var logger = require('morgan');
   var cookieParser = require('cookie-parser');
   var bodyParser = require('body-parser');
+  var sanitizer = require('./services/sanitizer');
 
   //var home = require('./routes/home');
   //var signup = require('./routes/signup');
@@ -28,6 +29,7 @@ module.exports = function (session) {
   app.use(cookieParser());
 
   app.use(session);
+  app.use(sanitizer);
   app.use(express.static(path.join(__dirname, 'public')));
 
   //setting session variables
