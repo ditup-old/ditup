@@ -195,10 +195,44 @@ describe('visit /challenge/:id/:name', function () {
 
     context('POST', function () {
       context('logged in', function () {
+
+        beforeEach(login);
+
+        beforeEach(function (done) {
+          browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+            .then(done, done);
+        });
+
+        afterEach(logout);
+
         context('adding a tag', function () {
+          let tagToAdd = 'busking';
           //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
-          it('should add a tag and show it');
-          it('should display info that tag was successfully added');
+          beforeEach(function (done) {
+            return browser
+              .fill('tagname', tagToAdd)
+              .pressButton('add tag')
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return dbChallenge.removeTag(existentChallenge.id, tagToAdd)
+              .then(function () {done();}, done );
+          });
+
+          it('should add a tag and show it', function () {
+            browser.assert.success();
+            browser.assert.text('#challenge-tags', new RegExp(tagToAdd));
+          });
+
+          it('should display info that tag was successfully added', function () {
+            browser.assert.text('div.popup-message.info', 'Tag ' + tagToAdd + ' was successfully added to the challenge.');
+            browser.assert.link('div.popup-message.info a', tagToAdd, '/tag/'+tagToAdd);
+          });
+
+          it('TODO', function () {
+            throw new Error('to do the sanitizer of all the post input (find a library and update sanitizer)');
+          });
         });
         context('adding a comment', function () {
           it('should add the comment and show it');

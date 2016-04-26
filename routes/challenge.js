@@ -8,6 +8,24 @@ var db = require('../services/data');
 var functions = require('./discussion/functions');
 var generateUrl = functions.generateUrl;
 
+router.post(['/:id/:url'], function (req, res, next) {
+  let sessUser = req.session.user;
+  let id = req.params.id;
+  if(req.body.submit === 'add tag') {
+    let tagname = req.body.tagname;
+    return db.challenge.addTag(id, tagname, sessUser.username)
+      .then(function () {
+        sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the challenge.');
+        next();
+      })
+      .then(null, next);
+  }
+  else {
+    let err = new Error('we don\'t know what to do with this POST request');
+    next(err);
+  }
+});
+
 router.all(['/:id/:url', '/:id'], function (req, res, next) {
   var sessUser = req.session.user;
 
@@ -38,7 +56,6 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       for(let _tag of _tags) {
         challenge.tags.push(_tag.name);
       }
-      console.log('@@@@@@@@@@@@', challenge.tags);
       if(expectedUrl === url) {
         if(sessUser.logged !== true) {
           sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
