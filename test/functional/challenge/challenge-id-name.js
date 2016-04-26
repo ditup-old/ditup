@@ -152,7 +152,6 @@ describe('visit /challenge/:id/:name', function () {
           browser.assert.link('div.popup-message.info a', 'log in', redirect);
           browser.assert.link('div.popup-message.info a', 'sign up', '/signup');
           browser.assert.attribute('#login-form', 'action', redirect);
-          browser.assert.text('#login-form label', 'usernamepassword');
         });
       });
 

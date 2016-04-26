@@ -1,0 +1,50 @@
+<style>
+  #in-wrapper {
+    /*margin: 0px auto;
+    padding-top: 40px;*/
+    /*position:relative;*/
+    /*width: 300px;*/
+  }
+
+  #login-form {
+    display:inline;
+  }
+
+  #login-form input, #login-form input[type=submit]{
+    /*width: 100%;*/
+    /*position:relative;*/
+    font-size:1em;
+    padding: 5px;
+    margin:0px;
+    border:2px solid #011149;
+    background: none;
+    margin-bottom:10px;
+    margin-top:2px;
+  }
+
+  #login-form input[type=submit] {
+    /*margin-top:20px;*/
+    color: #eeeeee;
+    background-color: #011149;
+    cursor:pointer;
+  }
+
+  #in-wrapper a, #in-wrapper a:active {
+    color: #0194fe;
+    text-decoration: none;
+  }
+
+  #in-wrapper a:hover {
+    color: #eeeeee;
+    background-color: #011149;
+  }
+</style>
+
+  <div id="in-wrapper">
+    <label>Log in: <form method="post" id="login-form" action="<%= action %>" >
+      <label><input type="text" name="username" placeholder="username" /></label>
+      <label><input type="password" name="password" placeholder="password" /></label>
+      <input type="submit" name="login" value="log in" />
+    </form></label>
+    <a href="/account/reset-password">forgotten login details?</a>
+  </div>

@@ -50,7 +50,7 @@ include ./partial/header.ejs %>
     var redirectUrl = encodeURIComponent('/challenge/' + challenge.id + '/' + challenge.url);
     var action = '/login?redirect='+redirectUrl;
 %>
-<% include ./partial/login-form.ejs %>
+<% include ./partial/login-form-simple.ejs %>
 <%
   }
 %>
