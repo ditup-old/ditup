@@ -229,10 +229,6 @@ describe('visit /challenge/:id/:name', function () {
             browser.assert.text('div.popup-message.info', 'Tag ' + tagToAdd + ' was successfully added to the challenge.');
             browser.assert.link('div.popup-message.info a', tagToAdd, '/tag/'+tagToAdd);
           });
-
-          it('TODO', function () {
-            throw new Error('to do the sanitizer of all the post input (find a library and update sanitizer)');
-          });
         });
         context('adding a comment', function () {
           it('should add the comment and show it');
