@@ -26,10 +26,12 @@ describe('visit /challenge/:id/:name', function () {
     server.close(done);
   });
 
+  var loggedUser = 'test1';
+
   function login (done) {
     browser.visit('/login')
       .then(() => {
-        return browser.fill('username', 'test1')
+        return browser.fill('username', loggedUser)
           .fill('password', 'asdfasdf')
           .pressButton('log in');
       })
@@ -312,11 +314,87 @@ describe('visit /challenge/:id/:name', function () {
           it('should add the comment and show it');
           it('should display info that the comment was successfully added');
         });
+
         context('follow', function () {
-          it('should make user follow the challenge and update the button to unfollow');
+          beforeEach(function (done) {
+            return browser
+              .pressButton('follow')
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return dbChallenge.unfollow(existentChallenge.id, loggedUser)
+              .then(function () {done();}, done );
+          });
+          
+          it('should make user follow the challenge and update the button to unfollow', function () {
+            browser.assert.success();
+            browser.assert.element('#unfollow-form');
+          });
+
+          it('should display info that user now follows the challenge', function () {
+            browser.assert.text('div.popup-message.info', new RegExp('Now you follow the challenge\\.'));
+          });
         });
+
         context('unfollow', function () {
-          it('should make user unfollow the challenge and update the button to follow');
+          beforeEach(function (done) {
+            return dbChallenge.follow(existentChallenge.id, 'test1')
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          beforeEach(function (done) {
+            browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+              .then(done, done);
+          });
+
+          beforeEach(function (done) {
+            return browser
+              .pressButton('unfollow')
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return dbChallenge.unfollow(existentChallenge.id, 'test1')
+              .then(null, function (err) {
+                console.log('&&&&&&&&&', err, err.message);
+                if(err.message !== '404') {
+                  throw err;
+                }
+              })
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          it('should make user unfollow the challenge and update the button to follow', function () {
+            browser.assert.success();
+            browser.assert.element('#follow-form');
+          });
+
+          it('should display info that user now follows the challenge', function () {
+            browser.assert.text('div.popup-message.info', new RegExp('You don\'t follow the challenge anymore\\.'));
+          });
+        });
+
+        context('hide', function () {
+          it('should make the challenge hidden and update the button to unhide', function (){
+            throw new Error('TODO');
+          });
+          it('should display info that the challenge won\'t be shown in searches', function (){
+            throw new Error('TODO');
+          });
+        });
+
+        context('unhide', function () {
+          it('should unhide the challenge and update the button to hide', function (){
+            throw new Error('TODO');
+          });
+          it('should display info that the challenge will be shown in searches again', function (){
+            throw new Error('TODO');
+          });
         });
       });
       context('not logged in', function () {

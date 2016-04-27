@@ -17,13 +17,31 @@ router.post(['/:id/:url'], function (req, res, next) {
       return db.challenge.addTag(id, tagname, sessUser.username)
         .then(function () {
           sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the challenge.');
-          next();
+          return next();
+        })
+        .then(null, next);
+    }
+    else if(req.body.submit === 'follow') {
+      //return next();
+      return db.challenge.follow(id, sessUser.username)
+        .then(function () {
+          sessUser.messages.push('Now you follow the challenge.');
+          return next();
+        })
+        .then(null, next);
+    }
+    else if(req.body.submit === 'unfollow') {
+      //return next();
+      return db.challenge.unfollow(id, sessUser.username)
+        .then(function () {
+          sessUser.messages.push('You don\'t follow the challenge anymore.');
+          return next();
         })
         .then(null, next);
     }
     else {
       let err = new Error('we don\'t know what to do with this POST request');
-      next(err);
+      return next(err);
     }
   }
   else {
