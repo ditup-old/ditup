@@ -10,7 +10,7 @@
   var headScripts = [];
   var scripts = [];
   var session = session || {logged:false, username: null};
-  var logged = session.logged || false;
+  var logged = session.logged || false
 %><%include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <style>
@@ -21,6 +21,42 @@ include ./partial/header.ejs %>
 <div>
 <h1>challenge</h1>
 <div id="challenge-name" ><%= challenge.name %><input type="text" readonly="" id="challenge-url" value="<%= challenge.link %>" /></div>
+<% 
+//showing a follow/unfollow form
+if(logged === true) {
+  if(challenge.following === true) {
+  //showing an unfollow form
+  %>
+    <form id="unfollow-form" method="post">
+      <input type="submit" name="submit" value="unfollow" />
+    </form>
+    
+  <%} else {
+  //showing a follow form %>
+<form id="follow-form" method="post">
+  <input type="submit" name="submit" value="follow" />
+</form>
+<%
+  }
+}%>
+<% 
+//showing a hide/unhide form
+if(logged === true) {
+  if(challenge.hiding === true) {
+  //showing an unhide form
+  %>
+    <form id="unhide-form" method="post">
+      <input type="submit" name="submit" value="unhide" />
+    </form>
+    
+  <%} else {
+  //showing a hide form %>
+<form id="hide-form" method="post">
+  <input type="submit" name="submit" value="hide" />
+</form>
+<%
+  }
+}%>
 <div id="challenge-tags"><%
   if(challenge.tags.length === 0) {
     %>no tags<%

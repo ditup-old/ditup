@@ -11,18 +11,24 @@ var generateUrl = functions.generateUrl;
 router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;
   let id = req.params.id;
-  if(req.body.submit === 'add tag') {
-    let tagname = req.body.tagname;
-    return db.challenge.addTag(id, tagname, sessUser.username)
-      .then(function () {
-        sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the challenge.');
-        next();
-      })
-      .then(null, next);
+  if(sessUser.logged === true) {
+    if(req.body.submit === 'add tag') {
+      let tagname = req.body.tagname;
+      return db.challenge.addTag(id, tagname, sessUser.username)
+        .then(function () {
+          sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the challenge.');
+          next();
+        })
+        .then(null, next);
+    }
+    else {
+      let err = new Error('we don\'t know what to do with this POST request');
+      next(err);
+    }
   }
   else {
-    let err = new Error('we don\'t know what to do with this POST request');
-    next(err);
+    sessUser.messages.push('You need to <a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> to POST anything');
+    next();
   }
 });
 
@@ -34,28 +40,59 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
   req.ditup.challenge = req.ditup.challenge || {};
   var challenge, expectedUrl;
 
+//first reading the challenge
   return db.challenge.read(id)
     .then(function (_challenge) {
       challenge = _challenge;
-      //console.log(challenge);
       expectedUrl = generateUrl(challenge.name);
       challenge.url = expectedUrl;
-      //console.log(req);
-      challenge.link = 'http://'+req.headers.host+req.originalUrl;
+      challenge.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
       challenge.id = id;
+      //copying params from previous routes
       for(var param in req.ditup.challenge) {
         challenge[param] = req.ditup.challenge[param];
       }
-
-      //read tags of challenge
-      return db.challenge.tags(id);
+      return;
     })
-    .then(function (_tags) {
-      //console.log('**************', _tags);
-      challenge.tags = [];
-      for(let _tag of _tags) {
-        challenge.tags.push(_tag.name);
+    //read tags of challenge
+    .then(function () {
+      return db.challenge.tags(id)
+        .then(function (_tags) {
+          challenge.tags = [];
+          for(let _tag of _tags) {
+            challenge.tags.push(_tag.name);
+          }
+          return;
+        });
+    })
+    //if user is logged in, find out whether she follows the challenge
+    .then(function () {
+      if(sessUser.logged === true) {
+        return db.challenge.followingUser(id, sessUser.username)
+          .then(function(_flwng) {
+            challenge.following = _flwng;
+            return;
+          });
       }
+      else {
+        return;
+      }
+    })
+    //if user is logged in, find out whether she hides the challenge
+    .then(function () {
+      if(sessUser.logged === true) {
+        return db.challenge.followingUser(id, sessUser.username, true)
+          .then(function(_hdng) {
+            challenge.hiding = _hdng;
+            return;
+          });
+      }
+      else {
+        return;
+      }
+    })
+    //sending the response
+    .then(function () {
       if(expectedUrl === url) {
         if(sessUser.logged !== true) {
           sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');

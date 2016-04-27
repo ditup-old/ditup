@@ -182,18 +182,19 @@ proto.following = function (collectionName, db) {
 };
 
 proto.followingUser = function (collectionName, db) {
-  return function (id, username) {
+  return function (id, username, hiding) {
+    var hiding = !!hiding;
     var query = `
       LET col = (FOR d IN `+collectionName+` FILTER d._key == @id RETURN d)
       LET us = (FOR u IN users FILTER u.username == @username RETURN u)
       LET output = (
         FOR d IN col
           FOR u IN us
-            FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER u._id == ufd._from && d._id == ufd._to && ufd.hide == false
+            FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER u._id == ufd._from && d._id == ufd._to && ufd.hide == @hiding
               RETURN ufd)
       RETURN LENGTH(col) == 0 ? "404" : (LENGTH(us) == 0 ? "404" : output)`;// a small edit and we can distinguish between missing collection vs. user
 
-    var params = {id: id, username: username};
+    var params = {id: id, username: username, hiding: hiding};
     
     return db.query(query, params)
       .then(function (cursor) {return cursor.all();})

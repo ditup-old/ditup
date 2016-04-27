@@ -182,6 +182,84 @@ describe('visit /challenge/:id/:name', function () {
         it('may make it possible to link existent ideas, projects, discussions, challenges');
         it('may be possible to edit the challenge name and description in wikipedia or etherpad style');
 
+        context('user doesn\'t follow', function () {
+          it('should show a \'follow\' button', function () {
+            browser.assert.element('#follow-form');
+            browser.assert.attribute('#follow-form', 'method', 'post');
+            browser.assert.element('#follow-form input[type=submit]');
+            browser.assert.attribute('#follow-form input[type=submit]', 'name', 'submit');
+            browser.assert.attribute('#follow-form input[type=submit]', 'value', 'follow');
+          });
+        });
+
+        context('user follows', function () {
+          beforeEach(function (done) {
+            return dbChallenge.follow(existentChallenge.id, 'test1')
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          beforeEach(function (done) {
+            browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return dbChallenge.unfollow(existentChallenge.id, 'test1')
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          it('should show an \'unfollow\' button', function () {
+            browser.assert.element('#unfollow-form');
+            browser.assert.attribute('#unfollow-form', 'method', 'post');
+            browser.assert.element('#unfollow-form input[type=submit]');
+            browser.assert.attribute('#unfollow-form input[type=submit]', 'name', 'submit');
+            browser.assert.attribute('#unfollow-form input[type=submit]', 'value', 'unfollow');
+          });
+        });
+
+        context('user doesn\'t hide the challenge', function () {
+          it('should show a hide button', function () {
+            browser.assert.element('#hide-form');
+            browser.assert.attribute('#hide-form', 'method', 'post');
+            browser.assert.element('#hide-form input[type=submit]');
+            browser.assert.attribute('#hide-form input[type=submit]', 'name', 'submit');
+            browser.assert.attribute('#hide-form input[type=submit]', 'value', 'hide');
+          });
+        });
+
+        context('user hides the challenge', function () {
+          beforeEach(function (done) {
+            return dbChallenge.hide(existentChallenge.id, 'test1')
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          beforeEach(function (done) {
+            browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return dbChallenge.unhide(existentChallenge.id, 'test1')
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          it('should show an unhide button', function () {
+            browser.assert.element('#unhide-form');
+            browser.assert.attribute('#unhide-form', 'method', 'post');
+            browser.assert.element('#unhide-form input[type=submit]');
+            browser.assert.attribute('#unhide-form input[type=submit]', 'name', 'submit');
+            browser.assert.attribute('#unhide-form input[type=submit]', 'value', 'unhide');
+          });
+        });
+
         context('user is creator', function () {
           it('may be possible to delete the challenge if not embraced'); //challenge/id/name/delete //discourage!
           it('may be possible for the creator to remove their name (anonymization)');
@@ -242,7 +320,23 @@ describe('visit /challenge/:id/:name', function () {
         });
       });
       context('not logged in', function () {
-        it('should show error that user needs to log in to perform any editing');
+        //i'm not able to write this test: i.e. fill the form and then logout and then post it. but it should work.
+        /*
+        beforeEach(login)
+        beforeEach(logout);
+
+        beforeEach(function (done) {
+          browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+            .then(done, done);
+        });
+
+        afterEach(logout);
+        */
+        it('should show error that user needs to log in to perform any editing'/*, function () {
+          let redirect = '/login?redirect=%2Fchallenge%2F' + existentChallenge.id + '%2F' + existentChallenge.url;
+          browser.assert.text('div.popup-message.info', new RegExp('You need to log in to POST anything.'));
+          browser.assert.link('div.popup-message.info a', 'log in', redirect);
+        }*/);
       });
     });
   });
