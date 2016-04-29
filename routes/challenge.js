@@ -39,6 +39,24 @@ router.post(['/:id/:url'], function (req, res, next) {
         })
         .then(null, next);
     }
+    else if(req.body.submit === 'hide') {
+      //return next();
+      return db.challenge.hide(id, sessUser.username)
+        .then(function () {
+          sessUser.messages.push('The challenge won\'t be shown in your search results anymore.');
+          return next();
+        })
+        .then(null, next);
+    }
+    else if(req.body.submit === 'unhide') {
+      //return next();
+      return db.challenge.unhide(id, sessUser.username)
+        .then(function () {
+          sessUser.messages.push('The challenge will be shown in your search results again.');
+          return next();
+        })
+        .then(null, next);
+    }
     else {
       let err = new Error('we don\'t know what to do with this POST request');
       return next(err);

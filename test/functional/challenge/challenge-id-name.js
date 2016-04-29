@@ -315,12 +315,16 @@ describe('visit /challenge/:id/:name', function () {
           it('should display info that the comment was successfully added');
         });
 
-        context('follow', function () {
-          beforeEach(function (done) {
+        function pressJustAButton(buttonName) {
+          return function (done) {
             return browser
-              .pressButton('follow')
+              .pressButton(buttonName)
               .then(done, done);
-          });
+          };
+        }
+
+        context('follow', function () {
+          beforeEach(pressJustAButton('follow'));
 
           afterEach(function (done) {
             return dbChallenge.unfollow(existentChallenge.id, loggedUser)
@@ -350,16 +354,11 @@ describe('visit /challenge/:id/:name', function () {
               .then(done, done);
           });
 
-          beforeEach(function (done) {
-            return browser
-              .pressButton('unfollow')
-              .then(done, done);
-          });
+          beforeEach(pressJustAButton('unfollow'));
 
           afterEach(function (done) {
             return dbChallenge.unfollow(existentChallenge.id, 'test1')
               .then(null, function (err) {
-                console.log('&&&&&&&&&', err, err.message);
                 if(err.message !== '404') {
                   throw err;
                 }
@@ -380,20 +379,57 @@ describe('visit /challenge/:id/:name', function () {
         });
 
         context('hide', function () {
-          it('should make the challenge hidden and update the button to unhide', function (){
-            throw new Error('TODO');
+          beforeEach(pressJustAButton('hide'));
+
+          afterEach(function (done) {
+            return dbChallenge.unhide(existentChallenge.id, loggedUser)
+              .then(function () {done();}, done );
           });
+          
+          it('should make the challenge hidden and update the button to unhide', function (){
+            browser.assert.success();
+            browser.assert.element('#unhide-form');
+          });
+
           it('should display info that the challenge won\'t be shown in searches', function (){
-            throw new Error('TODO');
+            browser.assert.text('div.popup-message.info', new RegExp('The challenge won\'t be shown in your search results anymore\\.'));
           });
         });
 
         context('unhide', function () {
-          it('should unhide the challenge and update the button to hide', function (){
-            throw new Error('TODO');
+          beforeEach(function (done) {
+            return dbChallenge.hide(existentChallenge.id, loggedUser)
+              .then(function (_out) {
+                done();
+              }, done);
           });
+
+          beforeEach(function (done) {
+            browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
+              .then(done, done);
+          });
+
+          beforeEach(pressJustAButton('unhide'));
+
+          afterEach(function (done) {
+            return dbChallenge.unfollow(existentChallenge.id, 'test1')
+              .then(null, function (err) {
+                if(err.message !== '404') {
+                  throw err;
+                }
+              })
+              .then(function (_out) {
+                done();
+              }, done);
+          });
+
+          it('should unhide the challenge and update the button to hide', function (){
+            browser.assert.success();
+            browser.assert.element('#hide-form');
+          });
+
           it('should display info that the challenge will be shown in searches again', function (){
-            throw new Error('TODO');
+            browser.assert.text('div.popup-message.info', new RegExp('The challenge will be shown in your search results again\\.'));
           });
         });
       });
