@@ -178,7 +178,15 @@ describe('visit /challenge/:id/:name', function () {
         }); //challenge/id/name/add-tag
         it('may be possible to remove tags which user added and have 0 or negative voting');
         it('should show the tags to be votable (whether the tag is fitting or not)');
-        it('should show a field for adding a comment to challenge');
+        it('should show a field for adding a comment to challenge', function () {
+          browser.assert.element('#comment-form');
+          browser.assert.attribute('#comment-form', 'method', 'post');
+          browser.assert.element('#comment-form textarea');
+          browser.assert.attribute('#comment-form textarea', 'name', 'comment');
+          browser.assert.element('#comment-form input[type=submit]');
+          browser.assert.attribute('#comment-form input[type=submit]', 'name', 'submit');
+          browser.assert.attribute('#comment-form input[type=submit]', 'value', 'comment');
+        });
         it('should show links to reacting to comments');
         it('should show buttons for launching idea, project, discussion, challenge...');
         it('may make it possible to link existent ideas, projects, discussions, challenges');
@@ -310,9 +318,30 @@ describe('visit /challenge/:id/:name', function () {
             browser.assert.link('div.popup-message.info a', tagToAdd, '/tag/'+tagToAdd);
           });
         });
+
         context('adding a comment', function () {
-          it('should add the comment and show it');
-          it('should display info that the comment was successfully added');
+          let commentToAdd = {text: 'this is some comment', id: ''};
+          //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
+          beforeEach(function (done) {
+            return browser
+              .fill('comment', commentToAdd.text)
+              .pressButton('comment')
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return db.query('FOR cca IN challengeCommentAuthor REMOVE cca IN challengeCommentAuthor', {})
+              .then(function () {done();}, done );
+          });
+
+          it('should add the comment and show it', function () {
+            browser.assert.success();
+            browser.assert.text('.challenge-comment', new RegExp(commentToAdd.text));
+          });
+
+          it('should display info that the comment was successfully added', function () {
+            browser.assert.text('div.popup-message.info', new RegExp('The comment was successfully added to the challenge\\.'));
+          });
         });
 
         function pressJustAButton(buttonName) {

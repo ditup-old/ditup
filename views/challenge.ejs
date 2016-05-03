@@ -75,11 +75,11 @@ if(logged === true) {
 
 %></div>
 <div id="challenge-description" ><%= challenge.description %></div>
-<div id="new-post">
+<div id="new-comment">
 <% if (logged === true) { %>
-  <form id="new-post-form" method="post" action="" >
-    <textarea name="text"></textarea>
-    <input type="submit" name="post" value="post" />
+  <form id="comment-form" method="post" action="" >
+    <textarea name="comment"></textarea>
+    <input type="submit" name="submit" value="comment" />
   </form>
 <% } 
   else {
@@ -90,6 +90,12 @@ if(logged === true) {
 <%
   }
 %>
+<div id="challenge-comments">
+<% for(let co of challenge.comments) { %>
+  <div class="challenge-comment" id="challenge-comment-<%= co.id %>">
+    <span><%= co.text %></span> <a href="/user/<%= co.author.username %>"><%= co.author.username %></a></div>
+<% } %>
+</div>
 </div>
 </div>
 <% include ./partial/page-bottom.ejs %>

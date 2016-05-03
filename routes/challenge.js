@@ -57,6 +57,15 @@ router.post(['/:id/:url'], function (req, res, next) {
         })
         .then(null, next);
     }
+    else if(req.body.submit === 'comment') {
+      let text = req.body.comment;
+      return db.challenge.addComment(id, {text: text}, sessUser.username)
+        .then(function () {
+          sessUser.messages.push('The comment was successfully added to the challenge.');
+          return next();
+        })
+        .then(null, next);
+    }
     else {
       let err = new Error('we don\'t know what to do with this POST request');
       return next(err);
@@ -97,6 +106,17 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
           challenge.tags = [];
           for(let _tag of _tags) {
             challenge.tags.push(_tag.name);
+          }
+          return;
+        });
+    })
+    //read comments of challenge
+    .then(function () {
+      return db.challenge.readComments(id)
+        .then(function (_coms) {
+          challenge.comments = [];
+          for(let co of _coms) {
+            challenge.comments.push(co);
           }
           return;
         });
