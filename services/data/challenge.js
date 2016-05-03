@@ -76,7 +76,7 @@ module.exports = function (db) {
         FOR cca IN challengeCommentAuthor FILTER cca._from == c._id
           FOR u IN users FILTER u._id == cca._to
             SORT cca.created DESC
-            RETURN MERGE(cca, {author: u}))
+            RETURN MERGE(cca, {author: u}, {id: cca._key}))
       RETURN LENGTH(col) == 0 ? 404 : out
     `;
     var params = {id: id};

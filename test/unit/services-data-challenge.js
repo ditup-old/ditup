@@ -167,6 +167,7 @@ describe('data/challenge', function () {
                 expect(chc).to.be.an('array');
                 for(let ec of existentComments) {
                   expect(chc).to.include.a.thing.that.has.property('text', ec.text);
+                  expect(chc).to.include.a.thing.that.has.property('id', ec.id);
                   expect(chc).to.include.a.thing.that.has.deep.property('author.username', ec.creator);
                 }
               });
