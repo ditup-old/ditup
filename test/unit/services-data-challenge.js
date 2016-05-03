@@ -37,6 +37,7 @@ describe('data/challenge', function () {
     challenge.create(existentChallenge)
       .then(function (obj) {
         existentId = obj.id;
+        existentChallenge.id = obj.id;
       })
       .then(done, done);
   });
@@ -118,11 +119,29 @@ describe('data/challenge', function () {
       }
     ];
 
+    beforeEach(function (done) {
+      let pms = [];
+      for(let ec of existentComments) {
+        pms.push(challenge.addComment(existentId, {text: ec.text}, ec.creator));
+      }
+      return Promise.all(pms)
+        .then(function (_out) {
+          for(let i=0, len=_out.length; i<len; ++i) {
+            existentComments[i].id = _out[i].id;
+          }
+          console.log(existentComments);
+        })
+        .then(done, done);
+    });
+
     describe('addComment(id, data)', function () {
       context('when challenge exists', function () {
         context('when user has rights to add a comment', function () {
           it('should return a promise, create proper changes in database and fulfill the promise with comment id', function () {
-            return Promise.all([expect(challenge.addComment(existentId, newComment, newComment.creator)).to.eventually.have.property('id')]);
+            return Promise.all([
+              expect(challenge.addComment(existentId, newComment, newComment.creator)).to.eventually.have.property('id'),
+              expect(challenge.addComment(existentId, newComment, newComment.creator)).to.eventually.have.property('id').which.is.a('string')
+            ]);
           });
         });
 
@@ -140,14 +159,6 @@ describe('data/challenge', function () {
 
     describe('readComment(commentId)', function () {});
     describe('readComments(id, specifics)', function () {
-      beforeEach(function (done) {
-        let pms = [];
-        for(let ec of existentComments) {
-          pms.push(challenge.addComment(existentId, {text: ec.text}, ec.creator));
-        }
-        return Promise.all(pms)
-          .then(function () {done();}, done);
-      });
       context('when challenge exists', function () {
         context('when user has rights to read comments', function () {
           it('should return a promise and fulfill it with the list of comments', function () {
@@ -162,7 +173,7 @@ describe('data/challenge', function () {
           });
         });
 
-        context('when user doesn\'t have rights to add a comment', function () {
+        context('when user doesn\'t have rights to read comments', function () {
           it('should return a promise and reject it with 401'); // should be taken care of on higher level
         });
       });
@@ -174,7 +185,50 @@ describe('data/challenge', function () {
       });
     });
     describe('updateComment(commentId, data)', function () {});
-    describe('removeComment(commentId)', function () {});
+
+    describe('removeComment(commentId, constraints)', function () {
+      //constraints are challenge id ('id') and 'author' - if not match, the comment not possible. or optionally admin: true
+      context('when the comment exists', function () {
+        context('when user is the author', function () {
+          //either constraints.author is correct or constraints.admin === true
+          context('when challenge id exists', function () {
+            it('should return a promise, create proper changes in database and fulfill the promise', function () {
+              return expect(challenge.removeComment(existentComments[0].id, {author: existentComments[0].creator, id: existentChallenge.id})).to.eventually.be.fulfilled;
+            });
+          });
+
+          context('when challenge id doesn\'t exist', function () {
+            it('should return a promise and reject it with 404 code', function () {
+              return expect(challenge.removeComment(existentComments[0].id, {id: '1123', author: existentComments[0].creator})).to.eventually.be.rejectedWith('404');
+            });
+          });
+
+          context('when challenge id not specified in constraints', function () {
+            it('TODO!!');
+          });
+        });
+
+        context('when user is admin', function () {
+          it('should make changes to database, return a promise and resolve it', function () {
+            return expect(challenge.removeComment(existentComments[0].id, {admin: true})).to.eventually.be.fulfilled;
+          });
+        });
+
+        context('when user is not the author', function () {
+          it('should return a promise and reject it with 401');
+        });
+      });
+
+      context('when the comment doesn\'t exist', function () {
+        it('should return a promise and reject it with 404 code', function () {
+          return expect(challenge.removeComment('asdf1234', {author: 'test1', id: existentChallenge.id})).to.eventually.be.rejectedWith('404');
+        });
+
+        it('(admin) should return a promise and reject it with 404 code', function () {
+          return expect(challenge.removeComment('asdf1234', {admin: true})).to.eventually.be.rejectedWith('404');
+        });
+      });
+    });
   });
 
   describe('tag functions', function () {

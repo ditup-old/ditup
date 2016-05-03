@@ -60,7 +60,7 @@ module.exports = function (db) {
         return cursor.all();
       })
       .then(function (arrayId) {
-        return {id: arrayId[0]};
+        return {id: arrayId[0]._key};
       })
       .then(null, function (err) {
         if(err.code === 409) throw new Error(409);
@@ -89,6 +89,74 @@ module.exports = function (db) {
         if(out[0] == '404') throw new Error('404');
         console.log(out);
         return out[0];
+      });
+  };
+
+  challenge.updateComment;
+
+  challenge.removeComment = function (commentId, constraints) {
+    //options
+    //0 - default - throws error bad data
+    //1 - constraints have property id and author - make sure the comment is of that author and challenge id
+    //2 - constraints have property author - make sure the comment is of that author
+    //3 - constraints have property id
+    //4 - constraints have property admin: true
+    //
+
+    //return this.readComments(constraints.id);
+
+    var option = 0;
+
+    if(constraints.author && constraints.id) {
+      option = 1;
+    }
+    else if(constraints.author) {
+      option = 2;
+    }
+    else if(constraints.id) {
+      option = 3;
+    }
+    else if(constraints.admin === true) {
+      option = 4;
+    }
+
+    if(option === 0) {
+      return Promise.reject('400 - bad data');
+    }
+
+    var dbPromise;
+    
+    if(option === 1) {
+      let query = `
+        FOR u IN users FILTER u.username == @author
+          FOR c IN challenges FILTER c._key == @id
+            FOR cca IN challengeCommentAuthor FILTER cca._key == @commentId && cca._from == c._id && cca._to == u._id
+              REMOVE cca IN challengeCommentAuthor`;
+      let params = {author: constraints.author, id: constraints.id, commentId: commentId};
+      dbPromise = db.query(query, params);
+    }
+
+    if(option === 2) {
+      return Promise.reject('TODO');
+    }
+
+    if(option === 3) {
+      return Promise.reject('TODO');
+    }
+
+    if(option === 4) {
+      let query = `
+        FOR cca IN challengeCommentAuthor FILTER cca._key == @commentId
+          REMOVE cca IN challengeCommentAuthor`;
+      let params = {commentId: commentId};
+      dbPromise = db.query(query, params);
+    }
+
+    return dbPromise
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if(writes == 0) throw new Error('404');
+        if(writes > 1) throw new Error('more than 1 comment removed. this should never happen');
       });
   };
 
