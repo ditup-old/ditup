@@ -44,6 +44,10 @@ describe('data/challenge', function () {
   afterEach(function (done) {
     return db.query('FOR c IN challenges REMOVE c IN challenges', {}).then(function () {done();}, done);
   });
+  
+  afterEach(function (done) {
+    return db.query('FOR cca IN challengeCommentAuthor REMOVE cca IN challengeCommentAuthor', {}).then(function () {done();}, done)
+  });
 
   describe('create(data)', function () {
     context('when data is incomplete', function () {
@@ -100,12 +104,78 @@ describe('data/challenge', function () {
       });
     });
   });
+  
+  describe('comment functions', function () {
+    let newComment = {
+      text: 'some comment test',
+      creator: 'test1'
+    };
 
-  describe('addComment(id, data)', function () {});
-  describe('readComment(commentId)', function () {});
-  describe('readComments(id, specifics)', function () {});
-  describe('updateComment(commentId, data)', function () {});
-  describe('deleteComment(commentId)', function () {});
+    let existentComments = [
+      {
+        text: 'some existent comment test',
+        creator: 'test1'
+      }
+    ];
+
+    describe('addComment(id, data)', function () {
+      context('when challenge exists', function () {
+        context('when user has rights to add a comment', function () {
+          it('should return a promise, create proper changes in database and fulfill the promise with comment id', function () {
+            return Promise.all([expect(challenge.addComment(existentId, newComment, newComment.creator)).to.eventually.have.property('id')]);
+          });
+        });
+
+        context('when user doesn\'t have rights to add a comment', function () {
+          it('should return a promise and reject it with 401'); // should be taken care of on higher level
+        });
+      });
+
+      context('when challenge doesn\'t exist', function () {
+        it('should return a promise and reject it with 404 code', function () {
+          return expect(challenge.addComment(nonexistentId, newComment, newComment.creator)).to.eventually.be.rejectedWith('404');
+        });
+      });
+    });
+
+    describe('readComment(commentId)', function () {});
+    describe('readComments(id, specifics)', function () {
+      beforeEach(function (done) {
+        let pms = [];
+        for(let ec of existentComments) {
+          pms.push(challenge.addComment(existentId, {text: ec.text}, ec.creator));
+        }
+        return Promise.all(pms)
+          .then(function () {done();}, done);
+      });
+      context('when challenge exists', function () {
+        context('when user has rights to read comments', function () {
+          it('should return a promise and fulfill it with the list of comments', function () {
+            return challenge.readComments(existentId)
+              .then(function (chc) {
+                expect(chc).to.be.an('array');
+                for(let ec of existentComments) {
+                  expect(chc).to.include.a.thing.that.has.property('text', ec.text);
+                  expect(chc).to.include.a.thing.that.has.deep.property('author.username', ec.creator);
+                }
+              });
+          });
+        });
+
+        context('when user doesn\'t have rights to add a comment', function () {
+          it('should return a promise and reject it with 401'); // should be taken care of on higher level
+        });
+      });
+
+      context('when challenge doesn\'t exist', function () {
+        it('should return a promise and reject it with 404 code', function () {
+          return expect(challenge.readComments(nonexistentId)).to.eventually.be.rejectedWith('404');
+        });
+      });
+    });
+    describe('updateComment(commentId, data)', function () {});
+    describe('removeComment(commentId)', function () {});
+  });
 
   describe('tag functions', function () {
     var existentTag = 'test-tag-1';
