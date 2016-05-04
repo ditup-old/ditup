@@ -398,6 +398,31 @@ describe('visit /challenge/:id/:name', function () {
           });
         });
 
+        context('removing a comment', function () {
+          let commentToAdd = {text: 'this is some comment', id: ''};
+          //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
+          beforeEach(function (done) {
+            return browser
+              .pressButton('remove comment')
+              .then(done, done);
+          });
+
+          afterEach(function (done) {
+            return db.query('FOR cca IN challengeCommentAuthor REMOVE cca IN challengeCommentAuthor', {})
+              .then(function () {done();}, done );
+          });
+
+          it('should remove the comment', function () {
+            browser.assert.success();
+            //browser.assert.text('.challenge-comment', new RegExp(commentToAdd.text));
+            //how to test that the comment is not present?
+          });
+
+          it('should display info that the comment was successfully removed', function () {
+            browser.assert.text('div.popup-message.info', new RegExp('The comment was successfully removed\\.'));
+          });
+        });
+
         function pressJustAButton(buttonName) {
           return function (done) {
             return browser

@@ -66,6 +66,16 @@ router.post(['/:id/:url'], function (req, res, next) {
         })
         .then(null, next);
     }
+    //removing comment
+    else if(req.body.submit === 'remove comment') {
+      let commentId = req.body['comment-id'];
+      return db.challenge.removeComment(commentId, {author: sessUser.username, id: id})
+        .then(function () {
+          sessUser.messages.push('The comment was successfully removed.');
+          return next();
+        })
+        .then(null, next);
+    }
     else {
       let err = new Error('we don\'t know what to do with this POST request');
       return next(err);
