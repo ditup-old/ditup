@@ -44,6 +44,12 @@ describe('visit /challenge/:id/:name', function () {
   }
   
   var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined, tags: ['test-tag-3', 'test-tag-1']};
+  existentChallenge.comments = [
+    {text: 'this is a comment added by test1', author: 'test1'},
+    {text: 'this is a comment added by test11', author: 'test11'},
+    {text: 'this is a comment added by test5', author: 'test5'},
+    {text: 'this is a comment added by test4', author: 'test4'}
+  ]
   var nonexistentChallenge = {name: 'nonexistent challenge', description: 'some description', id: '1234567890'};
   existentChallenge.url = generateUrl(existentChallenge.name);
   nonexistentChallenge.url = generateUrl(nonexistentChallenge.name);
@@ -60,6 +66,18 @@ describe('visit /challenge/:id/:name', function () {
           tagPromises.push(dbChallenge.addTag(existentChallenge.id, tag, 'test1'));
         }
         return Promise.all(tagPromises);
+      })
+      .then(function () {
+        let commentPromises = [];
+        for(let co of existentChallenge.comments) {
+          commentPromises.push(dbChallenge.addComment(existentChallenge.id, {text: co.text}, co.author));
+        }
+        return Promise.all(commentPromises)
+          .then(function (commentIds) {
+            for(let i=0, len=commentIds.length; i<len; ++i) {
+              existentChallenge.comments[i].id = commentIds[i].id;
+            }
+          });
       })
       .then(function () {
         done();
@@ -122,6 +140,12 @@ describe('visit /challenge/:id/:name', function () {
         browser.assert.text('#challenge-description', existentChallenge.description);
       });
       it('should show activity log');
+      it('should show comments', function () {
+        for(let co of existentChallenge.comments) {
+          browser.assert.text('#challenge-comment-'+co.id+'>.challenge-comment-text', co.text);
+          browser.assert.link('#challenge-comment-'+co.id+'>a.challenge-comment-author', co.author, '/user/'+co.author);
+        }
+      });
       it('should show tags', function () {
         for(var i = existentChallenge.tags.length-1; i>=0; i--){
           browser.assert.text('#challenge-tags', new RegExp(existentChallenge.tags[i]));
@@ -188,6 +212,36 @@ describe('visit /challenge/:id/:name', function () {
           browser.assert.attribute('#comment-form input[type=submit]', 'value', 'comment');
         });
         it('should show links to reacting to comments');
+        
+        it('should show the buttons to edit or delete comments when user is the author', function () {
+          for(let co of existentChallenge.comments) {
+            if(loggedUser === co.author) {
+              browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form', 'method', 'post');
+              browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]', 'name', 'comment-id');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]', 'value', co.id);
+              browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form input[type=submit]');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=submit]', 'name', 'submit');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=submit]', 'value', 'edit comment');
+              //remove comment form
+              browser.assert.element('#challenge-comment-'+co.id+' .remove-comment-form');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form', 'method', 'post');
+              browser.assert.element('#challenge-comment-'+co.id+' .remove-comment-form input[type=hidden]');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=hidden]', 'name', 'comment-id');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=hidden]', 'value', co.id);
+              browser.assert.element('#challenge-comment-'+co.id+' .remove-comment-form input[type=submit]');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=submit]', 'name', 'submit');
+              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=submit]', 'value', 'remove comment');
+            }
+            else {
+              browser.assert.elements('#challenge-comment-'+co.id+' .edit-comment-form', 0);
+              //remove comment form
+              browser.assert.elements('#challenge-comment-'+co.id+' .remove-comment-form', 0);
+            }
+          }
+        });
+
         it('should show buttons for launching idea, project, discussion, challenge...');
         it('may make it possible to link existent ideas, projects, discussions, challenges');
         it('may be possible to edit the challenge name and description in wikipedia or etherpad style');

@@ -87,7 +87,7 @@ module.exports = function (db) {
       })
       .then(function (out) {
         if(out[0] == '404') throw new Error('404');
-        console.log(out);
+        //console.log(out);
         return out[0];
       });
   };

@@ -10,7 +10,8 @@
   var headScripts = [];
   var scripts = [];
   var session = session || {logged:false, username: null};
-  var logged = session.logged || false
+  var logged = session.logged || false;
+  var loggedUser = session.username || false;
 %><%include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <style>
@@ -93,7 +94,19 @@ if(logged === true) {
 <div id="challenge-comments">
 <% for(let co of challenge.comments) { %>
   <div class="challenge-comment" id="challenge-comment-<%= co.id %>">
-    <span><%= co.text %></span> <a href="/user/<%= co.author.username %>"><%= co.author.username %></a></div>
+    <span class="challenge-comment-text"><%= co.text %></span>
+    <a class="challenge-comment-author" href="/user/<%= co.author.username %>"><%= co.author.username %></a>
+  <% if(co.author.username === loggedUser) { %>
+    <form class="edit-comment-form" method="post" >
+      <input type="hidden" name="comment-id" value="<%= co.id %>" />
+      <input type="submit" name="submit" value="edit comment" />
+    </form>
+    <form class="remove-comment-form" method="post" >
+      <input type="hidden" name="comment-id" value="<%= co.id %>" />
+      <input type="submit" name="submit" value="remove comment" />
+    </form>
+  <% } %>
+  </div>
 <% } %>
 </div>
 </div>
