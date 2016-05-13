@@ -12,27 +12,33 @@ var db = new Database({url: config.url, databaseName: config.dbname});
 var dbChallenge = require('../../../services/data/challenge')(db);
 var generateUrl = require('../../../routes/discussion/functions').generateUrl;
 
+var shared = require('../shared');
+
 // use zombie.js as headless browser
 var Browser = require('zombie');
 describe('visit /challenge/:id/:name', function () {
   var server, browser;
+  var browserObj = {};
+  var serverObj = {};
   
   before(function () {
     server = app(session).listen(3000);
+    serverObj.Value = server;
     browser = new Browser({ site: 'http://localhost:3000' });
+    browserObj.Value = browser;
   });
 
   after(function (done) {
     server.close(done);
   });
 
-  var loggedUser = 'test1';
+  var loggedUser = {username: 'test1', password: 'asdfasdf'};
 
   function login (done) {
     browser.visit('/login')
       .then(() => {
-        return browser.fill('username', loggedUser)
-          .fill('password', 'asdfasdf')
+        return browser.fill('username', loggedUser.username)
+          .fill('password', loggedUser.password)
           .pressButton('log in');
       })
       .then(done, done);
@@ -43,7 +49,7 @@ describe('visit /challenge/:id/:name', function () {
       .then(done, done);
   }
   
-  var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined, tags: ['test-tag-3', 'test-tag-1']};
+  var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined, tags: ['test-tag-3', 'test-tag-1'], creator: 'test1'};
   existentChallenge.comments = [
     {text: 'this is a comment added by test1', author: 'test1'},
     {text: 'this is a comment added by test11', author: 'test11'},
@@ -146,11 +152,8 @@ describe('visit /challenge/:id/:name', function () {
           browser.assert.link('#challenge-comment-'+co.id+'>a.challenge-comment-author', co.author, '/user/'+co.author);
         }
       });
-      it('should show tags', function () {
-        for(var i = existentChallenge.tags.length-1; i>=0; i--){
-          browser.assert.text('#challenge-tags', new RegExp(existentChallenge.tags[i]));
-        }
-      });
+
+      shared.tags('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge}, {});
       it('should show followers');
       it('should show stars')
       it('should show the challenges, tags, followers, stars, etc.');
@@ -191,15 +194,7 @@ describe('visit /challenge/:id/:name', function () {
 
         afterEach(logout);
 
-        it('should show link or field for adding a tag', function () {
-          browser.assert.element('#add-tag-form');
-          browser.assert.attribute('#add-tag-form', 'method', 'post');
-          browser.assert.element('#add-tag-form input[type=text]');
-          browser.assert.attribute('#add-tag-form input[type=text]', 'name', 'tagname');
-          browser.assert.element('#add-tag-form input[type=submit]');
-          browser.assert.attribute('#add-tag-form input[type=submit]', 'name', 'submit');
-          browser.assert.attribute('#add-tag-form input[type=submit]', 'value', 'add tag');
-        }); //challenge/id/name/add-tag
+        //challenge/id/name/add-tag
         it('may be possible to remove tags which user added and have 0 or negative voting');
         it('should show the tags to be votable (whether the tag is fitting or not)');
         it('should show a field for adding a comment to challenge', function () {
@@ -215,7 +210,7 @@ describe('visit /challenge/:id/:name', function () {
         
         it('should show the buttons to edit or delete comments when user is the author', function () {
           for(let co of existentChallenge.comments) {
-            if(loggedUser === co.author) {
+            if(loggedUser.username === co.author) {
               browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form');
               browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form', 'method', 'post');
               browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]');
@@ -347,32 +342,6 @@ describe('visit /challenge/:id/:name', function () {
 
         afterEach(logout);
 
-        context('adding a tag', function () {
-          let tagToAdd = 'busking';
-          //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
-          beforeEach(function (done) {
-            return browser
-              .fill('tagname', tagToAdd)
-              .pressButton('add tag')
-              .then(done, done);
-          });
-
-          afterEach(function (done) {
-            return dbChallenge.removeTag(existentChallenge.id, tagToAdd)
-              .then(function () {done();}, done );
-          });
-
-          it('should add a tag and show it', function () {
-            browser.assert.success();
-            browser.assert.text('#challenge-tags', new RegExp(tagToAdd));
-          });
-
-          it('should display info that tag was successfully added', function () {
-            browser.assert.text('div.popup-message.info', 'Tag ' + tagToAdd + ' was successfully added to the challenge.');
-            browser.assert.link('div.popup-message.info a', tagToAdd, '/tag/'+tagToAdd);
-          });
-        });
-
         context('adding a comment', function () {
           let commentToAdd = {text: 'this is some comment', id: ''};
           //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
@@ -435,7 +404,7 @@ describe('visit /challenge/:id/:name', function () {
           beforeEach(pressJustAButton('follow'));
 
           afterEach(function (done) {
-            return dbChallenge.unfollow(existentChallenge.id, loggedUser)
+            return dbChallenge.unfollow(existentChallenge.id, loggedUser.username)
               .then(function () {done();}, done );
           });
           
@@ -490,7 +459,7 @@ describe('visit /challenge/:id/:name', function () {
           beforeEach(pressJustAButton('hide'));
 
           afterEach(function (done) {
-            return dbChallenge.unhide(existentChallenge.id, loggedUser)
+            return dbChallenge.unhide(existentChallenge.id, loggedUser.username)
               .then(function () {done();}, done );
           });
           
@@ -506,7 +475,7 @@ describe('visit /challenge/:id/:name', function () {
 
         context('unhide', function () {
           beforeEach(function (done) {
-            return dbChallenge.hide(existentChallenge.id, loggedUser)
+            return dbChallenge.hide(existentChallenge.id, loggedUser.username)
               .then(function (_out) {
                 done();
               }, done);

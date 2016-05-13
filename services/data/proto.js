@@ -20,7 +20,7 @@ proto.create = function (expectedParams, collectionName, db, otherParams) {
     }
 
     if(!isDataComplete) {
-      return Promise.reject('incomplete data');
+      return Promise.reject(new Error('incomplete data'));
     }
     else {
       //building the query string
