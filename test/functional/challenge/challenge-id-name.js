@@ -60,6 +60,9 @@ describe('visit /challenge/:id/:name', function () {
   existentChallenge.url = generateUrl(existentChallenge.name);
   nonexistentChallenge.url = generateUrl(nonexistentChallenge.name);
 
+  shared.tags('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge}, {});
+  shared.share('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge}, {});
+  shared.comment('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge, db: db}, {});
   //create an existent challenge for tests
   beforeEach(function (done) {
     return dbChallenge.create({name: existentChallenge.name, description: existentChallenge.description, creator: 'test1'})
@@ -146,25 +149,10 @@ describe('visit /challenge/:id/:name', function () {
         browser.assert.text('#challenge-description', existentChallenge.description);
       });
       it('should show activity log');
-      it('should show comments', function () {
-        for(let co of existentChallenge.comments) {
-          browser.assert.text('#challenge-comment-'+co.id+'>.challenge-comment-text', co.text);
-          browser.assert.link('#challenge-comment-'+co.id+'>a.challenge-comment-author', co.author, '/user/'+co.author);
-        }
-      });
 
-      shared.tags('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge}, {});
       it('should show followers');
       it('should show stars')
       it('should show the challenges, tags, followers, stars, etc.');
-      it('should show link for sharing the challenge', function () {
-        browser.assert.input('#challenge-url', browser.url);
-        //browser.assert.input('#challenge-url-short', 'http://localhost:3000/c/'+existentChallenge.id);
-        //TODO!!! check how it works in html on i.e. github...
-      });
-      it('should show social networking links for sharing');
-      /**how does social networking work???*/
-
       context('not logged in', function () {
 
         beforeEach(logout);
@@ -197,45 +185,7 @@ describe('visit /challenge/:id/:name', function () {
         //challenge/id/name/add-tag
         it('may be possible to remove tags which user added and have 0 or negative voting');
         it('should show the tags to be votable (whether the tag is fitting or not)');
-        it('should show a field for adding a comment to challenge', function () {
-          browser.assert.element('#comment-form');
-          browser.assert.attribute('#comment-form', 'method', 'post');
-          browser.assert.element('#comment-form textarea');
-          browser.assert.attribute('#comment-form textarea', 'name', 'comment');
-          browser.assert.element('#comment-form input[type=submit]');
-          browser.assert.attribute('#comment-form input[type=submit]', 'name', 'submit');
-          browser.assert.attribute('#comment-form input[type=submit]', 'value', 'comment');
-        });
-        it('should show links to reacting to comments');
         
-        it('should show the buttons to edit or delete comments when user is the author', function () {
-          for(let co of existentChallenge.comments) {
-            if(loggedUser.username === co.author) {
-              browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form', 'method', 'post');
-              browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]', 'name', 'comment-id');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=hidden]', 'value', co.id);
-              browser.assert.element('#challenge-comment-'+co.id+' .edit-comment-form input[type=submit]');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=submit]', 'name', 'submit');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .edit-comment-form input[type=submit]', 'value', 'edit comment');
-              //remove comment form
-              browser.assert.element('#challenge-comment-'+co.id+' .remove-comment-form');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form', 'method', 'post');
-              browser.assert.element('#challenge-comment-'+co.id+' .remove-comment-form input[type=hidden]');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=hidden]', 'name', 'comment-id');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=hidden]', 'value', co.id);
-              browser.assert.element('#challenge-comment-'+co.id+' .remove-comment-form input[type=submit]');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=submit]', 'name', 'submit');
-              browser.assert.attribute('#challenge-comment-'+co.id+' .remove-comment-form input[type=submit]', 'value', 'remove comment');
-            }
-            else {
-              browser.assert.elements('#challenge-comment-'+co.id+' .edit-comment-form', 0);
-              //remove comment form
-              browser.assert.elements('#challenge-comment-'+co.id+' .remove-comment-form', 0);
-            }
-          }
-        });
 
         it('should show buttons for launching idea, project, discussion, challenge...');
         it('may make it possible to link existent ideas, projects, discussions, challenges');
@@ -341,56 +291,6 @@ describe('visit /challenge/:id/:name', function () {
         });
 
         afterEach(logout);
-
-        context('adding a comment', function () {
-          let commentToAdd = {text: 'this is some comment', id: ''};
-          //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
-          beforeEach(function (done) {
-            return browser
-              .fill('comment', commentToAdd.text)
-              .pressButton('comment')
-              .then(done, done);
-          });
-
-          afterEach(function (done) {
-            return db.query('FOR cca IN challengeCommentAuthor REMOVE cca IN challengeCommentAuthor', {})
-              .then(function () {done();}, done );
-          });
-
-          it('should add the comment and show it', function () {
-            browser.assert.success();
-            browser.assert.text('.challenge-comment', new RegExp(commentToAdd.text));
-          });
-
-          it('should display info that the comment was successfully added', function () {
-            browser.assert.text('div.popup-message.info', new RegExp('The comment was successfully added to the challenge\\.'));
-          });
-        });
-
-        context('removing a comment', function () {
-          let commentToAdd = {text: 'this is some comment', id: ''};
-          //adding tag can be implemented with form action="" and in POST router we'll check by the correct form name or submit button
-          beforeEach(function (done) {
-            return browser
-              .pressButton('remove comment')
-              .then(done, done);
-          });
-
-          afterEach(function (done) {
-            return db.query('FOR cca IN challengeCommentAuthor REMOVE cca IN challengeCommentAuthor', {})
-              .then(function () {done();}, done );
-          });
-
-          it('should remove the comment', function () {
-            browser.assert.success();
-            //browser.assert.text('.challenge-comment', new RegExp(commentToAdd.text));
-            //how to test that the comment is not present?
-          });
-
-          it('should display info that the comment was successfully removed', function () {
-            browser.assert.text('div.popup-message.info', new RegExp('The comment was successfully removed\\.'));
-          });
-        });
 
         function pressJustAButton(buttonName) {
           return function (done) {
