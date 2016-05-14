@@ -490,3 +490,297 @@ exports.comment = function (collection, variables, dependencies, settings) {
     }
   });
 };
+
+exports.follow = function (collection, variables, dependencies, settings) {
+  /**
+    dependencies: app, session, data, generateUrl, Browser
+  */
+  // get the application server module
+  //var app = dependencies.app;
+  //var session = dependencies.session;
+
+  var dbCollection = dependencies.data;
+  var db = dependencies.db;
+  //var generateUrl = dependencies.generateUrl;
+
+  // use zombie.js as headless browser
+  //var Browser = dependencies.Browser;
+  describe('testing follow: visit /' + collection + '/:id/:name', function () {
+    var server, browser;
+    
+    before(function () {
+      server = dependencies.server.Value;//app(session).listen(3000);
+    });
+
+    before(function () {
+      browser = dependencies.browser.Value;//new Browser({ site: 'http://localhost:3000' });
+    });
+
+    after(function (done) {
+      //server.close(done);
+      done();
+    });
+
+    var loggedUser = variables.loggedUser;
+
+    function login (done) {
+      browser.visit('/login')
+        .then(() => {
+          return browser.fill('username', loggedUser.username)
+            .fill('password', loggedUser.password)
+            .pressButton('log in');
+        })
+        .then(done, done);
+    }
+
+    function logout (done) {
+      browser.visit('/logout')
+        .then(done, done);
+    }
+    
+    var existentCollections = variables.existentCollections;
+
+    //create existent ' + collection + 's for tests
+    beforeEach(createCollectionsInDatabase(existentCollections, dbCollection));
+    
+    //delete the existent ' + collection + '
+    afterEach(removeCollectionsFromDatabase(existentCollections, dbCollection));
+
+    for(var existentCollection of existentCollections) {
+      context('' + collection + ' with :id exists', function () {
+        context(':id and :name are valid', function () {
+          beforeEach(function (done) {
+            browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+              .then(done, done);
+          });
+
+          it('should show followers');
+
+          context('logged in', function () {
+            beforeEach(login);
+
+            beforeEach(function (done) {
+              browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+                .then(done, done);
+            });
+
+            afterEach(logout);
+
+            context('user doesn\'t follow', function () {
+              it('should show a \'follow\' button', function () {
+                browser.assert.element('#follow-form');
+                browser.assert.attribute('#follow-form', 'method', 'post');
+                browser.assert.element('#follow-form input[type=submit]');
+                browser.assert.attribute('#follow-form input[type=submit]', 'name', 'submit');
+                browser.assert.attribute('#follow-form input[type=submit]', 'value', 'follow');
+              });
+            });
+
+            context('user follows', function () {
+              beforeEach(function (done) {
+                return dbCollection.follow(existentCollection.id, 'test1')
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              beforeEach(function (done) {
+                browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+                  .then(done, done);
+              });
+
+              afterEach(function (done) {
+                return dbCollection.unfollow(existentCollection.id, 'test1')
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              it('should show an \'unfollow\' button', function () {
+                browser.assert.element('#unfollow-form');
+                browser.assert.attribute('#unfollow-form', 'method', 'post');
+                browser.assert.element('#unfollow-form input[type=submit]');
+                browser.assert.attribute('#unfollow-form input[type=submit]', 'name', 'submit');
+                browser.assert.attribute('#unfollow-form input[type=submit]', 'value', 'unfollow');
+              });
+            });
+
+            context('user doesn\'t hide the ' + collection + '', function () {
+              it('should show a hide button', function () {
+                browser.assert.element('#hide-form');
+                browser.assert.attribute('#hide-form', 'method', 'post');
+                browser.assert.element('#hide-form input[type=submit]');
+                browser.assert.attribute('#hide-form input[type=submit]', 'name', 'submit');
+                browser.assert.attribute('#hide-form input[type=submit]', 'value', 'hide');
+              });
+            });
+
+            context('user hides the ' + collection + '', function () {
+              beforeEach(function (done) {
+                return dbCollection.hide(existentCollection.id, 'test1')
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              beforeEach(function (done) {
+                browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+                  .then(done, done);
+              });
+
+              afterEach(function (done) {
+                return dbCollection.unhide(existentCollection.id, 'test1')
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              it('should show an unhide button', function () {
+                browser.assert.element('#unhide-form');
+                browser.assert.attribute('#unhide-form', 'method', 'post');
+                browser.assert.element('#unhide-form input[type=submit]');
+                browser.assert.attribute('#unhide-form input[type=submit]', 'name', 'submit');
+                browser.assert.attribute('#unhide-form input[type=submit]', 'value', 'unhide');
+              });
+            });
+          });
+        });
+
+        context('POST', function () {
+          context('logged in', function () {
+
+            beforeEach(login);
+
+            beforeEach(function (done) {
+              browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+                .then(done, done);
+            });
+
+            afterEach(logout);
+
+            function pressJustAButton(buttonName) {
+              return function (done) {
+                return browser
+                  .pressButton(buttonName)
+                  .then(done, done);
+              };
+            }
+
+            context('follow', function () {
+              beforeEach(pressJustAButton('follow'));
+
+              afterEach(function (done) {
+                return dbCollection.unfollow(existentCollection.id, loggedUser.username)
+                  .then(function () {done();}, done );
+              });
+              
+              it('should make user follow the ' + collection + ' and update the button to unfollow', function () {
+                browser.assert.success();
+                browser.assert.element('#unfollow-form');
+              });
+
+              it('should display info that user now follows the ' + collection + '', function () {
+                browser.assert.text('div.popup-message.info', new RegExp('Now you follow the ' + collection + '\\.'));
+              });
+            });
+
+            context('unfollow', function () {
+              beforeEach(function (done) {
+                return dbCollection.follow(existentCollection.id, 'test1')
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              beforeEach(function (done) {
+                browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+                  .then(done, done);
+              });
+
+              beforeEach(pressJustAButton('unfollow'));
+
+              afterEach(function (done) {
+                return dbCollection.unfollow(existentCollection.id, 'test1')
+                  .then(null, function (err) {
+                    if(err.message !== '404') {
+                      throw err;
+                    }
+                  })
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              it('should make user unfollow the ' + collection + ' and update the button to follow', function () {
+                browser.assert.success();
+                browser.assert.element('#follow-form');
+              });
+
+              it('should display info that user now follows the ' + collection + '', function () {
+                browser.assert.text('div.popup-message.info', new RegExp('You don\'t follow the ' + collection + ' anymore\\.'));
+              });
+            });
+
+            context('hide', function () {
+              beforeEach(pressJustAButton('hide'));
+
+              afterEach(function (done) {
+                return dbCollection.unhide(existentCollection.id, loggedUser.username)
+                  .then(function () {done();}, done );
+              });
+              
+              it('should make the ' + collection + ' hidden and update the button to unhide', function (){
+                browser.assert.success();
+                browser.assert.element('#unhide-form');
+              });
+
+              it('should display info that the ' + collection + ' won\'t be shown in searches', function (){
+                browser.assert.text('div.popup-message.info', new RegExp('The ' + collection + ' won\'t be shown in your search results anymore\\.'));
+              });
+            });
+
+            context('unhide', function () {
+              beforeEach(function (done) {
+                return dbCollection.hide(existentCollection.id, loggedUser.username)
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              beforeEach(function (done) {
+                browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
+                  .then(done, done);
+              });
+
+              beforeEach(pressJustAButton('unhide'));
+
+              afterEach(function (done) {
+                return dbCollection.unfollow(existentCollection.id, 'test1')
+                  .then(null, function (err) {
+                    if(err.message !== '404') {
+                      throw err;
+                    }
+                  })
+                  .then(function (_out) {
+                    done();
+                  }, done);
+              });
+
+              it('should unhide the ' + collection + ' and update the button to hide', function (){
+                browser.assert.success();
+                browser.assert.element('#hide-form');
+              });
+
+              it('should display info that the ' + collection + ' will be shown in searches again', function (){
+                browser.assert.text('div.popup-message.info', new RegExp('The ' + collection + ' will be shown in your search results again\\.'));
+              });
+            });
+          });
+        });
+      });
+    }
+  });
+};
+
+exports.watch = exports.follow;
+exports.star;
