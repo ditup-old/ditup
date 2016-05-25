@@ -4,6 +4,8 @@
 
   discussion.newPost = discussion.newPost || {errors: []};
 
+  discussion.tags = discussion.tags || [];
+
   var css = [
     '/css/header.css'
   ];
@@ -26,6 +28,17 @@ include ./partial/header.ejs %>
 <%
   }
 } %>
+<div id="discussion-tags"><%
+  if(discussion.tags.length === 0) {
+    %>no tags<%
+  }
+  for(var i=0, len=discussion.tags.length; i < len; ++i){
+   %><span><%= discussion.tags[i] %></span><%
+  }
+  if(logged === true) {
+    %>
+    <%include ./partial/add-tag-form %>
+<% } %></div>
 <div id="new-post">
 <% if (logged === true) { %>
   <form id="new-post-form" method="post" action="" >
@@ -33,7 +46,7 @@ include ./partial/header.ejs %>
     <% for (var i=0, len=discussion.newPost.errors.length; i<len; i++) {%>
       <div class="error"><%= discussion.newPost.errors[i] %></div>
     <% } %>
-    <input type="submit" name="post" value="post" />
+    <input type="submit" name="submit" value="post" />
   </form>
 <% } 
   else {

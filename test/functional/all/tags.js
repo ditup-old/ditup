@@ -36,6 +36,11 @@ describe('testing that tags are working for user, idea, challenge, project, disc
     server.close(done);
   });
 
+  before(function (done) {
+    dbPopulate.clear(dbData)
+      .then(done, done);
+  });
+
   beforeEach(function (done) {
     dbPopulate.populate(dbData)
       .then(done, done);

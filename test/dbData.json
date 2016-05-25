@@ -103,7 +103,14 @@
       "creator": 0
     }
   ],
-  "ideas": [],
+  "ideas": [
+    {
+      "name": "new test idea",
+      "description": "some description",
+      "id": null,
+      "creator": 0
+    }
+  ],
   "projects": [],
   "challengeCommentAuthor": [
     {"challenge": 0, "text": "this is a comment added by test1", "author": "test1"},
@@ -113,13 +120,18 @@
   ],
   "userFollowChallenge": [],
   "discussionTag": [
-    {"challenge":0,"tag":3,"creator":0},
-    {"challenge":0,"tag":4,"creator":0}
+    {"discussion":0,"tag":3,"creator":0},
+    {"discussion":0,"tag":4,"creator":0}
   ],
   "userFollowDiscussion": [],
   "userTag": [],
   "challengeTag": [
     {"challenge":0,"tag":3,"creator":0},
     {"challenge":0,"tag":4,"creator":0}
-  ]
+  ],
+  "ideaTag": [
+    {"idea":0,"tag":3,"creator":0},
+    {"idea":0,"tag":4,"creator":0}
+  ],
+  "ideaCommentAuthor": []
 }

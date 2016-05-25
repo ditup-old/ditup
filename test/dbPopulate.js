@@ -2,7 +2,7 @@
 
 module.exports = function (db) {
   var data = {};
-  var modules = ['user', 'tag', 'discussion', 'challenge'/*, 'idea', 'project'*/];
+  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea'/*, 'project'*/];
 
 
   for (let md of modules) {
@@ -77,14 +77,16 @@ module.exports = function (db) {
         .then(function () {});
     }
 
-    function populateChallenges(challenges, users) {
+    function populateCollections(collections, users, collectionName) {
+      var challenges = collections;
       var challengePromises = [];
       for(let i = 0, len = challenges.length; i < len; ++i) {
         let creator = typeof(challenges[i].creator) === 'number' ? users[challenges[i].creator].username : challenges[i].creator;
         challenges[i].creator = creator;
-        let cp = data.challenge.create({
+        let cp = data[collectionName].create({
           name: challenges[i].name,
           description: challenges[i].description,
+          topic: challenges[i].topic,
           creator: creator
         });
         challengePromises.push(cp);
@@ -95,25 +97,28 @@ module.exports = function (db) {
           
           for(let i=0, len = _ids.length; i<len; ++i) {
             challenges[i].id = _ids[i].id;
+            challenges[i].tags = challenges[i].tags || [];
           }
 
           return;
         });
     }
 
-    function populateChallengeTag(challengeTag, challenges, tags, users) {
+    function populateCollectionTag(collectionTag, collections, tags, users, collectionName) {
+      var challengeTag = collectionTag;
+      var challenges = collections;
       var ctPromises = [];
       for(let _ct of challengeTag) {
         let creator = typeof(_ct.creator) === 'number' ? users[_ct.creator].username : _ct.creator;
-        let challenge = challenges[_ct.challenge].id;
+        let challenge = challenges[_ct[collectionName]].id;
         let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].name : _ct.tag;
-        let ctp = data.challenge.addTag(challenge, tag, creator);
+        let ctp = data[collectionName].addTag(challenge, tag, creator);
         ctPromises.push(ctp);
       }
       return Promise.all(ctPromises)
         .then(function () {
           for(let _ct of challengeTag) {
-            let tagsArray = challenges[_ct.challenge].tags = challenges[_ct.challenge].tags || [];
+            let tagsArray = challenges[_ct[collectionName]].tags = challenges[_ct[collectionName]].tags || [];
             let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].name : _ct.tag;
             tagsArray.push(tag);
           }
@@ -148,13 +153,28 @@ module.exports = function (db) {
         return populateTags(dbData.tags, dbData.users);
       })
       .then(function () {
-        return populateChallenges(dbData.challenges, dbData.users);
+        //populate challenges
+        return populateCollections(dbData.challenges, dbData.users, 'challenge');
       })
       .then(function () {
-        return populateChallengeTag(dbData.challengeTag, dbData.challenges, dbData.tags, dbData.users);
+        return populateCollectionTag(dbData.challengeTag, dbData.challenges, dbData.tags, dbData.users, 'challenge');
       })
       .then(function () {
         return populateChallengeCommentAuthor(dbData.challengeCommentAuthor, dbData.challenges, dbData.users);
+      })
+      .then(function () {
+        //populate challenges
+        return populateCollections(dbData.discussions, dbData.users, 'discussion');
+      })
+      .then(function () {
+        return populateCollectionTag(dbData.discussionTag, dbData.discussions, dbData.tags, dbData.users, 'discussion');
+      })
+      .then(function () {
+        //populate challenges
+        return populateCollections(dbData.ideas, dbData.users, 'idea');
+      })
+      .then(function () {
+        return populateCollectionTag(dbData.ideaTag, dbData.ideas, dbData.tags, dbData.users, 'idea');
       })
       .then(function () {
         // console.log(dbData);
