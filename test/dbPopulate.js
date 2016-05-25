@@ -127,12 +127,14 @@ module.exports = function (db) {
     
     }
 
-    function populateChallengeCommentAuthor(challengeCommentAuthor, challenges, users) {
+    function populateCollectionCommentAuthor(collectionCommentAuthor, collections, users, collectionName) {
+      var challengeCommentAuthor = collectionCommentAuthor;
+      var challenges = collections;
       var ccaPromises = [];
       for(let _cca of challengeCommentAuthor) {
         let author = typeof(_cca.author) === 'number' ? users[_cca.author].username : _cca.author;
-        let challenge = challenges[_cca.challenge];
-        let ccap = data.challenge.addComment(challenge.id, {text: _cca.text}, author);
+        let challenge = challenges[_cca[collectionName]];
+        let ccap = data[collectionName].addComment(challenge.id, {text: _cca.text}, author);
 
         //update the data object with challenge comments
         challenge.comments = challenge.comments || [];
@@ -160,7 +162,7 @@ module.exports = function (db) {
         return populateCollectionTag(dbData.challengeTag, dbData.challenges, dbData.tags, dbData.users, 'challenge');
       })
       .then(function () {
-        return populateChallengeCommentAuthor(dbData.challengeCommentAuthor, dbData.challenges, dbData.users);
+        return populateCollectionCommentAuthor(dbData.challengeCommentAuthor, dbData.challenges, dbData.users, 'challenge');
       })
       .then(function () {
         //populate challenges
@@ -175,6 +177,9 @@ module.exports = function (db) {
       })
       .then(function () {
         return populateCollectionTag(dbData.ideaTag, dbData.ideas, dbData.tags, dbData.users, 'idea');
+      })
+      .then(function () {
+        return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
       })
       .then(function () {
         // console.log(dbData);

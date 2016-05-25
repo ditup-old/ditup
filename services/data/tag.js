@@ -50,7 +50,7 @@ module.exports = function (db) {
       
     var query=`LET ts = LENGTH(FOR t IN tags RETURN null)
       LET ut = LENGTH(FOR ut IN userTag RETURN null)
-      LET dt = LENGTH(FOR dt IN ditTag RETURN null)
+      LET dt = 0 //LENGTH(FOR dt IN ditTag RETURN null)
       RETURN {
         tagno: ts,
         usertagno: ut,
@@ -117,7 +117,7 @@ module.exports = function (db) {
 
     var query=`FOR t IN tags
       LET userLinks = LENGTH(FOR ut IN userTag FILTER ut._to == t._id RETURN ut._id)
-      LET ditLinks = LENGTH(FOR dt IN ditTag FILTER dt._to == t._id RETURN dt._id)
+      LET ditLinks = 0 // LENGTH(FOR dt IN ditTag FILTER dt._to == t._id RETURN dt._id)
       LET links = userLinks + ditLinks
       SORT links DESC
       LIMIT @offset, @count

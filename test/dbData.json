@@ -133,5 +133,10 @@
     {"idea":0,"tag":3,"creator":0},
     {"idea":0,"tag":4,"creator":0}
   ],
-  "ideaCommentAuthor": []
+  "ideaCommentAuthor": [
+    {"idea": 0, "text": "this is a comment added by test1", "author": "test1"},
+    {"idea": 0, "text": "this is a comment added by test4", "author": "test4"},
+    {"idea": 0, "text": "this is a comment added by test5", "author": "test5"},
+    {"idea": 0, "text": "this is a comment added by test11", "author": "test11"}
+  ]
 }

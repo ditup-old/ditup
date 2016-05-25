@@ -1,0 +1,62 @@
+{
+  "challengeCommentAuthor": {
+    "type": "edge",
+    "unique": []
+  },
+  "challenges": {
+    "type": "document",
+    "unique": []
+  },
+  "challengeTag": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "discussions": {
+    "type": "document",
+    "unique": []
+  },
+  "discussionTag": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "ideaCommentAuthor": {
+    "type": "edge",
+    "unique": []
+  },
+  "ideas": {
+    "type": "document",
+    "unique": []
+  },
+  "ideaTag": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "projects": {
+    "type": "document",
+    "unique": []
+  },
+  "tags": {
+    "type": "document",
+    "unique": ["name"]
+  },
+  "userFollowChallenge": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "userFollowDiscussion": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "userFollowIdea": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "users": {
+    "type": "document",
+    "unique": ["username", "email"]
+  },
+  "userTag": {
+    "type": "edge",
+    "unique": ["unique"]
+  }
+}
