@@ -5,6 +5,23 @@ dit - do it together
 
 up - start it up
 
+## installation
+1. install the repository
+  * clone this repository
+  * run `npm install` to install dependencies
+2. install the database
+  * install arangodb to your computer
+  * run arangodb i.e. `sudo arangod`
+  * go to the folder of this repository on your computer
+  * initialize the database: run `npm run init-database`
+  * optionally run `npm run populate-database` to put some testing data to the database
+3. run the server
+  * `npm start`
+4. browse the application on `http://localhost:3000`
+
+## testing
+
+
 ## development
 
 [old (unfinished & abandoned) version written in php](https://github.com/ditup/ditup-php)
