@@ -203,7 +203,7 @@ proto.addTag = function (collectionName, db) {
           INSERT {_from: d._id, _to: t._id, unique: CONCAT (d._id, '-', t._id), creator: u._id, created: @created} INTO `+collectionName.slice(0, -1)+`Tag
           RETURN NEW`;
     var params = {id: id, tagname: tagname, username: username, created: Date.now()};
-    
+
     return db.query(query, params)
       .then(function (cursor) {
         var writes = cursor.extra.stats.writesExecuted;

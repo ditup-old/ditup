@@ -9,7 +9,7 @@ var generateUrl = require('./discussion/functions').generateUrl;
 /*
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
-  return res.render('challenges', {session: sessUser});
+  return res.render('ideas', {session: sessUser});
 });
 */
 
@@ -22,8 +22,8 @@ router.all('/new', function (req, res, next) {
   var logged = sessUser.logged;
   if(logged !== true) {
     sessUser.messages = sessUser.messages || [];
-    sessUser.messages.push('you need to <a href="/login?redirect=%2Fchallenges%2Fnew" >log in</a> to create a new challenge');
-    return res.render('login', {session: sessUser, action: '/login?redirect=%2Fchallenges%2Fnew'});
+    sessUser.messages.push('you need to <a href="/login?redirect=%2Fideas%2Fnew" >log in</a> to create a new idea');
+    return res.render('login', {session: sessUser, action: '/login?redirect=%2Fideas%2Fnew'});
   }
 
   return next();
@@ -31,7 +31,7 @@ router.all('/new', function (req, res, next) {
 
 router.get('/new', function (req, res, next) {
   var sessUser = req.session.user;
-  return res.render('challenges-new', {session: sessUser});
+  return res.render('ideas-new', {session: sessUser});
 });
 
 router.post('/new', function (req, res, next) {
@@ -87,32 +87,32 @@ router.post('/new', function (req, res, next) {
   }
 
   if(valid !== true) {
-    return res.render('challenges-new', {session: sessUser, values: values});
+    return res.render('ideas-new', {session: sessUser, values: values});
   }
 
   var id;
   var failedTags = [];
   var addedTags = [];
 
-  return db.challenge.create({name: values.name, description: values.description, creator: sessUser.username})
+  return db.idea.create({name: values.name, description: values.description, creator: sessUser.username})
     .then(function (_id) {
       id = _id;
 /*      var pchain = Promise.resolve();
       for(let tg of validTags) {
-        pchain.then(db.challenge.addTag(id.id, tg)).then(function () { addedTags.push(tg); console.log('success!', tg); }, function (err) { failedTags.push(tg); console.log('fail!!!', tg); });
+        pchain.then(db.idea.addTag(id.id, tg)).then(function () { addedTags.push(tg); console.log('success!', tg); }, function (err) { failedTags.push(tg); console.log('fail!!!', tg); });
       }
 
       return pchain;
     })
     .then(function () {
       console.log(failedTags, addedTags);    
-      //TODO add tags to challenge (first check that they exist...)
+      //TODO add tags to idea (first check that they exist...)
 */
       var url = generateUrl(values.name);
       
-      req.session.messages.push('the new challenge was successfully created.');
+      req.session.messages.push('the new idea was successfully created.');
       console.log(id, _id, url);
-      return res.redirect('/challenge/'+id.id+'/'+url);
+      return res.redirect('/idea/'+id.id+'/'+url);
     })
     .then(null, function (err) {
       return res.end(err);
@@ -170,20 +170,20 @@ router.post('/new', function (req, res, next) {
   }
 
   if(valid !== true) {
-    return res.render('challenges-new', {session: sessUser, values: values});
+    return res.render('ideas-new', {session: sessUser, values: values});
   }
 
   var id;
-  return db.challenge.create({topic: values.topic, creator: sessUser.username})
+  return db.idea.create({topic: values.topic, creator: sessUser.username})
     .then(function (_id) {
       id = _id;
       
-      //TODO add tags to challenge (first check that they exist...)
+      //TODO add tags to idea (first check that they exist...)
 
       var url = generateUrl(values.topic);
       
-      req.session.messages.push('the new challenge was successfully started.');
-      return res.redirect('/challenge/'+id.id+'/'+url);
+      req.session.messages.push('the new idea was successfully started.');
+      return res.redirect('/idea/'+id.id+'/'+url);
     })
     .then(null, function (err) {
       return res.end(err);

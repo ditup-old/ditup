@@ -4,13 +4,21 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "populate-database": "node ./test/populateDatabase",
     "test": "mocha ./test",
     "test-unit": "mocha ./test/unit",
     "watch-unit": "mocha ./test/unit --watch",
     "watch-unit-challenge": "mocha ./test/unit/services-data-challenge --watch",
+    "watch-unit-discussion": "mocha ./test/unit/services-data-discussion --watch",
+    "watch-unit-idea": "mocha ./test/unit/services-data-idea --watch",
     "watch-discussion": "mocha ./test/functional/discussion --watch",
     "watch-challenge": "mocha ./test/functional/challenge --watch",
     "watch-challenge-id": "mocha ./test/functional/challenge/challenge-id-name --watch",
+    "watch-ideas-new": "mocha ./test/functional/idea/ideas-new --watch",
+    "watch-idea-id": "mocha ./test/functional/idea/idea-id-name --watch",
+    "watch-exist": "mocha ./test/functional/all/exist --watch",
+    "watch-tags": "mocha ./test/functional/all/tags --watch",
+    "watch-signup": "mocha ./test/functional/signup --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

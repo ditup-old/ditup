@@ -75,7 +75,7 @@ function removeCollectionsFromDatabase(existentCollections, dbCollection) {
 
 exports.tags = function (collection, variables, dependencies, settings) {
   /**
-    dependencies: app, session, data, generateUrl, Browser
+    dependencies: server, browser (in pseudopointer form) browser: {Value: browser}
   */
   // get the application server module
   //var app = dependencies.app;
@@ -122,10 +122,10 @@ exports.tags = function (collection, variables, dependencies, settings) {
     var existentCollections = variables.existentCollections;
 
     //create existent ' + collection + 's for tests
-    beforeEach(createCollectionsInDatabase(existentCollections, dbCollection));
+    //beforeEach(createCollectionsInDatabase(existentCollections, dbCollection));
     
     //delete the existent ' + collection + '
-    afterEach(removeCollectionsFromDatabase(existentCollections, dbCollection));
+    //afterEach(removeCollectionsFromDatabase(existentCollections, dbCollection));
 
     for (let existentCollection of existentCollections) {
       context(collection + ' with :id exists', function () {
@@ -156,7 +156,6 @@ exports.tags = function (collection, variables, dependencies, settings) {
             beforeEach(login);
 
             beforeEach(function (done) {
-              console.log(existentCollection, '**********************************88')
               browser.visit('/' + collection + '/' + existentCollection.id + '/' + existentCollection.url)
                 .then(done, done);
             });
@@ -200,10 +199,11 @@ exports.tags = function (collection, variables, dependencies, settings) {
                   .then(done, done);
               });
 
-              afterEach(function (done) {
+              /*afterEach(function (done) {
                 return dbCollection.removeTag(existentCollection.id, tagToAdd)
                   .then(function () {done();}, done );
               });
+              */
 
               it('should add a tag and show it', function () {
                 browser.assert.success();

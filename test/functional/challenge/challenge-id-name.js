@@ -66,7 +66,7 @@ describe('visit /challenge/:id/:name', function () {
   shared.follow('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge, db: db}, {});
   //create an existent challenge for tests
   beforeEach(function (done) {
-    return dbChallenge.create({name: existentChallenge.name, description: existentChallenge.description, creator: 'test1'})
+    return dbChallenge.create({name: existentChallenge.name, description: existentChallenge.description, creator: existentChallenge.creator})
       .then(function (_id) {
         existentChallenge.id = _id.id;
 
@@ -183,9 +183,6 @@ describe('visit /challenge/:id/:name', function () {
         afterEach(logout);
 
         //challenge/id/name/add-tag
-        it('may be possible to remove tags which user added and have 0 or negative voting');
-        it('should show the tags to be votable (whether the tag is fitting or not)');
-        
 
         it('should show buttons for launching idea, project, discussion, challenge...');
         it('may make it possible to link existent ideas, projects, discussions, challenges');

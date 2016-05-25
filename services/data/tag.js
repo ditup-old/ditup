@@ -3,6 +3,24 @@
 
 module.exports = function (db) {
   var tag = {};
+
+  tag.create = function (tag) {
+    var query = 'FOR u IN users FILTER u.username == @username ' +
+      'INSERT {name: @name, description: @description, meta: {created: @created, creator: u._id}} IN tags';
+    var params = {
+      name: tag.name,
+      description: tag.description,
+      created: tag.meta.created,
+      username: tag.meta.creator
+    };
+    return db.query(query, params);
+      /*.then(null, function (err) {
+        if(err.errorNum === 1210){
+        }
+        return false;
+      });*/
+  };
+
   /**
    * 
    *

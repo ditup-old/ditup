@@ -196,145 +196,18 @@ module.exports = function (db) {
       });
   };
 
-  discussion.addTag = function (id, tagname, username) {
-    var query = `FOR d IN discussions FILTER d._key == @id
-      FOR t IN tags FILTER t.name == @tagname
-        FOR u IN users FILTER u.username == @username
-          INSERT {_from: d._id, _to: t._id, unique: CONCAT (d._id, '-', t._id), creator: u._id, created: @created} INTO discussionTag
-          RETURN NEW`;
-    var params = {id: id, tagname: tagname, username: username, created: Date.now()};
-    
-    return db.query(query, params)
-      .then(function (cursor) {
-        var writes = cursor.extra.stats.writesExecuted;
-        if(writes === 0) throw new Error(404);
-        if(writes > 1) throw new Error('more than one tag added. This should never happen.');
-      })
-      .then(null, function (err) {
-        if(err.code === 409) throw new Error(409);
-        throw err;
-      });
-  };
 
-  discussion.removeTag = function (id, tagname) {
-    var query = `FOR d IN discussions FILTER d._key == @id
-      FOR t IN tags FILTER t.name == @tagname
-        FOR dt IN discussionTag FILTER dt._from == d._id && dt._to == t._id
-          REMOVE dt IN discussionTag`;
-    var params = {id: id, tagname: tagname};
+  discussion.addTag = proto.addTag('discussions', db);
+  discussion.removeTag = proto.removeTag('discussions', db);
+  discussion.tags = proto.tags('discussions', db);
 
-    return db.query(query, params)
-      .then(function (cursor) {
-        var writes = cursor.extra.stats.writesExecuted;
-        if(writes === 0) throw new Error(404);
-        if(writes > 1) throw new Error('more than one tag removed. This should never happen.');
-      });
-  };
-
-  discussion.tags = function (id) {
-    var query = `
-      FOR d IN discussions FILTER d._key == @id
-        FOR dt IN discussionTag FILTER dt._from == d._id
-          FOR t IN tags FILTER t._id == dt._to
-            RETURN t`
-    var params = {id: id};
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (tags) {
-        return tags;
-      });
-  };
-
-  discussion.follow = function (id, username, hide) {
-    hide = hide === true ? true : false;
-    var query = `FOR d IN discussions FILTER d._key == @id
-      FOR u IN users FILTER u.username == @username
-        UPSERT {_from: u._id, _to: d._id, hide: !@hide}
-        INSERT {_from: u._id, _to: d._id, hide: @hide, unique: CONCAT(u._id, '-', d._id), created: @created, visited: 0}
-        UPDATE {hide: @hide, created: @created}
-        IN userFollowDiscussion
-        RETURN IS_NULL(OLD) ? 201 : 200`;
-    var params = {id: id, username: username, created: Date.now(), hide: hide};
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (codes) {
-        if(codes.length === 0) throw new Error(404);
-        if(codes.length > 1) throw new Error('found more than one unique discussion id or username. this should never happen');
-        return codes[0];
-      })
-      .then(null, function (err) {
-        if(err.code === 409) throw new Error(409);
-        throw err;
-      });
-  };
-
-  discussion.hide = function(id, username) {
-    return this.follow(id, username, true);
-  }
-
-  discussion.unfollow = function (id, username, hide) {
-    hide = hide === true ? true : false;
-    var query = `FOR d IN discussions FILTER d._key == @id
-      FOR u IN users FILTER u.username == @username
-        FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd._to == d._id && ufd.hide == @hide
-        REMOVE ufd IN userFollowDiscussion`;
-    var params = {id: id, username: username, hide: hide};
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        var writes = cursor.extra.stats.writesExecuted;
-        if(writes == 0) throw new Error(404);
-        if(writes > 1) throw new Error('more than 1 unfollowed. this should never happen');
-      });
-  };
-
-  discussion.unhide = function(id, username) {
-    return this.unfollow(id, username, true);
-  }
-
-  discussion.following = function (username) {
-    var query = `FOR u IN users FILTER u.username == @username
-      FOR ufd IN userFollowDiscussion FILTER ufd._from == u._id && ufd.hide == false
-        FOR d IN discussions FILTER ufd._to == d._id
-          RETURN d`;
-    var params = {username: username};
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      });
-  };
-
-  discussion.followingUser = function (id, username) {
-    var query = `FOR d IN discussions FILTER d._key == @id
-      FOR u IN users FILTER u.username == @username
-        FOR ufd IN userFollowDiscussion FILTER u._id == ufd._from && d._id == ufd._to && ufd.hide == false
-          RETURN ufd`;
-    var params = {id: id, username: username};
-    
-    return db.query(query, params)
-      .then(function (cursor) {return cursor.all();})
-      .then(function (resp) {
-        if(resp.length > 1) throw new Error('multiple follows. should never happen');
-        if(resp.length === 1) return true;
-        if(resp.length === 0) return false;
-      });
-  }
-
-  discussion.followers = function (id) {
-    var query = `FOR d IN discussions FILTER d._key == @id
-      FOR ufd IN userFollowDiscussion FILTER ufd._to == d._id && ufd.hide == false
-        FOR u IN users FILTER u._id == ufd._from
-          RETURN u`;
-    var params = {id: id};
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      });
-  };
+  discussion.follow = proto.follow('discussions', db);
+  discussion.hide = proto.hide('discussions', db);
+  discussion.unfollow = proto.unfollow('discussions', db);
+  discussion.unhide = proto.unhide('discussions', db);
+  discussion.following = proto.following('discussions', db);
+  discussion.followingUser = proto.followingUser('discussions', db);
+  discussion.followers = proto.followers('discussions', db);
 
   discussion.readDiscussionsByTags = function (tags, username) {
     var query = `LET output = (FOR t IN tags FILTER t.name IN @tags

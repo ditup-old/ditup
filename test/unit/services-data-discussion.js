@@ -13,6 +13,9 @@ var db = new Database({url: config.url, databaseName: config.dbname});
 
 var discussion = require('../../services/data/discussion')(db);
 
+var dbPopulate = require('../dbPopulate')(db);
+var dbData= require('../dbData');
+
 var completeData = {
   topic: 'discussion topic',
   creator: 'test1',
@@ -20,6 +23,15 @@ var completeData = {
 };
 
 describe('database/discussion', function () {
+  beforeEach(function (done) {
+    dbPopulate.populate(dbData)
+      .then(done, done);
+  });
+
+  afterEach(function (done) {
+    dbPopulate.clear(dbData)
+      .then(done, done);
+  });
 
   //create discussion
   var completeData = {
@@ -696,14 +708,14 @@ describe('database/discussion', function () {
 
         context('when user is not following yet', function () {
           it('should insert follow to the database and return a promise and resolve it with 201 code (created)', function () {
-            return expect(discussion.follow(existentId, username)).to.eventually.equal(201);
+            return expect(discussion.follow(existentId, username)).to.eventually.equal('201');
           });
         });
         context('when user has the discussion hidden', function () {
           it('should update hidden > follows in the database and return a promise and resolve it with 200 code (OK)', function (done) {
             return discussion.follow(existentId, username, true)
               .then(function () {
-                return expect(discussion.follow(existentId, username)).to.eventually.equal(200);
+                return expect(discussion.follow(existentId, username)).to.eventually.equal('200');
               })
               .then(function () {done();}, done);
           });
@@ -934,14 +946,14 @@ describe('database/discussion', function () {
 
         context('when discussion is not hidden yet', function () {
           it('should insert hide to the database and return a promise and resolve it with 201 code (created)', function () {
-            return expect(discussion.hide(existentId, username)).to.eventually.equal(201);
+            return expect(discussion.hide(existentId, username)).to.eventually.equal('201');
           });
         });
         context('when user follows the discussion', function () {
           it('should update follows > hidden in the database and return a promise and resolve it with 200 code (OK)', function (done) {
             return discussion.follow(existentId, username)
               .then(function () {
-                return expect(discussion.hide(existentId, username)).to.eventually.equal(200);
+                return expect(discussion.hide(existentId, username)).to.eventually.equal('200');
               })
               .then(function () {done();}, done);
           });

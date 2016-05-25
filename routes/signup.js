@@ -8,7 +8,7 @@ var accountService = require('../services/account');
 var accountModule = require('../modules/account');
 var accountConfig = require('../config/user/account.json');
 
-var ITERATIONS = accountConfig.password.iterations;
+const ITERATIONS = accountConfig.password.iterations;
 
 router.all('*', function(req, res, next) {
   var sessUser = req.session.user;
@@ -27,7 +27,7 @@ router.get('/', function(req, res, next){
   return res.render('signup', {errors: {}, values: {}, session: sessUser});
 });
 
-router.post('/', function(req, res, next){
+router.post('/', function (req, res, next) {
   var sessUser = req.session.user;
   var form = req.body;
   var formData = {
@@ -36,79 +36,8 @@ router.post('/', function(req, res, next){
     password: form.password,
     password2: form.password2
   };
-
-  //first let's validate data from the form
-  var errors = {};            
-  var valid = validate.user.signup(formData, errors);
-   
-  //console.log(valid, errors, 'post signup');
-  //now let's check if username and email are unique
-  database.usernameExists(form.username)
-    .then(function usernameExists(exists) {
-      valid = valid && !exists;
-      if(exists === true) errors.username.push('username must be unique');
-      return database.emailExists(form.email);
-    })
-    .then(function emailExists(exists) {
-      valid = valid && !exists;
-      if(exists === true) errors.email.push('email must be unique');
-
-      if(valid === true)
-        return validBranch();
-      else
-        return invalidBranch();
-    })
-    .then(null, function (err) {
-      console.log(err.stack);
-      next(err);
-    });
   
-  //this function will happen if branch is valid
-  function validBranch() {
-    var salt;
-    var hashed;
-
-    //generate salt for password hash
-    return accountService.generateSalt()
-      .then(function (_salt) {
-        salt = _salt;
-
-        //generate hashed password
-        return accountService.hashPassword(formData.password, salt, ITERATIONS);
-      })
-      .then(function (_hashed) {
-        hashed = _hashed;
-
-        //this user should be saved to database
-        var newUser = {
-          username: formData.username,
-          email: formData.email,
-          profile: {
-            name: '',
-            surname: '',
-            birthday: null,
-            gender: '',
-            about: ''
-          },
-          account:{
-            join_date: Date.now(),
-            email: {
-              verified: false
-            },
-            active_account: true,
-            last_login: Date.now(),
-            last_message_visit: null
-          },
-          login: {
-            salt: salt,
-            hash: hashed,
-            iterations: ITERATIONS
-          }
-        };
-        
-        //save new user to database
-        return database.createUser(newUser);
-      })
+  return accountModule.createUser(formData)
       .then(function () {
         var username = formData.username;
         var email = formData.email;
@@ -122,13 +51,14 @@ router.post('/', function(req, res, next){
         req.session.messages.push(message);
         return res.redirect('/user/' + formData.username + '/edit');
       
+      })
+      .then(null, function (err) {
+        if(err.message === 'invalid data') {
+          sessUser.messages.push('there were some errors in processing signup request');
+          return res.render('signup', { errors: err.errors, values: formData, session: sessUser});
+        }
+        return next(err);
       });
-  }
-
-  function invalidBranch() {
-    sessUser.messages.push('there were some errors in processing signup request');
-    return res.render('signup', { errors: errors, values: formData, session: sessUser});
-  }
 });
 
 module.exports = router;

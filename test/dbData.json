@@ -1,0 +1,125 @@
+{
+  "users": [
+    {
+      "username": "test1",
+      "password": "asdfasdf",
+      "email": "test1@example.com"
+    },
+    {
+      "username": "test2",
+      "password": "asdfasdf",
+      "email": "test2@example.com"
+    },
+    {
+      "username": "test4",
+      "password": "asdfasdf",
+      "email": "test4@example.com"
+    },
+    {
+      "username": "test5",
+      "password": "asdfasdf",
+      "email": "test5@example.com"
+    },
+    {
+      "username": "test6",
+      "password": "asdfasdf",
+      "email": "test6@example.com"
+    },
+    {
+      "username": "test11",
+      "password": "asdfasdf",
+      "email": "test11@example.com"
+    },
+    {
+      "username": "mrkvon",
+      "password": "asdfasdf",
+      "email": "mrkvon@example.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "tag1",
+      "description": "this is the tag1",
+      "creator": 0
+    },
+    {
+      "name": "tag2",
+      "description": "this is a description of the tag2",
+      "creator": 0
+    },
+    {
+      "name": "tag3",
+      "description": "this is some other description of the tag",
+      "creator": 0
+    },
+    {
+      "name": "test-tag-1",
+      "description": "this is some other description of the tag",
+      "creator": 0
+    },
+    {
+      "name": "test-tag-2",
+      "description": "this is some other description of the tag",
+      "creator": 0
+    },
+    {
+      "name": "test-tag-3",
+      "description": "this is some other description of the tag",
+      "creator": 0
+    },
+    {
+      "name": "busking",
+      "description": "street performance often with raising money",
+      "creator": 0
+    },
+    {
+      "name": "music",
+      "description": "street performance often with raising money",
+      "creator": 0
+    },
+    {
+      "name": "art",
+      "description": "street performance often with raising money",
+      "creator": 0
+    },
+    {
+      "name": "travel",
+      "description": "street performance often with raising money",
+      "creator": 0
+    }
+  ],
+  "discussions": [
+    {
+      "topic": "new test discussion",
+      "id": null,
+      "creator": 0
+    }
+  ],
+  "challenges": [
+    {
+      "name": "new test challenge",
+      "description": "some description",
+      "id": null,
+      "creator": 0
+    }
+  ],
+  "ideas": [],
+  "projects": [],
+  "challengeCommentAuthor": [
+    {"challenge": 0, "text": "this is a comment added by test1", "author": "test1"},
+    {"challenge": 0, "text": "this is a comment added by test4", "author": "test4"},
+    {"challenge": 0, "text": "this is a comment added by test5", "author": "test5"},
+    {"challenge": 0, "text": "this is a comment added by test11", "author": "test11"}
+  ],
+  "userFollowChallenge": [],
+  "discussionTag": [
+    {"challenge":0,"tag":3,"creator":0},
+    {"challenge":0,"tag":4,"creator":0}
+  ],
+  "userFollowDiscussion": [],
+  "userTag": [],
+  "challengeTag": [
+    {"challenge":0,"tag":3,"creator":0},
+    {"challenge":0,"tag":4,"creator":0}
+  ]
+}

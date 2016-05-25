@@ -1,0 +1,24 @@
+<%
+  var css = [
+    '/css/header.css'
+  ];
+
+  var title = 'home';
+  var headScripts = [];
+  var scripts = [];
+
+  var values = values || {};
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+  <h1>Create a new idea</h1>
+  <form id="new-idea" method="post" >
+    <label>name<input type="text" name="name" value="<%= values.name %>" /></label>
+    <label>tags<input type="text" name="tags" value="<%= values.tags %>" /></label>
+    <label>description<textarea type="text" name="description" ><%= values.description %></textarea></label>
+    <input type="submit" value="create the idea" />
+  </form>
+</div>
+<% include ./partial/page-bottom.ejs %>
