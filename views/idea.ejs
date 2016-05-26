@@ -22,59 +22,38 @@ include ./partial/header.ejs %>
 <div>
 <h1>idea</h1>
 <div id="idea-name" ><%= idea.name %><input type="text" readonly="" id="idea-url" value="<%= idea.link %>" /></div>
-<% 
-//showing a follow/unfollow form
-if(logged === true) {
-  if(idea.following === true) {
-  //showing an unfollow form
-  %>
-    <form id="unfollow-form" method="post">
-      <input type="submit" name="submit" value="unfollow" />
-    </form>
-    
-  <%} else {
-  //showing a follow form %>
-<form id="follow-form" method="post">
-  <input type="submit" name="submit" value="follow" />
-</form>
 <%
-  }
-}%>
-<% 
-//showing a hide/unhide form
-if(logged === true) {
-  if(idea.hiding === true) {
-  //showing an unhide form
-  %>
-    <form id="unhide-form" method="post">
-      <input type="submit" name="submit" value="unhide" />
-    </form>
-    
-  <%} else {
-  //showing a hide form %>
-<form id="hide-form" method="post">
-  <input type="submit" name="submit" value="hide" />
-</form>
-<%
-  }
-}%>
-<div id="idea-tags"><%
-  if(idea.tags.length === 0) {
-    %>no tags<%
-  }
-  for(var i=0, len=idea.tags.length; i < len; ++i){
-   %><span><%= idea.tags[i] %></span><%
-  }
-  if(logged === true){
-    %>
-    <form id="add-tag-form" method="post" >
-      <input type="text" name="tagname" />
-      <input type="submit" name="submit" value="add tag" />
-    </form>
-    <% 
-  }
+  /**
+   * ********************** *
+   *    hide-follow         *
+   * ********************** *
+   */
 
-%></div>
+  var hideFollow = {
+    view: !!logged,
+    hiding: !!idea.hiding,
+    following: !!idea.following,
+    collection: 'idea'
+  };
+
+%><% include partial/hide-follow.ejs %>
+<%
+  /**
+   * ********************** *
+   *         tags           *
+   * ********************** *
+   */
+
+  var tags = {
+    add: !!logged,
+    list: [],
+    collection: 'idea'
+  };
+  //populating the tag list
+  for(var i=0, len=idea.tags.length; i<len; ++i) {
+    tags.list.push({name: idea.tags[i]});
+  }
+%><% include ./partial/tags.ejs %>
 <div id="idea-description" ><%= idea.description %></div>
 <div id="new-comment">
 <% if (logged === true) { %>

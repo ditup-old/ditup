@@ -28,17 +28,24 @@ include ./partial/header.ejs %>
 <%
   }
 } %>
-<div id="discussion-tags"><%
-  if(discussion.tags.length === 0) {
-    %>no tags<%
+<%
+  /**
+   * ********************** *
+   *         tags           *
+   * ********************** *
+   */
+
+  var tags = {
+    add: !!logged,
+    list: [],
+    collection: 'discussion'
+  };
+  //populating the tag list
+  for(var i=0, len=discussion.tags.length; i<len; ++i) {
+    tags.list.push({name: discussion.tags[i]});
   }
-  for(var i=0, len=discussion.tags.length; i < len; ++i){
-   %><span><%= discussion.tags[i] %></span><%
-  }
-  if(logged === true) {
-    %>
-    <%include ./partial/add-tag-form %>
-<% } %></div>
+%><% include ./partial/tags.ejs %>
+
 <div id="new-post">
 <% if (logged === true) { %>
   <form id="new-post-form" method="post" action="" >

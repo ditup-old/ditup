@@ -1,0 +1,47 @@
+<% 
+
+
+//showing a follow/unfollow form
+
+hideFollow = hideFollow || {};
+
+hideFollow.view = hideFollow.view || false; //should we show the view?
+hideFollow.hiding = hideFollow.hiding || false; //is hiding?
+hideFollow.following = hideFollow.following || false; //is following?
+hideFollow.collection = hideFollow.collection || 'dit'; //collection name (not used)
+
+if(hideFollow.view === true) {
+  if(hideFollow.following === true) {
+  //showing an unfollow form
+  %>
+    <form id="unfollow-form" method="post">
+      <input type="submit" name="submit" value="unfollow" />
+    </form>
+    
+  <%} else {
+  //showing a follow form %>
+    <form id="follow-form" method="post">
+      <input type="submit" name="submit" value="follow" />
+    </form>
+<%
+  }
+}%>
+<% 
+//showing a hide/unhide form
+if(hideFollow.view === true) {
+  if(hideFollow.hiding === true) {
+  //showing an unhide form
+  %>
+    <form id="unhide-form" method="post">
+      <input type="submit" name="submit" value="unhide" />
+    </form>
+    
+  <%} else {
+  //showing a hide form %>
+    <form id="hide-form" method="post">
+      <input type="submit" name="submit" value="hide" />
+    </form>
+<%
+  }
+}%>
+
