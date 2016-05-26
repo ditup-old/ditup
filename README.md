@@ -6,9 +6,10 @@ dit - do it together
 up - start it up
 
 ## installation
-0. this will not work, yet, because
-  * the files and folders ignored in `.gitignore` have to be created (a script for that needs to be made)
-  * some browser side fonts and javascript libraries need to be installed (automatically (TODO)) (most stuff will still work without this)
+this will not work, yet, because
+ * the files and folders ignored in `.gitignore` have to be created (a script for that needs to be made)
+ * some browser side fonts and javascript libraries need to be installed (automatically (TODO)) (most stuff will still work without this)
+
 1. install the repository
   * clone this repository
   * run `npm install` to install dependencies
