@@ -38,6 +38,10 @@ this will not work, yet, because
 
 npm library [sharp](https://github.com/lovell/sharp) depends on installing [libvips](https://github.com/jcupitt/libvips) (library for processing images)
 
+## what is the logo?
+The logo is still a work in process. Fungi are a fascinating species. Their mycelia can be present underground for quite some time. In good conditions and when they meet, they can produce mushrooms (the fruit) with great speed and effectiveness. [look here](https://upload.wikimedia.org/wikipedia/commons/d/d7/Fungi_Sexual_reproduction_cycle.png)
+That's why the logo wants to depict one or three mushrooms in some (simplified) form.
+
 ## License
 
 [The MIT License](http://opensource.org/licenses/MIT)
