@@ -1,0 +1,25 @@
+<%
+  var css = [
+    '/css/header.css'
+  ];
+
+  var title = 'home';
+  var headScripts = [];
+  var scripts = [];
+
+  var values = values || {};
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+</style>
+<div>
+  <h1>Create a new project</h1>
+  <form id="new-project" method="post" >
+    <label>name<br /><input type="text" name="name" value="<%= values.name %>" /></label><br />
+    <label>public description<br /><textarea type="text" name="description" ><%= values.description %></textarea></label><br />
+    <label>joining possible?<br /><label><input type="radio" name="joining" value="yes" checked="checked" />yes</label><label><input type="radio" name="joining" value="no" />no</label></label><br />
+    <label>info for people who want to join<br /><textarea type="text" name="join-info" ><%= values.description %></textarea></label>
+    <input type="submit" value="create the project" />
+  </form>
+</div>
+<% include ./partial/page-bottom.ejs %>
