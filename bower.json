@@ -1,0 +1,29 @@
+{
+  "name": "ditup",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "https://github.com/ditup/ditup",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/libs/bower",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.2.4",
+    "jquery-ui": "^1.11.4",
+    "jquery-ui-amd": "^0.0.3",
+    "requirejs": "^2.2.0",
+    "font-awesome": "fontawesome#^4.6.3",
+    "lato": "^0.3.0",
+    "playfair-webfont": "^1.0.3",
+    "open-sans": "^1.1.0",
+    "libre-baskerville": "https://google-fonts.azurewebsites.net/googleFonts/libre-baskerville?family=Libre+Baskerville:400,700,400italic",
+    "droid-sans": "https://google-fonts.azurewebsites.net/googleFonts/droid-sans?family=Droid+Sans:400,700"
+  }
+}
