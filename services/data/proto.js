@@ -16,7 +16,7 @@ proto.create = function (expectedParams, collectionName, db, otherParams) {
   return function (data) {
     var isDataComplete = !!data.creator;
     for (let param of expectedParams) {
-      isDataComplete = isDataComplete && !!data[param];
+      isDataComplete = isDataComplete && data.hasOwnProperty(param);
     }
 
     if(!isDataComplete) {

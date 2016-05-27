@@ -123,6 +123,9 @@ describe('visiting /projects/new', function () {
           browser.assert.text('form#new-project label', 'namepublic descriptionjoining possible?yesnoyesnoinfo for people who want to join');
           browser.assert.elements('form#new-project input[type=radio]',2);
           browser.assert.attribute('form#new-project input[type=radio]', 'name', 'joining');
+          browser.assert.element('form#new-project textarea[name=description]');
+          browser.assert.element('form#new-project input[name=name]');
+          browser.assert.element('form#new-project textarea[name=join-info]');
           browser.assert.element('form#new-project input[type=radio][value=yes]');
           browser.assert.element('form#new-project input[type=radio][value=no]');
           browser.assert.element('form#new-project input[type=submit]');
@@ -151,29 +154,30 @@ describe('visiting /projects/new', function () {
       var badlyFormattedTags = 'test tag 1, tag2, hitch-hikin^^g';
       var emptyTags = '';
 
-      function submitForm (name, description) {
+      function submitForm (name, description, joining, joinInfo) {
         return browser.visit('/projects/new')
           .then(() => {
             return browser
               .fill('name', name)
               .fill('description', description)
+              .fill('join-info', joinInfo)
               .pressButton('create the project');
           });
       }
 
-      function fillForm (name, description) {
+      function fillForm (name, description, joining, joinInfo) {
         return function (done) {
-          return submitForm(name, description)
+          return submitForm(name, description, joining, joinInfo)
             .then(done, done);
         }
       }
 
       context('bad data', function () {
 
-        function badDataTestCreator(name, description, tags, message) {
+        function badDataTestCreator(name, description, joining, joinInfo, message) {
           return function () {
 
-            beforeEach(fillForm(name, description, tags));
+            beforeEach(fillForm(name, description, joining, joinInfo));
 
             it('should return a form with a proper error', function () {
               browser.assert.success();
@@ -183,62 +187,55 @@ describe('visiting /projects/new', function () {
             });
 
             it('should keep other fields filled', function () {
-              browser.assert.input('input[name=tags]', tags);
               browser.assert.input('textarea[name=description]', description);
               browser.assert.input('input[name=name]', name);
             });
           };
         };
 
-        context('empty name', badDataTestCreator(emptyName, validDescription, validTags, 'you need to write a name'));
+        context('empty name', badDataTestCreator(emptyName, validDescription, 'yes', '', 'you need to write a name'));
 
-        context('too long name', badDataTestCreator(longName, validDescription, validTags, 'the name is too long'));
+        context('too long name', badDataTestCreator(longName, validDescription, 'yes', '', 'the name is too long'));
 
-        context('empty description', badDataTestCreator(validName, emptyDescription, validTags, 'you need to write a description'));
+        context('too long description', badDataTestCreator(validName, longDescription, 'yes', '', 'the description is too long'));
 
-        context('too long description', badDataTestCreator(validName, longDescription, validTags, 'the description is too long'));
-
-        it('should refuse too many tags');
-        it('should refuse non-existent tags');
-
-        context('no tags', badDataTestCreator(validName, validDescription, emptyTags, 'you need to choose 1 or more tags'));
-        context('badly formatted tags', badDataTestCreator(validName, validDescription, badlyFormattedTags, '^.*the tags .* are badly formatted$'));
       });
 
 
       context('good data', function () {
 
         let createdProjectId; //for later deleting it
+        let validWeirdName = 'What is a ))_??#@#:@ purpose of test?';
 
-        it('should create the project and redirect to it', function (done) {
-          let validWeirdName = 'What is a ))_??#@#:@ purpose of test?';
-          
-          //submitForm(validWeirdName, validDescription, validTags)
+        beforeEach(function (done) {
           browser.visit('/projects/new')
             .then(() => {
               return browser
                 .fill('name', validWeirdName)
                 .fill('description', validDescription)
-                .fill('tags', validTags)
+                .fill('joining', 'no')
+                .fill('join-info', '')
                 .pressButton('create the project');
             })
             .then(() => {
               let url = browser.url;
               let arr = url.split('/');
               createdProjectId = arr[4];
-              
-              browser.assert.success();
-              browser.assert.redirected();
-              browser.assert.url(/^.*\/project\/[0-9]*\/what-is-purpose-of-test\/?$/);
-              browser.assert.text('h1', 'project');
-              browser.assert.text('div.popup-message.info', /^.*the new project was successfully created.*$/);
-              
             })
             .then(done, done);
-        });
         
-        after(function (done) {
-          return dbProject.delete(createdProjectId).then(() => {done();}, done);
+        });
+
+        it('should be successful', function () {
+          browser.assert.success();
+        });
+
+        it('should redirect', function () {
+          browser.assert.redirected();
+        });
+
+        it('should redirect to the created project', function () {
+          browser.assert.url(/^.*\/project\/[0-9]*\/what-is-purpose-of-test\/?$/);
         });
       });
     });

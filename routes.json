@@ -14,6 +14,7 @@
   {"url": "/challenges", "router": "challenges"},
   {"url": "/idea", "router": "idea"},
   {"url": "/ideas", "router": "ideas"},
+  {"url": "/project", "router": "project"},
   {"url": "/projects", "router": "projects"},
   {"url":"/tag", "router":"tag"},
   {"url":"/tags", "router":"tags"},
