@@ -192,12 +192,18 @@ module.exports = function (db) {
    *
    */
   function clear(dbData) {
+    /*
     let promises = [];
     for(let collectionName in dbData) {
       promises.push(db.query('FOR c IN ' + collectionName + ' REMOVE c IN ' + collectionName, {}));
     }
 
     return Promise.all(promises)
+      .then(function () {
+        return;
+      });
+    */
+    return db.truncate()
       .then(function () {
         return;
       });
