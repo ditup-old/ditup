@@ -11,6 +11,10 @@
     "type": "edge",
     "unique": ["unique"]
   },
+  "discussionCommentAuthor": {
+    "type": "edge",
+    "unique": []
+  },
   "discussions": {
     "type": "document",
     "unique": []

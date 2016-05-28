@@ -35,7 +35,7 @@ router.post('/:id/:url', function (req, res, next) {
         req.ditup.discussion = {newPost: {errors: ['error: the message is too long']}};
         return next();
       }
-      return db.discussion.addPost(id, {text: text , creator:sessUser.username})
+      return db.discussion.addPost(id, {text: text}, sessUser.username)
         .then(function () {
           sessUser.messages.push('post successfuly added');
           return next();
@@ -76,6 +76,17 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       }
       return;
     })
+    //read posts of discussion
+    .then(function () {
+      return db.discussion.readPosts(id)
+        .then(function (_posts) {
+          discussion.posts = [];
+          for(let post of _posts) {
+            discussion.posts.push(post);
+          }
+          return;
+        });
+    })
     //read tags of discussion
     .then(function () {
       return db.discussion.tags(id)
@@ -100,24 +111,6 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       }
     })
     .then(null, next);
-  /*
-  return db.discussion.read(id)
-    .then(function (discussion) {
-      var expectedUrl = generateUrl(discussion.topic);
-      discussion.url = expectedUrl;
-      discussion.id = id;
-      for(var param in req.ditup.discussion) {
-        discussion[param] = req.ditup.discussion[param];
-      }
-      if(expectedUrl === url) {
-        return res.render('discussion', {session: sessUser, discussion: discussion});
-      }
-      else {
-        return res.redirect('/discussion/' + id + '/' + expectedUrl );
-      }
-    })
-    .then(null, next);
-  */
 });
 
 

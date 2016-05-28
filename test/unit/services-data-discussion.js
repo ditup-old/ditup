@@ -23,13 +23,17 @@ var completeData = {
 };
 
 describe('database/discussion', function () {
+  before(function (done) {
+    dbPopulate.clear()
+      .then(done, done);
+  });
   beforeEach(function (done) {
     dbPopulate.populate(dbData)
       .then(done, done);
   });
 
   afterEach(function (done) {
-    dbPopulate.clear(dbData)
+    dbPopulate.clear()
       .then(done, done);
   });
 
@@ -39,7 +43,9 @@ describe('database/discussion', function () {
     creator: 'test1',
     created: Date.now()
   };
+
   var existentId;
+
   beforeEach(function(done) {
     discussion.create(completeData)
       .then(function (obj) {
@@ -47,34 +53,10 @@ describe('database/discussion', function () {
       })
       .then(done, done);
   });
-  afterEach(function(done) {
-    db.query('FOR d IN discussions REMOVE d IN discussions')
-      .then(function () {
-        done();
-      }, done);
-  });
-
-  afterEach(function(done) {
-    db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-      .then(function () {
-        done();
-      }, done);
-  });
-
-  afterEach(function(done) {
-    db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
-      .then(function () {
-        done();
-      }, done);
-  });
-
-
-
 
   describe('create', function () {
     context('when data is incomplete', function () {
-      var incompleteData = {
-      };
+      var incompleteData = {};
       it('should return a promise and reject it with a proper error message', function () {
         return expect(discussion.create(incompleteData)).to.eventually.be.rejectedWith('incomplete data');
       });
@@ -110,20 +92,14 @@ describe('database/discussion', function () {
             done();
           }, done);
       });
-      it('should return the discussion object (including some posts)', function () {
+
+      it('should return the discussion object', function () {
         return Promise.all([
           expect(discussion.read(existentId)).to.eventually.be.fulfilled,
           expect(discussion.read(existentId)).to.eventually.have.property('topic'),
           expect(discussion.read(existentId)).to.eventually.have.property('creator'),
           expect(discussion.read(existentId)).to.eventually.have.property('created'),
-          expect(discussion.read(existentId)).to.eventually.have.property('posts')
         ]);
-      });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
       });
     });
     context('when discussion with :id doesn\'t exist', function () {
@@ -154,12 +130,6 @@ describe('database/discussion', function () {
       it('should delete the discussion from the database and be fulfilled', function () {
         return expect(discussion.delete(existentId)).to.eventually.be.fulfilled;
       });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
     });
     context('when discussion with :id doesn\'t exist', function () {
       var nonexistentId = String(211111111111111);
@@ -184,25 +154,19 @@ describe('database/discussion', function () {
             done();
           }, done);
       });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
 
       it('should add post to the database and return promise and fulfill it with post id', function () {
-        return expect(discussion.addPost(existentId, {text: postText, creator: author})).to.eventually.deep.equal({id: 0})
-          .then(function () {
-            return expect(discussion.addPost(existentId, {text: postText, creator: author})).to.eventually.deep.equal({id: 1});
-          });
+        return Promise.all([
+          expect(discussion.addPost(existentId, {text: postText}, author)).to.eventually.have.property('id'),
+          expect(discussion.addPost(existentId, {text: postText}, author)).to.eventually.have.property('id').which.is.a('string')
+        ]);
       });
     });
 
     context('when discussion with :id doesn\'t exist', function () {
       var nonexistentId = String(211111111111111);
       it('should return promise and reject it with proper error (404)', function () {
-        return expect(discussion.addPost(nonexistentId, {text: postText, creator: author})).to.eventually.be.rejectedWith('404');
+        return expect(discussion.addPost(nonexistentId, {text: postText}, author)).to.eventually.be.rejectedWith('404');
       });
     });
 
@@ -217,14 +181,9 @@ describe('database/discussion', function () {
             done();
           }, done);
       });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
+
       it('should return a promise and reject it with proper error (404)', function () {
-        return expect(discussion.addPost(existentId, {text: postText, creator: nonexistentAuthor})).to.eventually.be.rejectedWith('404');
+        return expect(discussion.addPost(existentId, {text: postText}, nonexistentAuthor)).to.eventually.be.rejectedWith('404');
       });
     });
   });
@@ -233,15 +192,6 @@ describe('database/discussion', function () {
 
   describe('updatePost', function () {
     context('when discussion doesn\'t exist', function () {
-      var nonexistentId = '2111111111';
-      it('should return a promise and reject it with 404 error', function () {
-        return expect(discussion.updatePost(nonexistentId, {
-            index: 0,
-            user: 'mrkvon',
-            text: 'this is a new post text2',
-            updated: Date.now()
-          })).to.eventually.be.rejectedWith('404');
-      });
     });
 
     context('when discussion exists', function () {
@@ -251,39 +201,46 @@ describe('database/discussion', function () {
         creator: 'test1',
         created: Date.now()
       };
+
+      var posts = [
+        {"discussion": 0, "text": "this is a post added by test1", "author": "test1"},
+        {"discussion": 0, "text": "this is a post added by test4", "author": "test4"},
+        {"discussion": 0, "text": "this is a post added by test5", "author": "test5"},
+        {"discussion": 0, "text": "this is a post added by test11", "author": "test11"}
+      ];
+      
       var existentId;
       beforeEach(function(done) {
         discussion.create(completeData)
           .then(function (obj) {
             existentId = obj.id;
-            return discussion.addPost(existentId, {creator: 'mrkvon', text: 'this is some post text'});
+
+            let pp = [];//post promises
+            for(let p of posts) {
+              p.discussion = {id: existentId};
+              pp.push(discussion.addPost(existentId, {text: p.text}, p.author));
+            }
+            return Promise.all(pp);
           })
-          .then(function () {
-            return discussion.addPost(existentId, {creator: 'test1', text: 'this is some post text 2'});
+          .then(function (_posts) {
+            //add the ids of posts to themselves
+            for(let i = 0, len = _posts.length; i<len; ++i) {
+              posts[i].id = _posts[i].id;
+            }
           })
-          .then(function () {
-            return discussion.addPost(existentId, {creator: 'mrkvon', text: 'this is some post text 3'});
-          })
-          .then(function () {
-            done();
-          }, done);
+          .then(done, done);
       });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-    
 
       context('when post doesn\'t exist', function () {
         it('should return a promise and reject it with 404 error', function () {
-          return expect(discussion.updatePost(existentId, {
-              index: 5,
-              user: 'mrkvon',
-              text: 'this is a new post text2',
-              updated: Date.now()
-            })).to.eventually.be.rejectedWith('404');
+          return expect(discussion.updatePost('2222222a2', {text: 'this is a new post text2'}, 'test1')).to.eventually.be.rejectedWith('404');
+          return expect(discussion.updatePost('2222222a2', {text: 'this is a new post text2'}, 'nonexistent-user')).to.eventually.be.rejectedWith('404');
+        });
+      });
+
+      context('when post exists and author doesn\'t exist', function () {
+        it('should return a promise and reject it with 404-user error', function () {
+          return expect(discussion.updatePost(posts[0].id, {text: 'this is a new post text2'}, 'nonexistent-user')).to.eventually.be.rejectedWith('404-user');
         });
       });
 
@@ -291,151 +248,57 @@ describe('database/discussion', function () {
 
         it('should update the post and return a promise and resolve it', function () {
           var updatedPost;
-          return expect(
-            discussion.updatePost(existentId, {
-              index: 1,
-              user: 'test1',
-              text: 'this is a new post text2',
-              updated: Date.now()
-            })
-              .then(function () {
-                return discussion.read(existentId);
-              })
-              .then(function (disc) {
-                updatedPost = disc.posts[1];
-                return updatedPost;
-              })
-          ).to.eventually.have.property('text', 'this is a new post text2')
-            .then(function () {
-              expect(updatedPost).to.have.property('creator');
-              expect(updatedPost).to.have.property('updated');
-            });
+          return expect(discussion.updatePost(posts[0].id, {text: 'this is a new post text2'}, posts[0].author)).to.eventually.be.fulfilled;
         });
       });
 
-      context('when access as admin and data is ok', function () {
-        it('should update the post and return a promise and resolve it', function () {
-          var updatedPost;
-          return expect(
-            discussion.updatePost(existentId, {
-              index: 1,
-              user: 'mrkvon',
-              text: 'this is a new post text2',
-              updated: Date.now()
-            }, true)
-              .then(function () {
-                return discussion.read(existentId);
-              })
-              .then(function (disc) {
-                updatedPost = disc.posts[1];
-                return updatedPost;
-              })
-          ).to.eventually.have.property('text', 'this is a new post text2')
-            .then(function () {
-              expect(updatedPost).to.have.property('creator');
-              expect(updatedPost).to.have.property('updated');
-            });
-        });
-      });
-
-      context('when allowed access and data is incomplete', function () {
+      context('when data is incomplete', function () {
         it('should return and reject a promise with 400 (bad data)', function () {
-          return expect(
-            discussion.updatePost(existentId, {
-              index: 1,
-              user: 'mrkvon',
-              updated: Date.now()
-            }, true)
-          ).to.eventually.be.rejectedWith('400');
+          return expect(discussion.updatePost(posts[1].id, {}, posts[1].author)).to.eventually.be.rejectedWith('400');
         });
       });
 
       context('when access not allowed', function () {
         it('should return a promise and reject it with error 401.', function () {
-          return expect(discussion.updatePost(existentId, {
-              index: 1,
-              user: 'mrkvon',
-              text: 'this is a new post text2',
-              updated: Date.now()
-            })).to.eventually.be.rejectedWith('401');
+          return expect(discussion.updatePost(posts[1].id, {text: 'this is an updated post text2'}, 'mrkvon')).to.eventually.be.rejectedWith('401');
         });
       });
     });
   });
+
   describe('removePost(discussinId, {index: number, user: string, deleted: date}, directEditingRights)', function () {
+    var postAdded = dbData.discussionCommentAuthor[0];
+    var postDiscussion = dbData.discussions[postAdded.discussion];
+    //console.log(dbData.discussionCommentAuthor);
+    var nonexistentId = '2111111111';
     context('when discussion doesn\'t exist', function () {
-      var nonexistentId = '2111111111';
       it('should return a promise and reject it with 404 error', function () {
-        return expect(discussion.removePost(nonexistentId, {
-            index: 0,
-            user: 'mrkvon',
-            deleted: Date.now()
-          })).to.eventually.be.rejectedWith('404');
+        //console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', postAdded);
+        return expect(discussion.removePost(postAdded.id, {author: 'test1', id: nonexistentId})).to.eventually.be.rejectedWith('404');
       });
     });
+
     context('when discussion exists', function () {
-      //create discussion and add some posts to it
-      var completeData = {
-        topic: 'discussion topic',
-        creator: 'test1',
-        created: Date.now()
-      };
-      var existentId;
-      beforeEach(function(done) {
-        discussion.create(completeData)
-          .then(function (obj) {
-            existentId = obj.id;
-            return discussion.addPost(existentId, {creator: 'mrkvon', text: 'this is some post text'});
-          })
-          .then(function () {
-            return discussion.addPost(existentId, {creator: 'test1', text: 'this is some post text 2'});
-          })
-          .then(function () {
-            return discussion.addPost(existentId, {creator: 'mrkvon', text: 'this is some post text 3'});
-          })
-          .then(function () {
-            done();
-          }, done);
-      });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
       context('when post doesn\'t exist', function () {
         it('should return a promise and reject it with 404 error', function () {
-          return expect(discussion.removePost(existentId, {
-              index: 5,
-              user: 'mrkvon',
-              deleted: Date.now()
-            })).to.eventually.be.rejectedWith('404');
+          return expect(discussion.removePost(nonexistentId, {id: postDiscussion.id, author: postAdded.author})).to.eventually.be.rejectedWith('404');
         });
         
       });
       context('when post exists', function () {
         context('when user has rights to delete post (either creator or admin)', function () {
-          it('should delete the post and return a promise and resolve it', function (done) {
-            Promise.all([
-              discussion.removePost(existentId, {index: 1, user: 'test1'}),
-              discussion.removePost(existentId, {index: 2, user: 'test2'}, true)
-            ])
-              .then(function () {
-                return discussion.read(existentId);
-              })
-              .then(function (discussion) {
-                expect(discussion.posts[1]).to.be.deep.equal(null);
-                expect(discussion.posts[2]).to.be.deep.equal(null);
-              })
-              .then(done, done);
+          it('[user] should delete the post and return a promise and resolve it', function () {
+            return expect(discussion.removePost(postAdded.id, {id: postDiscussion.id, author: postAdded.author})).to.eventually.be.fulfilled;
+          });
+          it('[admin] should delete the post and return a promise and resolve it', function () {
+            return expect(discussion.removePost(postAdded.id, {admin: true})).to.eventually.be.fulfilled;
           });
         });
+
         context('when user doesn\'t have rights to delete the post', function () {
           it('should return a promise and reject it with 401 error', function () {
-            return expect(discussion.removePost(existentId, {
-                index: 2,
-                user: 'test1'
-              }, false)).to.eventually.be.rejectedWith('401');
+            return expect(discussion.removePost(postAdded.id, {
+                author: 'test11', id: postDiscussion.id})).to.eventually.be.rejectedWith('401');
           });
         });
       });
@@ -461,21 +324,6 @@ describe('database/discussion', function () {
           .then(done, done);
       });
 
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      
       context('when user has rights to add tag', function () {
         context('when tag exists', function () {
           context('when discussion is already tagged with this tag', function () {
@@ -530,21 +378,6 @@ describe('database/discussion', function () {
           .then(done, done);
       });
 
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      
       context('when user has rights to remove tag', function () {
         context('when tag exists', function () {
           context('when discussion is not tagged with this tag', function () {
@@ -560,18 +393,12 @@ describe('database/discussion', function () {
                 }, done);
             });
 
-            afterEach(function(done) {
-              db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-                .then(function () {
-                  done();
-                }, done);
-            });
-
             it('should return a promise, create proper changes in database and fulfill the promise', function () {
               return expect(discussion.removeTag(existentId, existentTag)).to.eventually.be.fulfilled;
             });
           });
         });
+
         context('when tag doesn\'t exist', function () {
           it('should return a promise and reject it with 404 code', function () {
             return expect(discussion.removeTag(existentId, 'nonexistent-tag')).to.eventually.be.rejectedWith('404');
@@ -608,20 +435,6 @@ describe('database/discussion', function () {
             existentId = obj.id;
           })
           .then(done, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-          .then(function () {
-            done();
-          }, done);
       });
 
       it('should return a promise and resolve it with an array of all discussion tags (empty)', function () {
@@ -667,26 +480,6 @@ describe('database/discussion', function () {
             existentId = obj.id;
           })
           .then(done, done);
-      });
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
-          .then(function () {
-            done();
-          }, done);
       });
 
       context('when user doesn\'t exist', function () {
@@ -742,27 +535,6 @@ describe('database/discussion', function () {
         })
         .then(done, done);
     });
-    afterEach(function(done) {
-      db.query('FOR d IN discussions REMOVE d IN discussions')
-        .then(function () {
-          done();
-        }, done);
-    });
-
-    afterEach(function(done) {
-      db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-        .then(function () {
-          done();
-        }, done);
-    });
-
-    afterEach(function(done) {
-      db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
-        .then(function () {
-          done();
-        }, done);
-    });
-
 
     context('when user exists', function () {
       it('should return a promise and resolve it with an array of discussions user follows: []', function () {
@@ -812,19 +584,6 @@ describe('database/discussion', function () {
           .then(done, done);
       });
 
-      afterEach(function(done) {
-        db.query('FOR d IN discussions REMOVE d IN discussions')
-          .then(function () {
-            done();
-          }, done);
-      });
-
-      afterEach(function(done) {
-        db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
-          .then(function () {
-            done();
-          }, done);
-      });
       context('when user doesn\'t exist', function () {});
       context('when user exists', function () {
         context('when user follows the discussion', function () {
@@ -1045,27 +804,6 @@ describe('database/discussion', function () {
         })
         .then(function () {})
         .then(done, done);
-    });
-
-    afterEach(function(done) {
-      db.query('FOR d IN discussions REMOVE d IN discussions')
-        .then(function () {
-          done();
-        }, done);
-    });
-
-    afterEach(function(done) {
-      db.query('FOR dt IN discussionTag REMOVE dt IN discussionTag')
-        .then(function () {
-          done();
-        }, done);
-    });
-
-    afterEach(function(done) {
-      db.query('FOR ufd IN userFollowDiscussion REMOVE ufd IN userFollowDiscussion')
-        .then(function () {
-          done();
-        }, done);
     });
 
     it('when tag array is empty: should return a proper array of discussions found: []', function () {

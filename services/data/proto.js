@@ -77,7 +77,7 @@ proto.addComment = function (collectionName, db) {
     //
     var query = `FOR c IN ` + collectionName + ` FILTER c._key == @id
       FOR u IN users FILTER u.username == @username
-        INSERT {_from: c._id, _to: u._id, text: @text, created: @created} INTO ` + collectionName.slice(0,-1) + `CommentAuthor
+        INSERT {_from: c._id, _to: u._id, text: @text, created: @created} INTO ` + singularLowercase(collectionName) + `CommentAuthor
         RETURN NEW`;
     var params = {id: id, username: username, text: comment.text, created: Date.now()};
     
@@ -122,6 +122,69 @@ proto.readComments = function (collectionName, db) {
         //console.log(out);
         return out[0];
       });
+  };
+};
+
+proto.updateComment = function (collectionName, db) {
+  return function (commentId, comment, author) {
+
+    if(!author || !comment.text || !commentId ) return Promise.reject('400');
+
+    var query = `
+      LET ddca = (FOR dca IN ` + singularLowercase(collectionName) + `CommentAuthor FILTER dca._key == @commentId RETURN dca)
+      LET uuuu = (FOR u IN users FILTER u.username == @author RETURN u)
+      LET udca = (FOR dca IN ddca
+        FOR u IN uuuu FILTER u._id == dca._to
+          UPDATE dca WITH {
+            text: @text,
+            updated: @updated
+          } IN ` + singularLowercase(collectionName) + `CommentAuthor RETURN NEW)
+      RETURN LENGTH(ddca)==0 ? '404' : (LENGTH(uuuu)==0 ? '404-user' : (LENGTH(udca)==0 ? '401' : '200'))`;
+
+    var params = {commentId: commentId, text: comment.text, author: author, updated: Date.now()};
+
+    var writes;
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        writes = cursor.extra.stats.writesExecuted;
+        if(writes > 1) throw new Error('more than one comment edited. This should never happen.');
+        return cursor.all();
+      })
+      .then(function (out) {
+        if(out[0] === '404') throw new Error('404');
+        if(out[0] === '404-user') throw new Error('404-user');
+        if(out[0] === '401') throw new Error('401');
+        if(out[0] === '200' && writes === 1) return;
+        throw new Error('uncaught');
+      });
+  };
+  return function (id, comment, username) {
+    //comment = {text: 'new text'}, username = username, id = collection id (string)
+    //username is username of author
+    //
+    var query = `FOR c IN ` + collectionName + ` FILTER c._key == @id
+      FOR u IN users FILTER u.username == @username
+        INSERT {_from: c._id, _to: u._id, text: @text, created: @created} INTO ` + singularLowercase(collectionName) + `CommentAuthor
+        RETURN NEW`;
+    var params = {id: id, username: username, text: comment.text, created: Date.now()};
+    
+    return db.query(query, params)
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if(writes === 0) throw new Error(404);
+        if(writes > 1) throw new Error('more than one comment added. This should never happen.');
+
+        return cursor.all();
+      })
+      .then(function (arrayId) {
+        return {id: arrayId[0]._key};
+      })
+      .then(null, function (err) {
+        if(err.code === 409) throw new Error(409);
+        throw err;
+      });
+    
   };
 };
 
@@ -239,7 +302,7 @@ proto.tags = function (collectionName, db) {
     var query = `
       LET col = (FOR d IN `+collectionName+` FILTER d._key == @id RETURN d)
       LET output = (FOR d IN col
-        FOR dt IN `+collectionName.slice(0,-1)+`Tag FILTER dt._from == d._id
+        FOR dt IN `+singularLowercase(collectionName)+`Tag FILTER dt._from == d._id
           FOR t IN tags FILTER t._id == dt._to
             RETURN t)
       RETURN LENGTH(col) == 0 ? 404 : output`;
@@ -439,4 +502,8 @@ proto.readCollectionsByTags = function (collectionParams, collectionName, db) {
 
 function singularUppercase(collectionName) {
   return collectionName.slice(0,1).toUpperCase()+collectionName.slice(1, -1);
+}
+
+function singularLowercase(collectionName) {
+  return collectionName.slice(0,-1);
 }

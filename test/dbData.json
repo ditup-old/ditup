@@ -118,6 +118,12 @@
     {"challenge": 0, "text": "this is a comment added by test5", "author": "test5"},
     {"challenge": 0, "text": "this is a comment added by test11", "author": "test11"}
   ],
+  "discussionCommentAuthor": [
+    {"discussion": 0, "text": "this is a comment added by test1", "author": "test1"},
+    {"discussion": 0, "text": "this is a comment added by test4", "author": "test4"},
+    {"discussion": 0, "text": "this is a comment added by test5", "author": "test5"},
+    {"discussion": 0, "text": "this is a comment added by test11", "author": "test11"}
+  ],
   "userFollowChallenge": [],
   "discussionTag": [
     {"discussion":0,"tag":3,"creator":0},

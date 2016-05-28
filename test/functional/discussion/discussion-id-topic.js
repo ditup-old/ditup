@@ -12,45 +12,54 @@ var db = new Database({url: config.url, databaseName: config.dbname});
 var dbDiscussion = require('../../../services/data/discussion')(db);
 var generateUrl = require('../../../routes/discussion/functions').generateUrl;
 
+//for populating the database
+var dbData = require('../../dbData');
+var dbPopulate = require('../../dbPopulate')(db);
+
 // use zombie.js as headless browser
 var Browser = require('zombie');
 
 describe('user visits /discussion/:id/:topic', function () {
+
+let loggedUser = dbData.users[0];
+
+//********setting server, browser
   before(function () {
     this.server = app(session).listen(3000);
     this.browser = new Browser({ site: 'http://localhost:3000' });
   });
 
-  var existentDiscussion = {topic: 'new test discussion', id: undefined};
-  var nonexistentDiscussion = {topic: 'nonexistent discussion', id: '1234567890'};
-  existentDiscussion.url = generateUrl(existentDiscussion.topic);
-  nonexistentDiscussion.url = generateUrl(nonexistentDiscussion.topic);
-  var post0 = {text: 'text of a first post', creator: 'mrkvon'};
-  var post1 = {text: 'text of a second post', creator: 'test1'};
+  after(function (done) {
+    this.server.close(done);
+  });
+//*******END
+
+//******populating database
+  before(function (done) {
+    return dbPopulate.clear()
+      .then(done, done);
+  });
 
   beforeEach(function (done) {
-
-    return dbDiscussion.create({topic: existentDiscussion.topic, creator: 'test1'})
-      .then(function (_id) {
-        existentDiscussion.id = _id.id;
-        return dbDiscussion.addPost(_id.id, {text: post0.text, creator: post0.creator});
-      })
-      .then(function () {
-        return dbDiscussion.addPost(existentDiscussion.id, {text: post1.text, creator: post1.creator});
-      })
-      .then(function () {done ();}, done);
-    //create the discussion
-    //add some posts
-
+    dbData = require('../../dbData');
+    return dbPopulate.populate(dbData)
+      .then(done, done);
   });
 
   afterEach(function (done) {
-    //delete the new discussion from database
-    dbDiscussion.delete(existentDiscussion.id)
-    
-      .then(function () {done();}, done);
+    return dbPopulate.clear()
+      .then(done, done);
   });
+//**********END
 
+  var existentDiscussion = dbData.discussions[0];
+
+  var nonexistentDiscussion = {topic: 'nonexistent discussion', id: '1234567890'};
+  existentDiscussion.url = generateUrl(existentDiscussion.topic);
+
+  nonexistentDiscussion.url = generateUrl(nonexistentDiscussion.topic);
+  var post0 = {text: 'text of a first post', creator: 'mrkvon'};
+  var post1 = {text: 'text of a second post', creator: 'test1'};
 
   context('the discussion exists', function () {
     context('user has rights to view discussion', function () {
@@ -84,13 +93,15 @@ describe('user visits /discussion/:id/:topic', function () {
 
       it('should show a discussion page', function (done) {
         var browser = this.browser;
+        console.log('#######', existentDiscussion.comments,'*************', dbData.discussions[0].comments);
         browser.visit('/discussion/' + existentDiscussion.id + '/' + existentDiscussion.url)
           .then(function () {
             browser.assert.text('#discussion-topic', existentDiscussion.topic);
-            browser.assert.text('#discussion-post-0 .text', post0.text);
-            browser.assert.text('#discussion-post-0 .creator', post0.creator);
-            browser.assert.text('#discussion-post-1 .text', post1.text);
-            browser.assert.text('#discussion-post-1 .creator', post1.creator);
+            for(let dca of existentDiscussion.comments) {
+              console.log(dca);
+              browser.assert.text('#discussion-post-' + dca.id + ' .text', dca.text);
+              browser.assert.text('#discussion-post-' + dca.id + ' .author', dca.author);
+            }
           })
           .then(done, done);
       });
@@ -104,8 +115,8 @@ describe('user visits /discussion/:id/:topic', function () {
             .then(function () {
               //console.log('**************');
               return browser
-                .fill('username', 'test1')
-                .fill('password', 'asdfasdf')
+                .fill('username', loggedUser.username)
+                .fill('password', loggedUser.password)
                 .pressButton('log in');
             })
             .then(done, done);
@@ -135,15 +146,19 @@ describe('user visits /discussion/:id/:topic', function () {
               .then(done, done);
           });
           context('valid post', function () {
+            let validPost = {
+              text: 'this is an added post',
+              author: loggedUser.username
+            };
             it('should add a new post to the database and show it', function (done) {
               var browser = this.browser;
               return browser
-                .fill('text', 'added post')
+                .fill('text', validPost.text)
                 .pressButton('post')
                 .then(function () {
                   browser.assert.success();
-                  browser.assert.text('#discussion-post-2 .text', 'added post');
-                  browser.assert.text('#discussion-post-2 .creator', 'test1');
+                  browser.assert.text('.text', new RegExp('.*' + validPost.text + '.*'));
+                  browser.assert.text('.author', new RegExp('.*' + validPost.author + '.*'));
                 })
                 .then(done, done);
             });
@@ -240,8 +255,5 @@ describe('user visits /discussion/:id/:topic', function () {
     it('should show a proper not found page.');
   });
 
-  after(function (done) {
-    this.server.close(done);
-  });
 });
 

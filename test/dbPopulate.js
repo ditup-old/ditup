@@ -108,6 +108,9 @@ module.exports = function (db) {
       var challengeTag = collectionTag;
       var challenges = collections;
       var ctPromises = [];
+      for(let c of collections){
+        c.tags = [];
+      }
       for(let _ct of challengeTag) {
         let creator = typeof(_ct.creator) === 'number' ? users[_ct.creator].username : _ct.creator;
         let challenge = challenges[_ct[collectionName]].id;
@@ -131,6 +134,9 @@ module.exports = function (db) {
       var challengeCommentAuthor = collectionCommentAuthor;
       var challenges = collections;
       var ccaPromises = [];
+      for(let c of collections) {
+        c.comments = [];
+      }
       for(let _cca of challengeCommentAuthor) {
         let author = typeof(_cca.author) === 'number' ? users[_cca.author].username : _cca.author;
         let challenge = challenges[_cca[collectionName]];
@@ -144,7 +150,15 @@ module.exports = function (db) {
         ccaPromises.push(ccap);
       }
       return Promise.all(ccaPromises)
-        .then(function () {
+        .then(function (ccaps) {
+          for(let i=0, len=ccaps.length; i<len; ++i) {
+            let cca = collectionCommentAuthor[i];
+            cca.author = typeof(cca.author) === 'number' ? users[cca.author].username : cca.author;
+            //cca[collectionName] = {id: collections[cca[collectionName]].id};
+            cca.id = ccaps[i].id;
+            let challenge = challenges[cca[collectionName]];
+            challenge.comments[i].id = ccaps[i].id;
+          }
           return;
         });
     
@@ -165,14 +179,17 @@ module.exports = function (db) {
         return populateCollectionCommentAuthor(dbData.challengeCommentAuthor, dbData.challenges, dbData.users, 'challenge');
       })
       .then(function () {
-        //populate challenges
+        //populate discussions
         return populateCollections(dbData.discussions, dbData.users, 'discussion');
       })
       .then(function () {
         return populateCollectionTag(dbData.discussionTag, dbData.discussions, dbData.tags, dbData.users, 'discussion');
       })
       .then(function () {
-        //populate challenges
+        return populateCollectionCommentAuthor(dbData.discussionCommentAuthor, dbData.discussions, dbData.users, 'discussion');
+      })
+      .then(function () {
+        //populate ideas
         return populateCollections(dbData.ideas, dbData.users, 'idea');
       })
       .then(function () {
@@ -182,7 +199,7 @@ module.exports = function (db) {
         return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
       })
       .then(function () {
-        // console.log(dbData);
+        //console.log(dbData);
       });
   }
   
@@ -191,7 +208,7 @@ module.exports = function (db) {
    *
    *
    */
-  function clear(dbData) {
+  function clear() {
     /*
     let promises = [];
     for(let collectionName in dbData) {

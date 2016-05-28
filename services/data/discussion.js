@@ -6,16 +6,12 @@ var proto = require('./proto');
 module.exports = function (db) {
   var discussion = {};
 
-  discussion.create = proto.create(['topic'], 'discussions', db, 'posts: [],');
+  discussion.create = proto.create(['topic'], 'discussions', db);
   
   discussion.read = function (id) {
     var query = `FOR d IN discussions FILTER d._key == @id
       LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
-      //LET posts = (FOR p IN d.posts
-      //  LET cr = (FOR u IN users FILTER u._id == p.creator RETURN u)
-      //    RETURN MERGE(p, {creator: {username: u.username}}))
       FOR c IN creator
-        //RETURN d
         RETURN MERGE(d, {creator: {username: c.username}})
         `;
 
@@ -26,35 +22,8 @@ module.exports = function (db) {
         return cursor.all();
       })
       .then(function (discs) {
-        console.log(discs);
         if(discs.length === 1) {
-          var result = discs[0];
-
-          //find creators of posts
-          var promises = [];
-          for(let i = 0, len = result.posts.length; i<len; ++i) {
-            //if post was not deleted
-            if(result.posts[i]) {
-              let query = 'FOR u IN users FILTER u._id == @id RETURN {username: u.username}';
-              let params = {id: result.posts[i].creator};
-              promises.push(db.query(query, params).then(function (cursor) {
-                return cursor.all();
-              }).then(function (_res) {
-                var user = _res[0];
-                result.posts[i].creator = user;
-                return result.posts[i];
-              }));
-            }
-            else{
-              //post was deleted
-              promises.push(Promise.resolve(null));
-            }
-          }
-          return Promise.all(promises)
-            .then(function (posts) {
-              result.posts = posts;
-              return result;
-            });
+          return discs[0];
         }
         else if(discs.length === 0) {
           throw new Error(404);
@@ -80,121 +49,24 @@ module.exports = function (db) {
       });
   };
 
-  discussion.addPost = function (id, post) {
-    var query = `FOR d in discussions FILTER d._key == @id
-        FOR u IN users FILTER u.username == @creator
-            LET posts = (PUSH(d.posts, {text: @text, created: @created, creator: u._id}, false))
-            UPDATE d WITH {posts: posts} IN discussions
-            RETURN LENGTH(NEW.posts)-1`;
-    var params = {id: id, creator: post.creator, created: post.created || Date.now(), text: post.text};
+  discussion.addPost = proto.addComment('discussions', db);
 
-    return db.query(query, params)
-      .then(function (cursor) {
-        var writes = cursor.extra.stats.writesExecuted;
-        if (writes === 0) throw new Error(404);
-        if (writes > 1) throw new Error('more than 1 discussion updated. this should never happen.');
-        return cursor.all();
-      })
-      .then(function (updated) {
-        return {id: updated[0]};
-      });
-  }
-  
-  discussion.updatePost = function (id, post, editable) {
-    editable = editable || false;
-
-    if(!post.user || !post.text || typeof post.index !== 'number' || !id ) return Promise.reject(400);
-    //find out if user can edit the post
-    var canEdit;
-    //if she has special rights, can edit.
-    if(editable === true) canEdit = Promise.resolve('admin');
-    else {
-        
-      //this query should resolve if user & post creator match.
-      //else it should return promise and reject it(with some error codes).
-      var canEditQuery = `FOR d IN discussions FILTER d._key == @id
-      FOR u IN users FILTER u.username == @username
-          RETURN TO_BOOL(NTH(d.posts, @index)) ? ( u._id == d.posts[@index].creator ? true : 401) : 404
-        `;
-      var canEditParams = {id: id, index: post.index, username: post.user};
-      canEdit = db.query(canEditQuery, canEditParams)
-        .then(function (cursor) {
-          return cursor.all();
-        })
-        .then(function (can) {
-          //if discussion or user was not found
-          if(can.length === 0) throw new Error(404);
-          if(can.length > 1) throw new Error(500);
-          if(can[0] === true) return 'user';
-          if(can[0] === 401) throw new Error(401);
-          if(can[0] === 404) throw new Error(404);
-          throw new Error('uncaught');
-        });
-    }
-
-    return canEdit
-      .then(function () {
-        var query = `FOR d IN discussions FILTER d._key == @id
-        UPDATE d WITH {
-            posts: UNION(
-                SLICE(d.posts, 0, @index),
-                [MERGE(d.posts[@index], {text: @text, updated: @updated})],
-                SLICE(d.posts, @index+1)
-            )
-        } IN discussions
-        RETURN NEW`;
-        var params = {id: id, text: post.text, /*user: post.user, */updated: post.updated || Date.now(), index: post.index };
-        return db.query(query, params);
-    });
+  discussion.readPost = function () {
+    throw new Error('TODO!');
   };
+
+  discussion.readPosts = proto.readComments('discussions', db);
+  discussion.removePost = proto.removeComment('discussions', db);
+  discussion.updatePost = proto.updateComment('discussions', db);
 
   discussion.canEditPost = function () {};
 
-  discussion.removePost = function (id, post, editable) {
-    var canEdit;
-    //if she has special rights, can edit.
-    if(editable === true) {
-      canEdit = Promise.resolve('admin');
-    }
-    else {
-        
-      //this query should resolve if user & post creator match.
-      //else it should return promise and reject it(with some error codes).
-      var canEditQuery = `FOR d IN discussions FILTER d._key == @id
-      FOR u IN users FILTER u.username == @username
-          RETURN TO_BOOL(NTH(d.posts, @index)) ? ( u._id == d.posts[@index].creator ? true : 401) : 404
-        `;
-      var canEditParams = {id: id, index: post.index, username: post.user};
-      canEdit = db.query(canEditQuery, canEditParams)
-        .then(function (cursor) {
-          return cursor.all();
-        })
-        .then(function (can) {
-          //if discussion or user was not found
-          if(can.length === 0) throw new Error(404);
-          if(can.length > 1) throw new Error(500);
-          if(can[0] === true) return 'user';
-          if(can[0] === 401) throw new Error(401);
-          if(can[0] === 404) throw new Error(404);
-          throw new Error('uncaught');
-        });
-    }
-
-    return canEdit
-      .then(function () {
-        var query = `FOR d IN discussions FILTER d._key == @id
-        UPDATE d WITH {
-            posts: UNION(
-                SLICE(d.posts, 0, @index),
-                [null],
-                SLICE(d.posts, @index+1)
-            )
-        } IN discussions
-        RETURN NEW`;
-        var params = {id: id, index: post.index };
-        return db.query(query, params);
-      });
-  };
+  //alternative post>comment name
+  discussion.addComment = discussion.addPost;
+  discussion.readComment = discussion.readPost;
+  discussion.readComments = discussion.readPosts;
+  discussion.updateComment = discussion.updatePost;
+  discussion.removeComment = discussion.removePost;
 
 
   discussion.addTag = proto.addTag('discussions', db);
