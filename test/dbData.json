@@ -111,7 +111,16 @@
       "creator": 0
     }
   ],
-  "projects": [],
+  "projects": [
+    {
+      "name": "new test project",
+      "description": "some description",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 0
+    }
+  ],
   "challengeCommentAuthor": [
     {"challenge": 0, "text": "this is a comment added by test1", "author": "test1"},
     {"challenge": 0, "text": "this is a comment added by test4", "author": "test4"},

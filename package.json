@@ -19,6 +19,7 @@
     "watch-ideas-new": "mocha ./test/functional/idea/ideas-new --watch",
     "watch-idea-id": "mocha ./test/functional/idea/idea-id-name --watch",
     "watch-projects-new": "mocha ./test/functional/project/projects-new --watch",
+    "watch-project-id": "mocha ./test/functional/project/project-id-name --watch",
     "watch-exist": "mocha ./test/functional/all/exist --watch",
     "watch-tags": "mocha ./test/functional/all/tags --watch",
     "watch-signup": "mocha ./test/functional/signup --watch",

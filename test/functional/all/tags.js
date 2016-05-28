@@ -37,7 +37,7 @@ describe('testing that tags are working for user, idea, challenge, project, disc
   });
 
   before(function (done) {
-    dbPopulate.clear(dbData)
+    dbPopulate.clear()
       .then(done, done);
   });
 
@@ -47,7 +47,7 @@ describe('testing that tags are working for user, idea, challenge, project, disc
   });
 
   afterEach(function (done) {
-    dbPopulate.clear(dbData)
+    dbPopulate.clear()
       .then(done, done);
   });
 

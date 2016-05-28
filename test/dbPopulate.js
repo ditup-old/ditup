@@ -2,7 +2,7 @@
 
 module.exports = function (db) {
   var data = {};
-  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea'/*, 'project'*/];
+  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project'];
 
 
   for (let md of modules) {
@@ -87,6 +87,8 @@ module.exports = function (db) {
           name: challenges[i].name,
           description: challenges[i].description,
           topic: challenges[i].topic,
+          join: collections[i].join,
+          join_info: collections[i].join_info,
           creator: creator
         });
         challengePromises.push(cp);
@@ -198,6 +200,18 @@ module.exports = function (db) {
       .then(function () {
         return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
       })
+      .then(function () {
+        //populate projects
+        return populateCollections(dbData.projects, dbData.users, 'project');
+      })
+      /*
+      .then(function () {
+        return populateCollectionTag(dbData.projectTag, dbData.ideas, dbData.tags, dbData.users, 'project');
+      })
+      .then(function () {
+        return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
+      })
+      */
       .then(function () {
         //console.log(dbData);
       });
