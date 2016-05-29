@@ -12,7 +12,8 @@
     %>no tags<%
   }
   for(var i=0, len=tags.list.length; i < len; ++i){
-   %><span><%= tags.list[i].name %></span><%
+   %><span class="tag"><%= tags.list[i].name %></span>
+   <%
   }
   if(tags.add === true){
     %>
