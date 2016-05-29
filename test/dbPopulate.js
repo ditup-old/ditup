@@ -197,6 +197,36 @@ module.exports = function (db) {
         });
     }
 
+    function populateProjectMember(projectMember, collections, users) {
+      var pmPromises = [];
+
+      for(let p of collections) {
+        p.members = {
+          joining: [],
+          invited: [],
+          member: []
+        };
+      }
+      for(let pm of projectMember) {
+        let username = users[pm.user].username;
+        let collection = collections[pm.collection];
+        let status = pm.status;
+
+        //creating a database.collection.follow() promise and adding it to the array for further Promise.all()
+        let pmp = data.project.addMember(collection.id, username, status);
+        pmPromises.push(pmp);
+
+        //update the data object's collection Array of followers or hiders with the username
+
+        collection.members[status].push(username)
+      }
+
+      return Promise.all(pmPromises)
+        .then(function (pmps) {
+          return;
+        });
+    }
+
     return populateUsers(dbData.users)
       .then(function () {
         return populateTags(dbData.tags, dbData.users);
@@ -243,6 +273,9 @@ module.exports = function (db) {
       })
       .then(function () {
         return populateUserFollowCollection(dbData.userFollowProject, dbData.users, dbData.projects, 'project');
+      })
+      .then(function () {
+        return populateProjectMember(dbData.projectMember, dbData.projects, dbData.users);
       })
       .then(function () {
         //console.log(dbData);

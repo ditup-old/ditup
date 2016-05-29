@@ -12,6 +12,7 @@
     "watch-unit-challenge": "mocha ./test/unit/services-data-challenge --watch",
     "watch-unit-discussion": "mocha ./test/unit/services-data-discussion --watch",
     "watch-unit-idea": "mocha ./test/unit/services-data-idea --watch",
+    "watch-unit-project": "mocha ./test/unit/services-data-project --watch",
     "watch-discussion": "mocha ./test/functional/discussion --watch",
     "watch-discussion-id": "mocha ./test/functional/discussion/discussion-id-topic --watch",
     "watch-challenge": "mocha ./test/functional/challenge --watch",

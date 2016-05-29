@@ -63,5 +63,40 @@ module.exports = function (db) {
   project.unhide = proto.unhide('projects', db);
   project.readProjectsByTags = proto.readCollectionsByTags(['name', 'description'], 'projects', db);
 
+  //********************membership functions
+  project.addMember = function (id, username, relation) {
+    let allowedStates = ['joining', 'invited', 'member'];
+    if(allowedStates.indexOf(relation)<0) return Promise.reject('400');
+
+    let query = `FOR p IN projects FILTER p._key == @id
+      FOR u IN users FILTER u.username == @username
+        INSERT {
+          _from: p._id,
+          _to: u._id,
+          unique: CONCAT(p._id, '-', u._id),
+          relation: @relation,
+          created: @created
+        } IN projectMember`;
+    let params = {
+      id: id,
+      username: username,
+      relation: relation,
+      created: Date.now()
+    };
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if(writes === 0) throw new Error('404');
+        if(writes > 1) throw new Error('more than one tag added. This should never happen.');
+      })
+      .then(null, function (err) {
+        if(err.code === 409) throw new Error('409');
+        throw err;
+      });
+  }
+
+  //********************END
+
   return project;
 };

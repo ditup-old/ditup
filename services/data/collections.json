@@ -39,6 +39,10 @@
     "type": "edge",
     "unique": []
   },
+  "projectMember": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
   "projects": {
     "type": "document",
     "unique": []
