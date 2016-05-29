@@ -272,7 +272,52 @@ module.exports = function (db) {
       });
   }
 
+  function init(collections, dbName) {
+    db.useDatabase('_system');
+    return db.dropDatabase(dbName)
+      .catch(function (err) {
+        console.log('creating new database');
+      })
+      .then(function () {
+        return db.createDatabase(dbName);
+      })
+      .then(function () {
+        db.useDatabase(dbName);
+        let cols = [];
+        for(let cnm in collections) {
+          let col;
+          if(collections[cnm].type === 'document') {
+            col = db.collection(cnm);
+          }
+          else if(collections[cnm].type === 'edge') {
+            col = db.edgeCollection(cnm);
+          }
+          else{
+            throw new Error('not document nor edge');
+          }
+          cols.push(col.create()
+            .then(function () {
+              let cin = [];
+
+              for(let indexName of collections[cnm].unique){
+                cin.push(col.createHashIndex(indexName, {unique: true}));
+              }
+
+              return Promise.all(cin);
+            }));
+        }
+        return Promise.all(cols);
+      })
+      .then(function () {})
+      .then(null, function (err) {
+        db.useDatabase(dbName);
+        console.log(err);
+        throw (err);
+      });
+  }
+
   return {
+    init: init,
     populate: populate,
     clear: clear
   };
