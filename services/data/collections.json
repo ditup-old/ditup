@@ -35,9 +35,17 @@
     "type": "edge",
     "unique": ["unique"]
   },
+  "projectCommentAuthor": {
+    "type": "edge",
+    "unique": []
+  },
   "projects": {
     "type": "document",
     "unique": []
+  },
+  "projectTag": {
+    "type": "edge",
+    "unique": ["unique"]
   },
   "tags": {
     "type": "document",
@@ -52,6 +60,10 @@
     "unique": ["unique"]
   },
   "userFollowIdea": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
+  "userFollowProject": {
     "type": "edge",
     "unique": ["unique"]
   },

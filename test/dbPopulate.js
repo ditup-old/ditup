@@ -166,6 +166,37 @@ module.exports = function (db) {
     
     }
 
+    function populateUserFollowCollection(userFollowCollection, users, collections, collectionName) {
+      var ufcPromises = [];
+
+      for(let c of collections) {
+        c.followers = [];
+        c.hiders = [];
+      }
+      for(let ufc of userFollowCollection) {
+        let username = users[ufc.user].username;
+        let collection = collections[ufc.collection];
+        let hide = ufc.hide === true ? true : false;
+
+        //creating a database.collection.follow() promise and adding it to the array for further Promise.all()
+        let ufcp = data[collectionName].follow(collection.id, username, hide);
+        ufcPromises.push(ufcp);
+
+        //update the data object's collection Array of followers or hiders with the username
+        if(hide === true) {
+          collection.hiders.push(username);
+        }
+        else{
+          collection.followers.push(username);
+        }
+      }
+
+      return Promise.all(ufcPromises)
+        .then(function (ufcps) {
+          return;
+        });
+    }
+
     return populateUsers(dbData.users)
       .then(function () {
         return populateTags(dbData.tags, dbData.users);
@@ -204,14 +235,15 @@ module.exports = function (db) {
         //populate projects
         return populateCollections(dbData.projects, dbData.users, 'project');
       })
-      /*
       .then(function () {
-        return populateCollectionTag(dbData.projectTag, dbData.ideas, dbData.tags, dbData.users, 'project');
+        return populateCollectionTag(dbData.projectTag, dbData.projects, dbData.tags, dbData.users, 'project');
       })
       .then(function () {
-        return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
+        return populateCollectionCommentAuthor(dbData.projectCommentAuthor, dbData.projects, dbData.users, 'project');
       })
-      */
+      .then(function () {
+        return populateUserFollowCollection(dbData.userFollowProject, dbData.users, dbData.projects, 'project');
+      })
       .then(function () {
         //console.log(dbData);
       });

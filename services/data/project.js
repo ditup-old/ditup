@@ -58,6 +58,7 @@ module.exports = function (db) {
   project.following = proto.following('projects', db);
   project.followingUser = proto.followingUser('projects', db);
   project.followers = proto.followers('projects', db);
+  project.countFollowers = proto.countFollowers('projects', db);
   project.unfollow = proto.unfollow('projects', db);
   project.unhide = proto.unhide('projects', db);
   project.readProjectsByTags = proto.readCollectionsByTags(['name', 'description'], 'projects', db);

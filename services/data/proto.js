@@ -297,6 +297,12 @@ proto.removeTag = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, return tags of the collection
+ *
+ *
+ *
+ */
 proto.tags = function (collectionName, db) {
   return function (id) {
     var query = `
@@ -304,7 +310,7 @@ proto.tags = function (collectionName, db) {
       LET output = (FOR d IN col
         FOR dt IN `+singularLowercase(collectionName)+`Tag FILTER dt._from == d._id
           FOR t IN tags FILTER t._id == dt._to
-            RETURN t)
+            RETURN {name: t.name, description: t.description})
       RETURN LENGTH(col) == 0 ? 404 : output`;
     var params = {id: id};
     return db.query(query, params)
@@ -318,6 +324,12 @@ proto.tags = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, make @username follow collection with @id (or hide if @hide === true)
+ *
+ *
+ *
+ */
 proto.follow = function (collectionName, db) {
   return function (id, username, hide) {
     var hide = (hide === true) ? true : false;
@@ -345,6 +357,12 @@ proto.follow = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, return array of collections @collectionName which user @username follows
+ *
+ *
+ *
+ */
 proto.following = function (collectionName, db) {
   return function (username) {
     var query = `
@@ -368,9 +386,15 @@ proto.following = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, returns boolean indicating whether user @username follows (or hides if @hide === true) the collection @collectionName with id @id
+ *
+ *
+ *
+ */
 proto.followingUser = function (collectionName, db) {
   return function (id, username, hiding) {
-    var hiding = !!hiding;
+    var hiding = hiding === true ? true : false;
     var query = `
       LET col = (FOR d IN `+collectionName+` FILTER d._key == @id RETURN d)
       LET us = (FOR u IN users FILTER u.username == @username RETURN u)
@@ -394,6 +418,12 @@ proto.followingUser = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, returns list of users who follow the collection @collectionName with id @id
+ *
+ *
+ *
+ */
 proto.followers = function (collectionName, db) {
   return function (id) {
     var query = `
@@ -417,6 +447,35 @@ proto.followers = function (collectionName, db) {
   };
 };
 
+proto.countFollowers = function (collectionName, db) {
+  return function (id) {
+    var query = `
+      LET col = (FOR d IN `+collectionName+` FILTER d._key == @id RETURN d)
+      LET output = (
+        FOR d IN col
+          FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER ufd._to == d._id && ufd.hide == false
+            FOR u IN users FILTER u._id == ufd._from
+              RETURN u
+      )
+      RETURN LENGTH(col) == 0 ? "404-error" : COUNT(output)`;
+    var params = {id: id};
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (out) {
+        if(out[0]==='404-error') throw new Error('404');
+        return out[0];
+      });
+  };
+};
+
+/**
+ * factory function, hides collection @id (set hide=true in userFollow[Collection]) from user @username
+ * collection.hide(id, username) equals collection.follow(id, username, true)
+ *
+ *
+ */
 proto.hide = function (collectionName, db) {
   var hide = this.follow(collectionName, db);
   return function(id, username) {
@@ -424,6 +483,12 @@ proto.hide = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, removes follow (or hide if hide === true)
+ *
+ *
+ *
+ */
 proto.unfollow = function (collectionName, db) {
   return function (id, username, hide) {
     var hide = hide === true ? true : false;
@@ -443,6 +508,12 @@ proto.unfollow = function (collectionName, db) {
   };
 };
 
+/**
+ * factory function, removes hide
+ *
+ *
+ *
+ */
 proto.unhide = function (collectionName, db) {
   var unhide = this.unfollow(collectionName, db);
   return function(id, username) {

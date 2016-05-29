@@ -1,0 +1,64 @@
+<%
+
+  //view needs project = {name: '', tags: []}
+
+  var css = [
+    '/css/header.css'
+  ];
+
+  project.tags = project.tags || [];
+
+  var title = project.topic;
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+  var member = project.member || false;
+  var loggedUser = session.username || false;
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<style>
+  form#add-tag-form, form.edit-comment-form, form.remove-comment-form {
+    display: inline;
+  }
+</style>
+<div>
+<%
+  /**
+   * ********************** *
+   *         tags           *
+   * ********************** *
+   */
+
+  var tags = {
+    add: !!member,
+    list: [],
+    collection: 'project'
+  };
+  //populating the tag list
+  for(var i=0, len=project.tags.length; i<len; ++i) {
+    tags.list.push({name: project.tags[i].name});
+  }
+%><% include ./partial/tags.ejs %>
+<h1>project</h1>
+<div><span id="project-name" ><%= project.name %></span>
+  <%
+    var share = {
+      link: project.link
+    };
+  %>
+  <% include ./partial/share.ejs %>
+  <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a>
+</div>
+<div id="project-description" ><%= project.description %></div>
+<% if(logged === true) {} 
+  else {
+    var redirectUrl = encodeURIComponent('/project/' + project.id + '/' + project.url);
+    var action = '/login?redirect='+redirectUrl;
+%>
+<% include ./partial/login-form-simple.ejs %>
+<%
+  }
+%>
+</div>
+<% include ./partial/page-bottom.ejs %>
