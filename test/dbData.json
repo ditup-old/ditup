@@ -171,5 +171,11 @@
   "projectTag": [
     {"project":0,"tag":2,"creator":0},
     {"project":0,"tag":5,"creator":0}
+  ],
+  "projectMember": [
+    {"collection": 0, "user": 1, "status": "joining"},
+    {"collection": 0, "user": 2, "status": "invited"},
+    {"collection": 0, "user": 3, "status": "member"},
+    {"collection": 0, "user": 4, "status": "member"}
   ]
 }

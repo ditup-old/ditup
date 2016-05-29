@@ -64,9 +64,9 @@ module.exports = function (db) {
   project.readProjectsByTags = proto.readCollectionsByTags(['name', 'description'], 'projects', db);
 
   //********************membership functions
-  project.addMember = function (id, username, relation) {
+  project.addMember = function (id, username, status) {
     let allowedStates = ['joining', 'invited', 'member'];
-    if(allowedStates.indexOf(relation)<0) return Promise.reject('400');
+    if(allowedStates.indexOf(status)<0) return Promise.reject('400');
 
     let query = `FOR p IN projects FILTER p._key == @id
       FOR u IN users FILTER u.username == @username
@@ -74,13 +74,13 @@ module.exports = function (db) {
           _from: p._id,
           _to: u._id,
           unique: CONCAT(p._id, '-', u._id),
-          relation: @relation,
+          status: @status,
           created: @created
         } IN projectMember`;
     let params = {
       id: id,
       username: username,
-      relation: relation,
+      status: status,
       created: Date.now()
     };
 
@@ -95,7 +95,34 @@ module.exports = function (db) {
         throw err;
       });
   }
+  
+  project.countMembers = function (id, status) {
+    let allowedStates = ['joining', 'invited', 'member'];
+    if(allowedStates.indexOf(status)<0) return Promise.reject('400');
 
+    console.log(id, status);
+
+    let query = `LET pr = (FOR p IN projects FILTER p._key == @id RETURN p)
+      LET pm = (FOR p IN pr
+        FOR pm IN projectMember FILTER pm._from == p._id && pm.status == @status
+          RETURN pm)
+      LET cpr = COUNT(pr)
+      RETURN cpr == 0 ? '404' : (cpr > 1 ? 'duplicate' : COUNT(pm))`;
+
+
+    let params = {id: id, status: status};
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (_memno) {
+        let mno = _memno[0];
+        if(mno === '404') throw new Error('404');
+        if(mno === 'duplicate') throw new Error('duplicate project id. this should never happen.');
+        return mno;
+      });
+  }
   //********************END
 
   return project;

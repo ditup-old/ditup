@@ -46,12 +46,6 @@ describe('database/project', function () {
   });
 //************END
 
-  dbData.projectMember = [
-    {collection: 0, user: 1, status: 'joining'},
-    {collection: 0, user: 2, status: 'invited'},
-    {collection: 0, user: 3, status: 'member'},
-  ];
-
   var existentProject = dbData.projects[0];
   var existentUser = dbData.users[0]; //user with no membership
   var joiningUser = dbData.users[1];
@@ -124,8 +118,26 @@ describe('database/project', function () {
     describe('members', function () {
       it('TODO');
     });
-    describe('countMembers', function () {
-      it('TODO');
+    describe('countMembers(id, status)', function () {
+      context('good status', function () {
+        context('id exist', function () {
+          for(let st of possibleStatus) {
+            it('[status: '+st+'] should return a promise and resolve it with # of '+st, function () {
+              return expect(project.countMembers(existentProject.id, st)).to.eventually.equal(existentProject.members[st].length);
+            });
+          }
+        });
+        context('id not exist', function () {
+          it('should return promise -> reject: error 404', function () {
+            return expect(project.countMembers('nonexistent-id', 'member')).to.eventually.be.rejectedWith('404');
+          });
+        });
+      });
+      context('bad status', function () {
+        it('should return promise -> reject: error 400', function () {
+          return expect(project.countMembers(existentProject.id, 'random')).to.eventually.be.rejectedWith('400');
+        });
+      });
     });
   });
 });
