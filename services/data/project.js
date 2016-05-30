@@ -100,7 +100,7 @@ module.exports = function (db) {
     let allowedStates = ['joining', 'invited', 'member'];
     if(allowedStates.indexOf(status)<0) return Promise.reject('400');
 
-    console.log(id, status);
+    //console.log(id, status);
 
     let query = `LET pr = (FOR p IN projects FILTER p._key == @id RETURN p)
       LET pm = (FOR p IN pr
@@ -122,7 +122,30 @@ module.exports = function (db) {
         if(mno === 'duplicate') throw new Error('duplicate project id. this should never happen.');
         return mno;
       });
-  }
+  };
+
+  project.userStatus = function (id, username) {
+    let query = `FOR u IN users FILTER u.username == @username
+      FOR p IN projects FILTER p._key == @id
+        FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id
+          RETURN pm.status`;
+
+
+    let params = {id: id, username: username};
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (_status) {
+        if(_status.length > 1) throw new Error('duplicate membership. this should never happen.');
+        if(_status.length === 1) {
+          let allowedStates = ['joining', 'invited', 'member'];
+          if(allowedStates.indexOf(_status[0])>-1) return _status[0];
+        }
+        return '';
+      });
+  };
   //********************END
 
   return project;

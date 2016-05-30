@@ -52,6 +52,13 @@ describe('database/project', function () {
   var invitedUser = dbData.users[2];
   var member = dbData.users[3];
 
+  var users = {
+    invited: invitedUser,
+    joining: joiningUser,
+    member: member,
+    none: existentUser
+  };
+
   describe('membership functions', function () {
     let possibleStatus = ['joining', 'invited', 'member'];
     describe('memberOf', function () {
@@ -114,6 +121,16 @@ describe('database/project', function () {
     });
     describe('isMember', function () {
       it('TODO');
+    });
+    describe('userStatus(id, username)', function () {
+      for(let ps of possibleStatus){
+        it('[status: ' + ps + '] should return a promise and fulfill it with '+ps, function () {
+          return expect(project.userStatus(existentProject.id, users[ps].username)).to.eventually.equal(ps);
+        });
+      }
+      it('[status: none] should return a promise and fulfill it with empty string', function () {
+        return expect(project.userStatus(existentProject.id, users['none'].username)).to.eventually.equal('');
+      });
     });
     describe('members', function () {
       it('TODO');
