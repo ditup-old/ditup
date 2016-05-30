@@ -269,6 +269,7 @@ describe('visiting /project/:id/:url', function () {
             it('should show "accept/reject invitation button" button', function () {
               return browser.assert.elements('#membership-field #accept-reject-invite-button', 1);
             });
+            it('should show a message that user is invited to this project and can accept or reject the invitation');
           });
           it('[joining possible && didn\'t join] should show "join" button', function () {
             return browser.assert.elements('#membership-field #join-button', 1);
