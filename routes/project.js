@@ -30,12 +30,32 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       }
       return;
     })
+    //********reading user status in project
+    .then(function () {
+      if(sessUser.logged === true) {
+        return db.project.userStatus(id, sessUser.username);
+      }
+      return '';
+    })
+    .then(function (_status) {
+      project.userStatus = (['member', 'joining', 'invited'].indexOf(_status)>-1) ? _status : '';
+      return;
+    })
+    //**********END
     //********reading number of followers
     .then(function () {
       return db.project.countFollowers(id);
     })
     .then(function (fno) {
       project.followerno = fno;
+    })
+    //**********END
+    //********reading number of members
+    .then(function () {
+      return db.project.countMembers(id, 'member');
+    })
+    .then(function (mno) {
+      project.memberno = mno;
     })
     //**********END
     //********reading tags

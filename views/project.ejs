@@ -49,7 +49,22 @@ include ./partial/header.ejs %>
   %>
   <% include ./partial/share.ejs %>
   <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a>
+  <span id="membership-field"><!--
+    -->members: <span id="number-of-members"><%= project.memberno %></span><!--
+    --><% if(project.userStatus === 'member') {
+            %><span>member</span><% 
+          }
+          else if(project.userStatus === 'joining') {
+            %><span id="cancel-join-button">cancel joining</span><%
+          }
+          else if(project.userStatus === 'invited') {
+            %><span id="accept-reject-invite-button">accept/reject invite</span><%
+          } else if (logged === true) {
+            %><span id="join-button">join</span><%
+          }%><!--
+  --></span>
 </div>
+<span id="project-status" ><%= project.status %></span>
 <div id="project-description" ><%= project.description %></div>
 <% if(logged === true) {} 
   else {

@@ -7,13 +7,14 @@ var app = require('../../../app');
 var session = require('../../../session');
 
 var Database = require('arangojs');
-var config = require('../../../services/db-config');
+var config = require('../../../services/db-config');//but the app is running on different required db-config!!
 var db = new Database({url: config.url, databaseName: config.dbname});
 var dbProject = require('../../../services/data/project')(db);
 var generateUrl = require('../../../routes/discussion/functions').generateUrl;
 
 var dbData = require('../../dbData');
 var dbPopulate = require('../../dbPopulate')(db);
+var collections = require('../../../services/data/collections');
 
 // use zombie.js as headless browser
 var Browser = require('zombie');
@@ -37,6 +38,10 @@ describe('visiting /project/:id/:url', function () {
 //*******************END*****************
 
 //**************populate database
+  before(function (done) {
+    dbPopulate.init(collections, config.dbname)
+      .then(done, done);
+  });
   before(function (done) {
     dbPopulate.clear()
       .then(done, done);
@@ -64,6 +69,18 @@ describe('visiting /project/:id/:url', function () {
           .pressButton('log in');
       })
       .then(done, done);
+  }
+
+  function loginUser(user) {
+    return function login (done) {
+      browser.visit('/login')
+        .then(() => {
+          return browser.fill('username', user.username)
+            .fill('password', user.password)
+            .pressButton('log in');
+        })
+        .then(done, done);
+    }
   }
 
   function logout (done) {
@@ -144,11 +161,13 @@ describe('visiting /project/:id/:url', function () {
       });
 
       it('should show # of members', function () {
-        browser.assert.text('#number-of-members', existentProject.members.length);
+        browser.assert.text('#number-of-members', existentProject.members.member.length);
       });
-      it('should show status of the project', function () {
-        browser.assert.text('#project-status');
-      });
+
+      it('should show status of the project'/*, function () {
+        browser.assert.text('#project-status', existentProject.status); //equal to the project status
+        browser.assert.text('#project-status', new RegExp('.+')); //not empty
+      }*/);//TODO and rethink (status: incubated, running, finished, stopped)
 
       context('not logged in', function () {
 
@@ -177,6 +196,31 @@ describe('visiting /project/:id/:url', function () {
       });
 
       context('logged in', function () {
+        let loginAs = function (status, loggedUser) {
+          loggedUser = loggedUser || {};
+
+          beforeEach(function () {
+            let mm = existentProject.members[status][0];
+            if(mm){
+              loggedUser.username = mm.username;
+              loggedUser.password = mm.password;
+              return;
+            }
+            throw new Error('there is no member - cannot run this test');
+          });
+
+          beforeEach(logout);
+          
+          beforeEach(loginUser(loggedUser));
+
+          beforeEach(function (done) {
+            browser.visit('/project/' + existentProject.id + '/' + existentProject.url)
+              .then(done, done);
+          });
+
+          afterEach(logout);
+        };
+
         beforeEach(login);
 
         beforeEach(function (done) {
@@ -193,7 +237,10 @@ describe('visiting /project/:id/:url', function () {
         it('should show location');
 
         context('user is member', function () {
-          it('should show you\'re a member');
+          loginAs('member');
+          it('should show you\'re a member', function () {
+            browser.assert.text("#membership-field", new RegExp('.*[0-9]+member'));
+          });
           it('should make adding tags possible');
           it('should make removing tags with negative voting possible');
           it('should make voting for tags possible');
@@ -209,10 +256,23 @@ describe('visiting /project/:id/:url', function () {
           it('can contribute to editing settings');
           it('can contribute to setting status of the project');
           it('can contribute to accepting/rejecting joiners');
-
         });
         context('user is not member', function () {
-          it('[joining possible && didn\'t join] should show "join" button');
+          context('user is joining', function () {
+            loginAs('joining');
+            it('should show "cancel join" button', function () {
+              return browser.assert.elements('#membership-field #cancel-join-button', 1);
+            });
+          });
+          context('user is invited', function () {
+            loginAs('invited');
+            it('should show "accept/reject invitation button" button', function () {
+              return browser.assert.elements('#membership-field #accept-reject-invite-button', 1);
+            });
+          });
+          it('[joining possible && didn\'t join] should show "join" button', function () {
+            return browser.assert.elements('#membership-field #join-button', 1);
+          });
           it('[joining possible && request pending] should show "cancel joining" button');
           it('[joining not possible] should show info that joining is not possible');
           it('[joining not possible] should not show join button');

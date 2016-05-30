@@ -208,6 +208,7 @@ module.exports = function (db) {
         };
       }
       for(let pm of projectMember) {
+        let user = users[pm.user];
         let username = users[pm.user].username;
         let collection = collections[pm.collection];
         let status = pm.status;
@@ -218,7 +219,7 @@ module.exports = function (db) {
 
         //update the data object's collection Array of followers or hiders with the username
 
-        collection.members[status].push(username)
+        collection.members[status].push({username: user.username, password: user.password});
       }
 
       return Promise.all(pmPromises)
