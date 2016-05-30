@@ -13,7 +13,7 @@
   var scripts = [];
   var session = session || {logged:false, username: null};
   var logged = session.logged || false;
-  var member = project.member || false;
+  var member = project.userStatus === 'member' ? true : false;
   var loggedUser = session.username || false;
 %><%include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
@@ -48,10 +48,29 @@ include ./partial/header.ejs %>
     };
   %>
   <% include ./partial/share.ejs %>
-  <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a>
-  <span id="membership-field"><!--
-    -->members: <span id="number-of-members"><%= project.memberno %></span><!--
-    --><% if(project.userStatus === 'member') {
+  <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a><%
+  /**
+   * ********************** *
+   *    hide-follow         *
+   * ********************** *
+   */
+
+  var hideFollow = {
+    view: !!logged,
+    hiding: !!false,//challenge.hiding,
+    following: !!false,//challenge.following,
+    collection: 'project'
+  };
+
+%><% include partial/hide-follow.ejs %>
+  <span id="membership-field"><%
+    if(project.userStatus === 'member') {
+      %><a id="link-to-members" href="/project/<%= project.id %>/<%= project.url %>/members">members: <span id="number-of-members"><%= project.memberno %></span></a><%
+    }
+    else {
+      %>members: <span id="number-of-members"><%= project.memberno %></span><%
+    }
+  %><% if(project.userStatus === 'member') {
             %><span>member</span><% 
           }
           else if(project.userStatus === 'joining') {
@@ -65,6 +84,7 @@ include ./partial/header.ejs %>
   --></span>
 </div>
 <span id="project-status" ><%= project.status %></span>
+<div id="project-links"><a id="edit-project-link" href="/project/<%= project.id %>/<%= project.url %>/edit" >edit</a></div>
 <div id="project-description" ><%= project.description %></div>
 <% if(logged === true) {} 
   else {

@@ -498,7 +498,7 @@ exports.follow = function (collection, variables, dependencies, settings) {
   // get the application server module
   //var app = dependencies.app;
   //var session = dependencies.session;
-
+  var settings = settings || {};
   var dbCollection = dependencies.data;
   var db = dependencies.db;
   //var generateUrl = dependencies.generateUrl;
@@ -539,13 +539,13 @@ exports.follow = function (collection, variables, dependencies, settings) {
     }
     
     var existentCollections = variables.existentCollections;
-
+if(settings.nocreate !== true) {
     //create existent ' + collection + 's for tests
     beforeEach(createCollectionsInDatabase(existentCollections, dbCollection));
     
     //delete the existent ' + collection + '
     afterEach(removeCollectionsFromDatabase(existentCollections, dbCollection));
-
+}
     for(var existentCollection of existentCollections) {
       context('' + collection + ' with :id exists', function () {
         context(':id and :name are valid', function () {

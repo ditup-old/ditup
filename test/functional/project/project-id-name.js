@@ -16,6 +16,8 @@ var dbData = require('../../dbData');
 var dbPopulate = require('../../dbPopulate')(db);
 var collections = require('../../../services/data/collections');
 
+var shared = require('../shared');
+
 // use zombie.js as headless browser
 var Browser = require('zombie');
 describe('visiting /project/:id/:url', function () {
@@ -93,6 +95,10 @@ describe('visiting /project/:id/:url', function () {
   existentProject.url = generateUrl(existentProject.name);
   nonexistentProject.url = generateUrl(nonexistentProject.name);
   //******************END************************************
+
+  //***********testing follow/hide
+  //shared.follow('project', {existentCollections: [existentProject], loggedUser: loggedUser}, {data: dbProject, server: serverObj, browser: browserObj}, {nocreate: true});
+  //************END
 
   context('project with :id exists', function () {
     context(':id not fitting to :url', function () {
@@ -230,32 +236,49 @@ describe('visiting /project/:id/:url', function () {
 
         afterEach(logout);
 
-        it('should show follow/hide links');
+        it('should show follow/hide links', function () {
+          throw new Error('fail');
+        });
         it('should show star links');
         it('should show public comments');
         it('should show public comment form');
-        it('should show location');
+        it('should show location'); //later
 
         context('user is member', function () {
           loginAs('member');
           it('should show you\'re a member', function () {
             browser.assert.text("#membership-field", new RegExp('.*[0-9]+member'));
           });
-          it('should make adding tags possible');
-          it('should make removing tags with negative voting possible');
-          it('should make voting for tags possible');
-          it('should show an edit link');
+          //copy pasted from shared.js
+          it('should show link or field for adding a tag', function () {
+            browser.assert.element('#add-tag-form');
+            browser.assert.attribute('#add-tag-form', 'method', 'post');
+            browser.assert.element('#add-tag-form input[type=text]');
+            browser.assert.attribute('#add-tag-form input[type=text]', 'name', 'tagname');
+            browser.assert.element('#add-tag-form input[type=submit]');
+            browser.assert.attribute('#add-tag-form input[type=submit]', 'name', 'submit');
+            browser.assert.attribute('#add-tag-form input[type=submit]', 'value', 'add tag');
+          }); //' + collection + '/id/name/add-tag
+          it('should make removing tags with negative voting possible');//later
+          it('should make voting for tags possible');//later
+          it('should show an edit link', function () {
+            browser.assert.elements('#edit-project-link', 1);
+            browser.assert.link('#edit-project-link', 'edit', '/project/'+existentProject.id+'/'+existentProject.url+'/edit');
+          });
           it('should show private discussion');
           it('should show form to comment in private discussion');
           it('should show button for deriving a (default: private) challenge/discussion/idea/project');
-          it('should show a link to see list of members');
-          it('should show a link to setting');
-          it('should show goals');
-          it('can contribute to editing');
-          it('can contribute to setting a location');
-          it('can contribute to editing settings');
+          it('should show a link to see list of members', function () {
+            browser.assert.attribute('#link-to-members', 'href', '/project/' + existentProject.id + '/' + existentProject.url +'/members');
+            browser.assert.text('#link-to-members', 'members: ' + String(existentProject.members.member.length));
+          });
+          it('should show a link to settings');
+          it('should show goals');//later
+          it('can contribute to editing');//other file
+          it('can contribute to setting a location');//later
+          it('can contribute to editing settings');//other file
           it('can contribute to setting status of the project');
-          it('can contribute to accepting/rejecting joiners');
+          it('can contribute to accepting/rejecting joiners');//other file
         });
         context('user is not member', function () {
           context('user is joining', function () {
