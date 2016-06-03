@@ -1,0 +1,1 @@
+node-sass scss/ -o public/css/test/ --output-style expanded

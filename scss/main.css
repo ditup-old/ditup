@@ -1,0 +1,73 @@
+*, body {
+  font-family: Lato;
+  box-sizing: border-box;
+}
+
+body {
+  color: #011149;
+  background-color:#eee;
+}
+
+@font-face {
+  font-family: "OpenSans";
+  src: url("/fonts/open-sans/OpenSans-Light.ttf");
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/lato/Lato2OFLWeb/Lato/fonts/Lato-Light.ttf");
+}
+
+a {
+  /*text-decoration: none;*/
+}
+
+.button {
+  padding-top: 15px!important;
+  padding-right: 20px!important;
+  padding-bottom: 15px!important;
+  padding-left: 20px!important;
+  margin:0px;
+  display:inline-block!important;
+  color:white;
+  text-decoration:none;
+  font-size:1.1em!important;
+  background-color:#0c30c3;
+  border:none;
+  cursor:pointer;
+}
+
+.inline {
+  display: inline;
+}
+
+/*.button {
+  background:none!important;
+  border:none; 
+  padding:0!important;
+
+  font-family:arial,sans-serif;
+  color:#069;
+  text-decoration:underline;
+  cursor:pointer;
+}*/
+
+.tag {
+  display:inline-block;
+  background-color:#ac3ac3;
+  border: 1px solid #ac3ac3;
+  color:white;
+  padding:5px;
+  margin:5px;
+  border-radius:5px;
+}
+
+.tag.unsaved {
+  display:inline-block;
+  border: 1px solid black;
+  background-color:white;
+  color:black;
+  padding:5px;
+  margin:5px;
+  border-radius:5px;
+}

@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "init-database": "node ./services/data/initDatabase",
-    "populate-database": "node ./test/populateDatabase",
+    "init-database": "node ./bin/initDatabase",
+    "populate-database": "node ./bin/populateDatabase",
+    "build-css": "./bin/build-css",
+    "watch-css": "./bin/watch-css",
     "test": "mocha ./test",
     "test-unit": "mocha ./test/unit",
     "watch-unit": "mocha ./test/unit --watch",
@@ -50,6 +52,8 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "chai-things": "^0.2.0",
+    "node-sass": "^3.7.0",
+    "nodemon": "^1.9.2",
     "zombie": "^4.2.1"
   }
 }
