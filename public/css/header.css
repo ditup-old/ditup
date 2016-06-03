@@ -1,145 +1,143 @@
-/**style for header of pages with header. Linked from view class PageWithHeader*/
+.page-header {
+  background-color: #0194fe;
+  height:46px;
+  font-size:16px;
+  color:#eee;
+  position:relative;
+}
 
-/**layout**/
+.page-header input,
+.page-header button {
+  vertical-align:middle;
+}
 
-div.main-menu-top
-{
-  height:40px;
-  position:fixed;
-  top:0;
+
+.main-navigation > ul {
+  display:inline-block;
+}
+
+.people-menu {
+  float: right;
+}
+
+.people-menu:after{
+  clear:right;
+}
+
+/* display page header links stretched over the whole header */
+.main-navigation > * > * > a {
+  display: inline-block;
+  padding: 15px;
+}
+
+.main-navigation > * > * {
+  display: inline-block;
+}
+
+/* BEGIN styling logo */
+.home-logo img {
+  height:36px;
+  vertical-align:middle;
+  margin:5px;
+}
+
+.home-logo>a{
+  padding:0 5px 0 0 !important;
+}
+
+li.home-logo{
+  position:relative;
+  top:-1px;
+}
+/* END styling logo */
+
+.main-navigation > * > * > a:hover {
+  background-color:#0072dc; /*counted by removing a little from each color */
+}
+
+.page-header form {
+  display: inline-block;
+}
+
+.page-header input,
+.page-header button {
+  position:relative;
+  height:30px;
+  border:none;
+  top: -1px; /* this is a fix of weird movement of the element */
+}
+
+/* fix font awesome misplacement */
+.fa {
+  line-height:0;
+}
+
+
+/* BEGIN hide-show submenu */
+.header-menu>li {
+  display:inline-block;
+  position:relative;
+}
+
+.header-menu * {
+  z-index:10;
+}
+
+.header-submenu {
+  display:none;
+  position:absolute;
   left:0;
-  background-color:#6ca6ca;
+  min-width:100%;
+  color:black;
+  background-color:white;
+     -moz-box-shadow: 0px 0px 5px 3px #ccc;
+  -webkit-box-shadow: 0px 0px 5px 3px #ccc;
+          box-shadow: 0px 0px 5px 3px #ccc;
+}
+
+/* align the last expanded items to the right */
+.people-menu:last-child .header-submenu {
+  right:0;
+  left: unset;
+}
+
+
+.header-menu>li:hover .header-submenu {
+  display:block;
+}
+
+.header-submenu a {
+  display:inline-block;
+  padding:5px;
   width:100%;
-  font-weight: bold;
-  color:white;
-  z-index:2;
-}
-
-body
-{
-  margin-top:40px;
-}
-
-ul.nav {
-  height:100%;
-}
-
-ul.nav ul {
   white-space: nowrap;
 }
 
-.nav>li {
-  display:inline-block;
-  height:100%;
-  vertical-align:middle;
-  position: relative;
+.header-submenu a:hover {
+  background-color:#ddd;
+}
+/* END */
+
+/* BEGIN user header avatar */
+.header-avatar>a {
+  padding:0 15px;
 }
 
-ul.right {
-  float:right;
-}
-
-ul.left {
-  float:left;
-}
-
-ul.nav.right ul {
-  right:0px;
-}
-
-.nav>li>a {
-  display:inline-block;
-  height:100%;
-  vertical-align:middle;
-  padding:12.5px 12.5px;
-  text-decoration:none;
-  font-size:15px;
-
-}
-
-.nav>li:hover {
-  background-color:#5b95b9;
-}
-
-.nav>li>a>span {
-}
-
-div.main-menu-top>ul ul
-{
-  position:absolute;
-  display:none;
-  list-style-type : none;
-  border:1px solid #ddf;
-}
-
-div.main-menu-top>ul>li:hover ul
-{
-  display:block;
-}
-
-.nav>li li a {
-  display:block;
-  padding:5px 2px;
-}
-
-.nav>li li a:hover {
-  background-color: #ddf;
-}
-
-.nav>li li a[href=""] {
-  color: gray;
-}
-
-/**colors**/
-
-div.main-menu-top>ul ul
-{
-  background-color:white;
-  color: #000;
-}
-
-div.main-menu-top>ul
-{
-}
-
-span.span-image{
-  display:inline-block;
-  background-position-x:center;
-  background-position-y:center;
-  background-repeat:no-repeat;
-  -webkit-background-size: 100%; /* For WebKit*/
-  -moz-background-size: 100%;  /* Mozilla*/
-  -o-background-size: 100%;    /* Opera*/
-  background-size: 100%;     /* Generic*/
-  float:left;
-}
-
-#header-ditup-logo{
+.header-avatar img {
+  border-radius: 15px;
   height:30px;
-  width:30px;
-  position: relative;
-  top: -8px;
-  margin-right:8px;
-  -webkit-background-size: 100%; /* For WebKit*/
-  -moz-background-size: 100%;  /* Mozilla*/
-  -o-background-size: 100%;    /* Opera*/
-  background-size: 100%;     /* Generic*/
+  vertical-align: middle;
 }
 
-#header-user-avatar{
-  height:30px;
-  width:30px;
-  position: relative;
-  top: -7.5px;
-  margin-right: 5px;
-  border-radius:15px;
-  -webkit-background-size: 100%; /* For WebKit*/
-  -moz-background-size: 100%;  /* Mozilla*/
-  -o-background-size: 100%;    /* Opera*/
-  background-size: 100%;     /* Generic*/
+.header-avatar span {
+  padding:15px 5px 15px 5px;
+  display:inline-block;
 }
+/* END */
 
-#search-form-header {
-    top: -4px;
-    position: relative;
+.expand::after {
+  content:"\f0d7";
+  font-family:fontawesome;
+  padding-left:1px;
+  line-height:0;
 }

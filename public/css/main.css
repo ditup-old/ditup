@@ -5,6 +5,7 @@
 
 body {
   color: #011149;
+  background-color:#eee;
 }
 
 @font-face {
@@ -19,10 +20,6 @@ body {
 
 a {
   /*text-decoration: none;*/
-}
-
-a:hover, .button:hover {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wYIBRYYbHc2fwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADUlEQVQI12NgYGDwAQAAUQBNbrgEdAAAAABJRU5ErkJggg==');
 }
 
 .button {
