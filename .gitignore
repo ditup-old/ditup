@@ -9,7 +9,7 @@ config/*
 services/mailer/config.json
 npm-debug.log
 out
-_*
+
 
 
 #Allow
