@@ -1,1 +1,1 @@
-node-sass scss/ -o public/css/test/ --output-style expanded
+node-sass scss/ -o public/css/ --output-style expanded

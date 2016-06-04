@@ -1,5 +1,5 @@
 .page-header {
-  background-color: #6ca6ca;
+  background-color: #444;
   height: 46px;
   font-size: 16px;
   color: #eee;
@@ -34,7 +34,7 @@
 }
 
 .main-navigation > * > * > a:hover {
-  background-color: #ca906c;
+  background-color: #444444;
   /*counted by removing a little from each color */
 }
 
@@ -132,8 +132,8 @@
 /* END */
 /* this shows the expand triangle */
 .expand::after {
-  content: "\f0d7";
-  font-family: FontAwesome;
+  content: "\f0d";
+  font-family: fontawesome;
   line-height: 0;
   padding-left: 1px;
 }

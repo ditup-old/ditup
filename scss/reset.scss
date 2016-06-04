@@ -5,7 +5,6 @@
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
-        
 }
 
 html, body, div, span, applet, object, iframe,
@@ -30,27 +29,33 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 :focus {
   outline: 0;
 }
+
 body {
   line-height: 1;
   color: black;
   background: white;
 }
+
 ol, ul {
   list-style: none;
 }
+
 /* tables still need 'cellspacing="0"' in the markup */
 table {
   border-collapse: separate;
   border-spacing: 0;
 }
+
 caption, th, td {
   text-align: left;
   font-weight: normal;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
   content: "";
 }
+
 blockquote, q {
   quotes: "" "";
 }
