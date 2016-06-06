@@ -132,24 +132,24 @@ describe('visiting /project/:id/:url', function () {
       });
 
       it('should show name', function () {
-        browser.assert.text('#project-name', existentProject.name);
+        browser.assert.text('.project-name', existentProject.name);
       });
 
       it('should show public description', function () {
-        browser.assert.text('#project-description', existentProject.description);
+        browser.assert.text('.project-description', existentProject.description);
       });
 
       it('should show share link', function () {
-        browser.assert.input('input#share-link[readonly]', browser.url);
+        browser.assert.input('.share-link input[readonly]', browser.url);
       });
 
       it('should show # of followers', function () {
-        browser.assert.text('#number-of-followers', String(existentProject.followers.length));
+        browser.assert.text('.number-of-followers', String(existentProject.followers.length));
       });
 
       it('should show link to followers', function () {
-        browser.assert.attribute('#link-to-followers', 'href', '/project/' + existentProject.id + '/' + existentProject.url +'/followers');
-        browser.assert.text('#link-to-followers', 'followers: ' + String(existentProject.followers.length));
+        browser.assert.attribute('.link-to-followers', 'href', '/project/' + existentProject.id + '/' + existentProject.url +'/followers');
+        browser.assert.text('.link-to-followers', 'followers: ' + String(existentProject.followers.length));
       });
 
       it('should show # of stars'/*, function () { TODO
@@ -160,14 +160,14 @@ describe('visiting /project/:id/:url', function () {
       }*/);
 
       it('should show tags', function () {
-        browser.assert.element('#project-tags');
+        browser.assert.element('.tag-container');
         for(let tag of existentProject.tags) {
           browser.assert.text('.tag', new RegExp('.*'+tag+'.*'));
         }
       });
 
       it('should show # of members', function () {
-        browser.assert.text('#number-of-members', existentProject.members.member.length);
+        browser.assert.text('.number-of-members', existentProject.members.member.length);
       });
 
       it('should show status of the project'/*, function () {
@@ -247,17 +247,19 @@ describe('visiting /project/:id/:url', function () {
         context('user is member', function () {
           loginAs('member');
           it('should show you\'re a member', function () {
-            browser.assert.text("#membership-field", new RegExp('.*[0-9]+member'));
+            browser.assert.text(".membership-field", new RegExp('.*[0-9]+member'));
           });
           //copy pasted from shared.js
           it('should show link or field for adding a tag', function () {
-            browser.assert.element('#add-tag-form');
+            /*browser.assert.element('#add-tag-form');
             browser.assert.attribute('#add-tag-form', 'method', 'post');
             browser.assert.element('#add-tag-form input[type=text]');
             browser.assert.attribute('#add-tag-form input[type=text]', 'name', 'tagname');
             browser.assert.element('#add-tag-form input[type=submit]');
             browser.assert.attribute('#add-tag-form input[type=submit]', 'name', 'submit');
             browser.assert.attribute('#add-tag-form input[type=submit]', 'value', 'add tag');
+            */
+            browser.assert.link('.tag-container .edit', '[edit]', '/project/'+existentProject.id+'/'+existentProject.url+'/edit?fields=tags');
           }); //' + collection + '/id/name/add-tag
           it('should make removing tags with negative voting possible');//later
           it('should make voting for tags possible');//later
@@ -269,8 +271,8 @@ describe('visiting /project/:id/:url', function () {
           it('should show form to comment in private discussion');
           it('should show button for deriving a (default: private) challenge/discussion/idea/project');
           it('should show a link to see list of members', function () {
-            browser.assert.attribute('#link-to-members', 'href', '/project/' + existentProject.id + '/' + existentProject.url +'/members');
-            browser.assert.text('#link-to-members', 'members: ' + String(existentProject.members.member.length));
+            browser.assert.attribute('.link-to-members', 'href', '/project/' + existentProject.id + '/' + existentProject.url +'/members');
+            browser.assert.text('.link-to-members', 'members: ' + String(existentProject.members.member.length));
           });
           it('should show a link to settings');
           it('should show goals');//later
@@ -284,18 +286,18 @@ describe('visiting /project/:id/:url', function () {
           context('user is joining', function () {
             loginAs('joining');
             it('should show "cancel join" button', function () {
-              return browser.assert.elements('#membership-field #cancel-join-button', 1);
+              return browser.assert.elements('.membership-field #cancel-join-button', 1);
             });
           });
           context('user is invited', function () {
             loginAs('invited');
             it('should show "accept/reject invitation button" button', function () {
-              return browser.assert.elements('#membership-field #accept-reject-invite-button', 1);
+              return browser.assert.elements('.membership-field #accept-reject-invite-button', 1);
             });
             it('should show a message that user is invited to this project and can accept or reject the invitation');
           });
           it('[joining possible && didn\'t join] should show "join" button', function () {
-            return browser.assert.elements('#membership-field #join-button', 1);
+            return browser.assert.elements('.membership-field #join-button', 1);
           });
           it('[joining possible && request pending] should show "cancel joining" button');
           it('[joining not possible] should show info that joining is not possible');
