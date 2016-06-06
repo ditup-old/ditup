@@ -3,7 +3,8 @@
   //view needs project = {name: '', tags: []}
 
   var css = [
-    '/css/header.css'
+    '/css/header.css',
+    '/css/project-id-name.css'
   ];
 
   project.tags = project.tags || [];
@@ -15,77 +16,86 @@
   var logged = session.logged || false;
   var member = project.userStatus === 'member' ? true : false;
   var loggedUser = session.username || false;
-%><%include ./partial/page-top.ejs %><%
+
+%><% include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
-<style>
-  form#add-tag-form, form.edit-comment-form, form.remove-comment-form {
-    display: inline;
-  }
-</style>
-<div>
-<%
-  /**
-   * ********************** *
-   *         tags           *
-   * ********************** *
-   */
+<header class="collection-header">
+  <nav class="action-container">
+    <%
+      var share = {
+        link: project.link
+      };
+    %>
+    <% include ./partial/share.ejs %>
 
-  var tags = {
-    add: !!member,
-    list: [],
-    collection: 'project'
-  };
-  //populating the tag list
-  for(var i=0, len=project.tags.length; i<len; ++i) {
-    tags.list.push({name: project.tags[i].name});
-  }
-%><% include ./partial/tags.ejs %>
-<h1>project</h1>
-<div><span id="project-name" ><%= project.name %></span>
+    <span id="membership-field"><%
+      if(project.userStatus === 'member') {
+        %><a id="link-to-members" href="/project/<%= project.id %>/<%= project.url %>/members">members: <span id="number-of-members"><%= project.memberno %></span></a><%
+      }
+      else {
+        %>members: <span id="number-of-members"><%= project.memberno %></span><%
+      }
+    %><% if(project.userStatus === 'member') {
+              %><span>member</span><% 
+            }
+            else if(project.userStatus === 'joining') {
+              %><span id="cancel-join-button">cancel joining</span><%
+            }
+            else if(project.userStatus === 'invited') {
+              %><span id="accept-reject-invite-button">accept/reject invite</span><%
+            } else if (logged === true) {
+              %><span id="join-button">join</span><%
+            }%><!--
+    --></span>
+
+    <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a><%
+      /**
+       * ********************** *
+       *    hide-follow         *
+       * ********************** *
+       */
+
+      var hideFollow = {
+        view: !!logged,
+        hiding: !!false,//challenge.hiding,
+        following: !!false,//challenge.following,
+        collection: 'project'
+      };
+
+    %><% include partial/hide-follow.ejs %>
+  </nav>
+  <h1 class="project-name"><%= project.name %><a class="edit" href="/project/id/name/edit?fields=name">[edit]</a></h1>
+</header>
+<nav class="link-container">
+  <a id="edit-project-link" href="/project/<%= project.id %>/<%= project.url %>/edit" >edit</a>
+</nav>
+<div class="tag-container">
   <%
-    var share = {
-      link: project.link
+    /**
+     * ********************** *
+     *         tags           *
+     * ********************** *
+     */
+
+    var tags = {
+      add: !!member,
+      list: [],
+      collection: 'project'
     };
-  %>
-  <% include ./partial/share.ejs %>
-  <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a><%
-  /**
-   * ********************** *
-   *    hide-follow         *
-   * ********************** *
-   */
-
-  var hideFollow = {
-    view: !!logged,
-    hiding: !!false,//challenge.hiding,
-    following: !!false,//challenge.following,
-    collection: 'project'
-  };
-
-%><% include partial/hide-follow.ejs %>
-  <span id="membership-field"><%
-    if(project.userStatus === 'member') {
-      %><a id="link-to-members" href="/project/<%= project.id %>/<%= project.url %>/members">members: <span id="number-of-members"><%= project.memberno %></span></a><%
+    //populating the tag list
+    for(var i=0, len=project.tags.length; i<len; ++i) {
+      tags.list.push({name: project.tags[i].name});
     }
-    else {
-      %>members: <span id="number-of-members"><%= project.memberno %></span><%
-    }
-  %><% if(project.userStatus === 'member') {
-            %><span>member</span><% 
-          }
-          else if(project.userStatus === 'joining') {
-            %><span id="cancel-join-button">cancel joining</span><%
-          }
-          else if(project.userStatus === 'invited') {
-            %><span id="accept-reject-invite-button">accept/reject invite</span><%
-          } else if (logged === true) {
-            %><span id="join-button">join</span><%
-          }%><!--
-  --></span>
+  %><% include ./partial/tags.ejs %>
 </div>
 <span id="project-status" ><%= project.status %></span>
-<div id="project-links"><a id="edit-project-link" href="/project/<%= project.id %>/<%= project.url %>/edit" >edit</a></div>
-<div id="project-description" ><%= project.description %></div>
+<div id="project-links"></div>
+<div id="project-description" ><%
+  if(member === true) {
+    %><a class="edit" href="/project/<%= project.id %>/<%= project.url %>/edit?fields=description"></a><% 
+  }
+  %><%= project.description %>
+</div>
 <% if(logged === true) {} 
   else {
     var redirectUrl = encodeURIComponent('/project/' + project.id + '/' + project.url);

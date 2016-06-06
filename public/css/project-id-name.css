@@ -1,0 +1,62 @@
+.share-link:before {
+  content: "\f0c1";
+  font-family: FontAwesome;
+  line-height: 0;
+  /* fa-link */
+}
+
+.share-link input {
+  border: 1px solid #6ca6ca;
+  padding: 3px;
+}
+
+.action-container {
+  float: right;
+}
+
+.action-container form {
+  display: inline;
+}
+
+.project-header {
+  float: left;
+}
+
+.edit {
+  visibility: hidden;
+}
+
+.edit:before {
+  visibility: visible;
+  content: "\f040";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.more {
+  visibility: hidden;
+}
+
+.more:before {
+  visibility: visible;
+  content: "\f141";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.collection-header:after {
+  clear: both;
+  display: block;
+  content: "";
+}
+
+.project-name {
+  font-size: 30px;
+}
+
+.project-name:before {
+  content: "\f1b3";
+  font-family: FontAwesome;
+  line-height: 0;
+  margin: 0 5px;
+}

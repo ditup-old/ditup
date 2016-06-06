@@ -1,0 +1,14 @@
+@import "fa-icon-mixin";
+@import "colors";
+
+.share-link {
+  &:before {
+    @include fa-icon('f0c1'); /* fa-link */
+  }
+
+  input {
+    border: 1px solid $darker;
+    padding:3px;
+  }
+}
+

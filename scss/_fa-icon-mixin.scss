@@ -1,0 +1,10 @@
+@function char-from-code($iso-char) {
+  @return unquote('\"\\#{$iso-char}\"');
+}
+
+@mixin fa-icon ($code){
+  content: char-from-code($code);
+  font-family:FontAwesome;
+  line-height:0;
+}
+

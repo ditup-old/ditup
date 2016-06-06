@@ -1,4 +1,5 @@
 @import "colors";
+@import "fa-icon-mixin";
 
 $height:46px;
 $font-size: 16px;
@@ -7,16 +8,6 @@ $font-size: 16px;
   -webkit-box-shadow: $box-shadow;
      -moz-box-shadow: $box-shadow;
           box-shadow: $box-shadow;
-}
-
-@function char-from-code($iso-char) {
-  @return unquote('\"\\#{$iso-char}\"');
-}
-
-@mixin fa-icon ($code){
-  content: char-from-code($code);
-  font-family:FontAwesome;
-  line-height:0;
 }
 
 .page-header {
