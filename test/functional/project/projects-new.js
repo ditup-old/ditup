@@ -120,7 +120,7 @@ describe('visiting /projects/new', function () {
          */
           browser.assert.success();
           browser.assert.text('h1', 'Create a new project');
-          browser.assert.text('form#new-project label', 'namepublic descriptionjoining possible?yesnoyesnoinfo for people who want to join');
+          browser.assert.text('form#new-project label', 'namepublic descriptionjoining possible? yes no yesnoinfo for people who want to join');
           browser.assert.elements('form#new-project input[type=radio]',2);
           browser.assert.attribute('form#new-project input[type=radio]', 'name', 'joining');
           browser.assert.element('form#new-project textarea[name=description]');
@@ -236,6 +236,11 @@ describe('visiting /projects/new', function () {
 
         it('should redirect to the created project', function () {
           browser.assert.url(/^.*\/project\/[0-9]*\/what-is-purpose-of-test\/?$/);
+        });
+
+        it('should make the creator a member', function () {
+          browser.assert.text('.number-of-members', '1');
+          browser.assert.element('.link-to-members');
         });
       });
     });

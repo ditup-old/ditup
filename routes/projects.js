@@ -74,6 +74,12 @@ router.post('/new', function (req, res, next) {
   return db.project.create({name: values.name, description: values.description, join: !!joining, join_info: values['join-info'], creator: sessUser.username})
     .then(function (_id) {
       id = _id.id;
+    })
+    //******* make the creator a member
+    .then(function () {
+      return db.project.addMember(id, sessUser.username, 'member');
+    })
+    .then(function () {
 
       var url = generateUrl(values.name);
       

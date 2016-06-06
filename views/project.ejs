@@ -28,12 +28,12 @@ include ./partial/header.ejs %>
     %>
     <% include ./partial/share.ejs %>
 
-    <span id="membership-field"><%
+    <span class="membership-field"><%
       if(project.userStatus === 'member') {
-        %><a id="link-to-members" href="/project/<%= project.id %>/<%= project.url %>/members">members: <span id="number-of-members"><%= project.memberno %></span></a><%
+        %><a class="link-to-members" href="/project/<%= project.id %>/<%= project.url %>/members">members: <span class="number-of-members"><%= project.memberno %></span></a><%
       }
       else {
-        %>members: <span id="number-of-members"><%= project.memberno %></span><%
+        %>members: <span class="number-of-members"><%= project.memberno %></span><%
       }
     %><% if(project.userStatus === 'member') {
               %><span>member</span><% 
@@ -48,7 +48,7 @@ include ./partial/header.ejs %>
             }%><!--
     --></span>
 
-    <a id="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span id="number-of-followers"><%= project.followerno %></span></a><%
+    <a class="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span class="number-of-followers"><%= project.followerno %></span></a><%
       /**
        * ********************** *
        *    hide-follow         *
@@ -64,7 +64,11 @@ include ./partial/header.ejs %>
 
     %><% include partial/hide-follow.ejs %>
   </nav>
-  <h1 class="project-name"><%= project.name %><a class="edit" href="/project/id/name/edit?fields=name">[edit]</a></h1>
+  <h1 class="project-name"><%= project.name %><%
+    if(member === true) {
+      %><a class="edit" href="/project/id/name/edit?fields=name">[edit]</a><% 
+    }
+    %></h1>
 </header>
 <nav class="link-container">
   <a id="edit-project-link" href="/project/<%= project.id %>/<%= project.url %>/edit" >edit</a>
@@ -78,7 +82,7 @@ include ./partial/header.ejs %>
      */
 
     var tags = {
-      add: !!member,
+      add: false,
       list: [],
       collection: 'project'
     };
@@ -86,11 +90,10 @@ include ./partial/header.ejs %>
     for(var i=0, len=project.tags.length; i<len; ++i) {
       tags.list.push({name: project.tags[i].name});
     }
-  %><% include ./partial/tags.ejs %>
+  %><% include ./partial/tags.ejs %><a class="edit" href="/project/<%= project.id %>/<%= project.url %>/edit?fields=tags">[edit]</a>
 </div>
 <span id="project-status" ><%= project.status %></span>
-<div id="project-links"></div>
-<div id="project-description" ><%
+<div class="project-description" ><%
   if(member === true) {
     %><a class="edit" href="/project/<%= project.id %>/<%= project.url %>/edit?fields=description"></a><% 
   }
