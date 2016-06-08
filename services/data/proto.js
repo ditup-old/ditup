@@ -526,7 +526,7 @@ proto.readCollectionsByTags = function (collectionParams, collectionName, db) {
   for(let cp of collectionParams) {
     pms += cp + ': ditt.' + cp + ', ';
   }
-  var sg = collectionName.slice(0, -1);
+  var sg = singularLowercase(collectionName);
   return function (tags, username) {
     var query = `LET output = (FOR t IN tags FILTER t.name IN @tags
           FOR dt IN `+sg+`Tag FILTER dt._to == t._id
