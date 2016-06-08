@@ -119,6 +119,22 @@
       "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
       "id": null,
       "creator": 0
+    },
+    {
+      "name": "another test project",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "join": true,
+      "join_info": "info for joiners",
+      "id": null,
+      "creator": 3
+    },
+    {
+      "name": "third project",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "join": true,
+      "join_info": "info for joiners",
+      "id": null,
+      "creator": 2
     }
   ],
   "challengeCommentAuthor": [
@@ -176,6 +192,13 @@
     {"collection": 0, "user": 1, "status": "joining"},
     {"collection": 0, "user": 2, "status": "invited"},
     {"collection": 0, "user": 3, "status": "member"},
-    {"collection": 0, "user": 4, "status": "member"}
+    {"collection": 0, "user": 4, "status": "member"},
+    {"collection": 1, "user": 1, "status": "joining"},
+    {"collection": 1, "user": 2, "status": "invited"},
+    {"collection": 1, "user": 3, "status": "member"},
+    {"collection": 1, "user": 4, "status": "member"},
+    {"collection": 0, "user": 5, "status": "joining"},
+    {"collection": 1, "user": 5, "status": "invited"},
+    {"collection": 2, "user": 5, "status": "member"}
   ]
 }

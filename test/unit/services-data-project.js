@@ -1,6 +1,7 @@
 'use strict';
 
 var Database = require('arangojs');
+//var config = require('../../services/db-config');
 var config = require('../db-config');
 
 var chai = require('chai')
@@ -17,6 +18,8 @@ var dbPopulate = require('../dbPopulate')(db);
 var dbData= require('../dbData');
 var collections = require('../../services/data/collections');
 
+var projectsUsersTagsData = require('../dbProjectsUsersTagsData');
+
 var completeData = {
   topic: 'project topic',
   creator: 'test1',
@@ -31,10 +34,11 @@ describe('database/project', function () {
       .then(done, done);
   });
 
-  before(function (done) {
+  beforeEach(function (done) {
     dbPopulate.clear()
       .then(done, done);
   });
+
   beforeEach(function (done) {
     dbPopulate.populate(dbData)
       .then(done, done);
@@ -52,6 +56,8 @@ describe('database/project', function () {
   var invitedUser = dbData.users[2];
   var member = dbData.users[3];
 
+  var mixedUser = dbData.users[5];
+
   var users = {
     invited: invitedUser,
     joining: joiningUser,
@@ -59,11 +65,107 @@ describe('database/project', function () {
     none: existentUser
   };
 
+  describe('projectsByTagsOfUser(username, showHidden)', function () {
+    beforeEach(function (done) {
+      return dbPopulate.clear()
+        .then(function () {
+          return dbPopulate.populate(projectsUsersTagsData);
+        })
+        .then(done, done);
+    });
+
+    afterEach(function (done) {
+      dbPopulate.clear()
+        .then(done, done);
+    });
+
+    context('username exists', function () {
+      
+      let sharingUser = projectsUsersTagsData.users[1];
+      context('showHidden === false or undefined', function () {
+        it('should resolve with projects sorted by most shared tags', function (done) {
+          return project.projectsByTagsOfUser(sharingUser.username)
+            .then(function (projects) {
+              expect(projects.length).to.equal(2);
+              //in data provided there are 3 projects. project0 with 3 tags, project1 with 2, project2 with 1. but project 0 is hidden.
+              expect(projects[0].id).to.equal(projectsUsersTagsData.projects[1].id);
+              expect(projects[1].id).to.equal(projectsUsersTagsData.projects[2].id);
+              expect(projects[0].tags).to.contain.something.that.has.a.property('name', 'tag1');
+              expect(projects[0].tags).to.contain.something.that.has.a.property('name', 'tag3');
+              expect(projects[1].tags).to.contain.something.that.has.a.property('name', 'tag2');
+            })
+            .then(done, done);
+        });
+      });
+    });
+
+    context('username not exist', function () {
+      it('should reject with error 404', function () {
+        return expect(project.projectsByTagsOfUser('non-username')).to.eventually.be.rejectedWith('404');
+      });
+    });
+  });
+
   describe('membership functions', function () {
     let possibleStatus = ['joining', 'invited', 'member'];
-    describe('memberOf', function () {
-      it('TODO');
+    describe('userProjects', function () {
+      context('good status: ([possibleStatus] || all || empty)', function () {
+        context('user exists', function () {
+          for(let st of [possibleStatus[0], possibleStatus[1], possibleStatus[2]]){
+            let u = users[st];
+
+            it('[status: ' + st + '] should be fulfilled', function () {
+              return expect(project.userProjects(u.username, st)).to.eventually.be.fulfilled;
+            });
+
+            it('[status: '+st+'] should return array of projects which user is '+st, function (done) {
+              let proms = [];
+              for(let proj of u.projects[st]) {
+                proms.push(project.userProjects(u.username, st));
+              }
+              
+              Promise.all(proms)
+                .then(function (prs) {
+                  for(let i=0, len=u.projects[st].length; i<len; ++i) {
+                    expect(prs[i]).to.include.something.that.has.a.property('id', u.projects[st][i].id);
+                  } 
+                })
+                .then(done, done);
+            });
+          }
+
+          it('[status: all] should be fulfilled', function () {
+            return expect(project.userProjects(mixedUser.username, 'all')).to.eventually.be.fulfilled;
+          });
+
+          it('[status: all] should return array of projects which user has some status', function (done) {
+            project.userProjects(mixedUser.username)
+              .then(function (prs) {
+                expect(prs.length>0).to.be.true;
+                for(let st of possibleStatus) {
+                  for(let i=0, len=mixedUser.projects[st].length; i<len; ++i) {//iterating over all expected projects of user.
+                    expect(prs).to.include.something.that.has.a.property('id', mixedUser.projects[st][i].id); //check that for 
+                    expect(prs).to.include.something.that.has.a.property('status', st); //check that for 
+                  }
+                }
+              })
+              .then(done, done);
+          });
+        });
+
+        context('user doesn\'t exist', function () {
+          it('should reject promise with 404', function () {
+            return expect(project.userProjects('nonexistent-user', 'member')).to.eventually.be.rejectedWith('404');
+          });
+        });
+      });
+      context('bad status: !good status', function () {
+        it('should reject promise with 400', function () {
+          return expect(project.userProjects(existentUser.username, 'weird-status')).to.eventually.be.rejectedWith('400');
+        });
+      });
     });
+
 
     describe('addMember(id, username, status)', function () {
       context('existent status', function () {

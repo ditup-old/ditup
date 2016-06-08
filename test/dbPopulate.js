@@ -39,7 +39,7 @@ module.exports = function (db) {
     //create users
     function populateUsers(users) {
       var userPromises = [];
-
+      
       for(let i = 0, len = users.length; i<len; ++i) {
         var userData = {
           username: users[i].username,
@@ -102,6 +102,30 @@ module.exports = function (db) {
             challenges[i].tags = challenges[i].tags || [];
           }
 
+          return;
+        });
+    }
+
+    function populateUserTag(userTag, users, tags) {
+      var users;
+      var utPromises = [];
+      //resetting the tags in data object to empty
+      for(let u of users){
+        u.tags = [];
+      }
+      for(let _ut of userTag) {
+        let user = users[_ut.user];
+        let tag = typeof(_ut.tag) === 'number' ? tags[_ut.tag] : {name: _ut.tag};
+        let utp = data.user.addTag(user, tag);
+        utPromises.push(utp);
+      }
+      return Promise.all(utPromises)
+        .then(function () {
+          for(let _ut of userTag) {
+            let tagsArray = users[_ut.user].tags;
+            let tag = typeof(_ut.tag) === 'number' ? tags[_ut.tag].name : _ut.tag;
+            tagsArray.push(tag);
+          }
           return;
         });
     }
@@ -200,6 +224,14 @@ module.exports = function (db) {
     function populateProjectMember(projectMember, collections, users) {
       var pmPromises = [];
 
+      for(let u of users) {
+        u.projects = {
+          joining: [],
+          invited: [],
+          member: []
+        };
+      }
+
       for(let p of collections) {
         p.members = {
           joining: [],
@@ -220,6 +252,9 @@ module.exports = function (db) {
         //update the data object's collection Array of followers or hiders with the username
 
         collection.members[status].push({username: user.username, password: user.password});
+        user.projects[status].push({id: collection.id});
+
+
       }
 
       return Promise.all(pmPromises)
@@ -231,6 +266,9 @@ module.exports = function (db) {
     return populateUsers(dbData.users)
       .then(function () {
         return populateTags(dbData.tags, dbData.users);
+      })
+      .then(function () {
+        return populateUserTag(dbData.userTag, dbData.users, dbData.tags);
       })
       .then(function () {
         //populate challenges
