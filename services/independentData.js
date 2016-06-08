@@ -49,6 +49,10 @@ module.exports = function independentData(dependencies) {
     updateUserPassword: that.user.updatePassword,
     ////D
     deleteUser: that.user.delete,
+
+    addTagToUser: function (tag, user) {
+      return that.user.addTag(user, tag);
+    },
     //dit
     createDit: function (dit, creator) {
       var that = that;
@@ -155,19 +159,7 @@ module.exports = function independentData(dependencies) {
     },
     //RUD
 
-    //tag-user
-    addTagToUser: function (tag, user) {
-      var query = 'FOR x IN users FILTER x.username == @username LET from = x._id ' +
-        'FOR y IN tags FILTER y.name == @name LET to = y._id ' +
-        'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to) } IN userTag';
-      return db.query(query, {username: user.username, name: tag.name})
-        .then(function (cursor) {
-          var writes = cursor.extra.stats.writesExecuted;
-          if (writes === 0) return {success: false, err: 'tag not found'};
-          if (writes === 1) return {success: true};
-          throw new Error('problems with adding tag');
-        });
-    },
+
     readTagsOfUser: function (user) {
       var query = 'FOR u IN users FILTER u.username == @username ' +
         'FOR ut IN userTag FILTER ut._from == u._id ' +

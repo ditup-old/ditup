@@ -224,5 +224,18 @@ module.exports = function (db) {
   
   };
 
+  user.addTag = function (user, tag) {
+    var query = 'FOR x IN users FILTER x.username == @username LET from = x._id ' +
+      'FOR y IN tags FILTER y.name == @name LET to = y._id ' +
+      'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), created: @created } IN userTag';
+    return db.query(query, {username: user.username, name: tag.name, created: Date.now()})
+      .then(function (cursor) {
+        var writes = cursor.extra.stats.writesExecuted;
+        if (writes === 0) throw new Error('404');
+        if (writes === 1) return {success: true};
+        throw new Error('problems with adding tag');
+      });
+  };
+
   return user;
 };
