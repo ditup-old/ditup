@@ -80,7 +80,6 @@ describe('database/project', function () {
     });
 
     context('username exists', function () {
-      
       let sharingUser = projectsUsersTagsData.users[1];
       context('showHidden === false or undefined', function () {
         it('should resolve with projects sorted by most shared tags', function (done) {
@@ -95,6 +94,24 @@ describe('database/project', function () {
               expect(projects[1].tags).to.contain.something.that.has.a.property('name', 'tag2');
             })
             .then(done, done);
+        });
+      });
+      context('showHidden === true', function () {
+        it('should resolve with projects sorted by most shared tags', function (done) {
+          return project.projectsByTagsOfUser(sharingUser.username, true)
+            .then(function (projects) {
+              expect(projects.length).to.equal(3);
+              //in data provided there are 3 projects. project0 with 3 tags, project1 with 2, project2 with 1. but project 0 is hidden.
+              expect(projects[0].id).to.equal(projectsUsersTagsData.projects[0].id);
+              expect(projects[1].id).to.equal(projectsUsersTagsData.projects[1].id);
+              expect(projects[2].id).to.equal(projectsUsersTagsData.projects[2].id);
+            })
+            .then(done, done);
+        });
+      });
+      context('showHidden is weird', function () {
+        it('should reject with 400', function () {
+          return expect(project.projectsByTagsOfUser(sharingUser.username, 'weird')).to.eventually.be.rejectedWith('400');
         });
       });
     });

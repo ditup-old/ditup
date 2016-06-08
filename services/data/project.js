@@ -197,8 +197,12 @@ module.exports = function (db) {
    *
    *
    */
-  project.projectsByTagsOfUser = function (username, shouldHide) {
-    var shouldHide = shouldHide === true ? true : false;
+  project.projectsByTagsOfUser = function (username, showHidden) {
+    let showHiddenIsGood = showHidden === true || showHidden === false || showHidden === undefined;
+    if(!showHiddenIsGood) return Promise.reject('400');
+    var showHidden = showHidden === true ? true : false;
+    
+
     var query = `LET usrs = (FOR u IN users FILTER u.username == @username
         RETURN u)
       LET tagsOfUser = (FOR u IN usrs
@@ -215,13 +219,14 @@ module.exports = function (db) {
         SORT tagno DESC
         //LET project = {id: proj._key, name: proj.name, _id: proj._id}
         RETURN {project: proj, tags: tags, tagno: tagno})
-        
+      
+      //now finding out whether the project is hidden
       LET hip = (FOR p IN projs
         FOR u IN usrs
           LET hidden = (COUNT(FOR ufp IN userFollowProject FILTER u._id == ufp._from && p.project._id == ufp._to && ufp.hide == true RETURN ufp))
           RETURN {id: p.project._key, name: p.project.name, description: p.project.description, tags: p.tags, hidden: hidden})
           
-      LET ret = (FOR h IN hip FILTER h.hidden == 0 RETURN h)
+      LET ret = (FOR h IN hip ` + (showHidden === true ? '' : 'FILTER h.hidden == 0') + ` RETURN h)
       RETURN COUNT(usrs)==0 ? '404' : (COUNT(usrs)>1 ? 'duplicate': ret)`;
     var params = {username: username};
 
