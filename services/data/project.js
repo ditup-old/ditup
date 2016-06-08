@@ -132,27 +132,14 @@ module.exports = function (db) {
     if(allowedStates.indexOf(status)<0) return Promise.reject('400');
 
     let query, params;
-    if(allowedStates.indexOf(status)<3) {
-      query = `LET usr = (FOR u IN users FILTER u.username == @username RETURN u) //find the user
-        LET pr = (FOR u IN usr
-          FOR pm IN projectMember FILTER pm._to == u._id && pm.status == @status
-            FOR pr IN projects FILTER pm._from == pr._id 
-              RETURN {id: pr._key, status: @status})
-        LET cusr = COUNT(usr)
-        RETURN cusr == 0 ? '404' : (cusr > 1 ? 'duplicate' : pr)`;
-      params = {username: username, status: status};
-    }
-
-    if(status === 'all') {
-      query = `LET usr = (FOR u IN users FILTER u.username == @username RETURN u) //find the user
-        LET pr = (FOR u IN usr
-          FOR pm IN projectMember FILTER pm._to == u._id
-            FOR pr IN projects FILTER pm._from == pr._id 
-              RETURN {id: pr._key, status: pm.status})
-        LET cusr = COUNT(usr)
-        RETURN cusr == 0 ? '404' : (cusr > 1 ? 'duplicate' : pr)`;
-      params = {username: username};
-    }
+    query = `LET usr = (FOR u IN users FILTER u.username == @username RETURN u) //find the user
+      LET pr = (FOR u IN usr
+        FOR pm IN projectMember FILTER pm._to == u._id && (`+ (status === 'all' ? 'true || ' : '') +`pm.status == @status)
+          FOR pr IN projects FILTER pm._from == pr._id 
+            RETURN {id: pr._key, status: pm.status, name: pr.name, description: pr.description})
+      LET cusr = COUNT(usr)
+      RETURN cusr == 0 ? '404' : (cusr > 1 ? 'duplicate' : pr)`;
+    params = {username: username, status: status};
 
     return db.query(query, params) 
       .then(function (cursor) {

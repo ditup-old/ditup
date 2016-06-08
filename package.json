@@ -26,6 +26,7 @@
     "watch-exist": "mocha ./test/functional/all/exist --watch",
     "watch-tags": "mocha ./test/functional/all/tags --watch",
     "watch-signup": "mocha ./test/functional/signup --watch",
+    "watch-user-projects": "mocha ./test/functional/user/user-projects --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

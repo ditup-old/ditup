@@ -7,7 +7,9 @@ var router = express.Router();
 var database = require('../services/data');
 var process = require('../services/processing');
 var validate = require('../services/validation');
-var image = require('../services/image')
+var image = require('../services/image');
+
+var routeUserProjects = require('./user/projects');
 
 router.get('/', function (req, res, next) {
   return res.redirect('/users');
@@ -25,6 +27,9 @@ router.all(['/:username', '/:username/*'], function (req, res, next) {
     next(err);
   }
 });
+
+//router for /user/[username]/projects
+router.use(routeUserProjects({router: express.Router(), data: database}));
 
 router.get('/:username', function (req, res, next) {
   var username = req.params.username;

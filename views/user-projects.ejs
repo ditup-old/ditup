@@ -1,0 +1,29 @@
+<%
+  var css = [
+    '/css/header.css',
+    '/css/user-projects.css'
+  ];
+
+  var title = 'projects of user ' + user.username;
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+%><%
+include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section>
+  <h1></h1>
+<section class="member-joining-invited-list">
+  <header><h2>involved in</h2></header>
+  <ul>
+    <% for(var i = 0, len=involved.length; i<len; ++i) {
+      var involvedProject = involved[i];
+      %><li class="project"><a class="project-link project-id-<%= involvedProject.id %>" href="/project/<%= involvedProject.id %>"><span class="project-name"><%= involvedProject.name %></span></a><span class="project-involvement"><%= involvedProject.status %></span></li><%
+    } %>
+  </ul>
+</section>
+</section>
+<% include ./partial/page-bottom.ejs %>
