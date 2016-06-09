@@ -371,7 +371,7 @@ proto.following = function (collectionName, db) {
         FOR u IN us
           FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER ufd._from == u._id && ufd.hide == false
             FOR d IN `+collectionName+` FILTER ufd._to == d._id
-              RETURN d
+              RETURN MERGE(d, {id: d._key})
       )
       RETURN LENGTH(us) == 0 ? "404" : output`;
     var params = {username: username};
