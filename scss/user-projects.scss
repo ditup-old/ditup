@@ -1,0 +1,86 @@
+@import 'colors';
+@import 'fa-icon-mixin';
+
+$max-width: 800px;
+$list-margin: 20px;
+
+.page {
+  max-width:$max-width;
+  margin:auto;
+  margin-top:10px;
+
+  h1 {
+    font-size: 25px;
+    margin-left: $list-margin;
+    padding:0;
+  }
+
+  h2 {
+    font-size:20px;
+  }
+
+  a {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: pointer;
+  }
+}
+
+.project-list {
+  display: inline-block;
+  width:($max-width / 2) - 2*$list-margin;
+  margin:$list-margin;
+  padding:10px;
+  border:10px solid $darker;
+  vertical-align: top;
+
+  ul:empty:after {
+    content:"no projects found";
+    color:red;
+  }
+}
+
+.project {
+  padding-top: 5px;
+
+  &:before {
+    @include fa-icon('f1b2');
+    padding-right:3px;
+  }
+
+  .common-tagno {
+    float:right;
+  }
+}
+
+.user:before {
+  @include fa-icon('f007');
+}
+
+
+/* creating a pure css tooltip */
+[data-tooltip] {
+  &:before {
+    /* needed - do not touch */
+    content: attr(data-tooltip);
+    position: absolute;
+    display:none;
+    pointer-events: none;
+    
+    /* customizable */
+    padding: 10px;
+    color: #333;
+    border-radius: 10px;
+    box-shadow: 2px 2px 1px gray;    
+  }
+
+  &:hover:before {
+    /* needed - do not touch */
+    display:block;
+    
+    /* customizable */
+    background: yellow;
+    margin-top: -40px;
+    margin-left: 0;
+  }
+}

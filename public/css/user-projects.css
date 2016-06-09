@@ -1,0 +1,79 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  margin-left: 20px;
+  padding: 0;
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.project-list {
+  display: inline-block;
+  width: 360px;
+  margin: 20px;
+  padding: 10px;
+  border: 10px solid #6ca6ca;
+  vertical-align: top;
+}
+
+.project-list ul:empty:after {
+  content: "no projects found";
+  color: red;
+}
+
+.project {
+  padding-top: 5px;
+}
+
+.project:before {
+  content: "\f1b2";
+  font-family: FontAwesome;
+  line-height: 0;
+  padding-right: 3px;
+}
+
+.project .common-tagno {
+  float: right;
+}
+
+.user:before {
+  content: "\f007";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+/* creating a pure css tooltip */
+[data-tooltip]:before {
+  /* needed - do not touch */
+  content: attr(data-tooltip);
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  /* customizable */
+  padding: 10px;
+  color: #333;
+  border-radius: 10px;
+  box-shadow: 2px 2px 1px gray;
+}
+
+[data-tooltip]:hover:before {
+  /* needed - do not touch */
+  display: block;
+  /* customizable */
+  background: yellow;
+  margin-top: -40px;
+  margin-left: 0;
+}
