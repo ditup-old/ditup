@@ -9,13 +9,13 @@
           <li><a href="/feedback">feedback</a></li>
         </ul>
       </li><!--
-      --><li><a href="/ideas">ideas</a></li><!--
-      --><li><a href="/challenges">challenges</a></li><!--
-      --><li><a href="/projects">projects</a></li><!--
-      --><li><a href="/discussions">discussions</a></li><!--
+      --><li><a class="icon-idea" href="/ideas">ideas</a></li><!--
+      --><li><a class="icon-challenge" href="/challenges">challenges</a></li><!--
+      --><li><a class="icon-project" href="/projects">projects</a></li><!--
+      --><li><a class="icon-discussion" href="/discussions">discussions</a></li><!--
       --><li><a><i class="fa fa-bars" ></i></a>
         <ul class="header-submenu">
-          <li><a href="/tags">tags</a></li>
+          <li><a class="icon-tag" href="/tags">tags</a></li>
         </ul>
       </li>
     </ul>
@@ -31,12 +31,15 @@
           --><span><%= session.username %></span><!--
         --></a><!--
         --><ul class="header-submenu">
-          <li><a href="/user/<%= session.username %>"><i class="fa fa-user"></i> My profile</a></li>
-          <li><a href="/user/<%= session.username %>/edit"><i class="fa fa-pencil"></i> Edit profile</a></li>
-          <li><a href="/user/<%= session.username %>/settings"><i class="fa fa-cog"></i> Settings</a></li>
-          <li><a href="/user/<%= session.username %>/projects"><i class="fa fa-cubes"></i> Projects</a></li>
-          <li><a href="/logout/"><i class="fa fa-sign-out"></i> Log out</a></li>
-          <li><a href="/logout-all/"><i class="fa fa-times"></i> Logout everywhere</a></li>
+          <li><a class="icon-user" href="/user/<%= session.username %>">My profile</a></li>
+          <li><a class="icon-edit" href="/user/<%= session.username %>/edit">Edit profile</a></li>
+          <li><a class="icon-settings" href="/user/<%= session.username %>/settings">Settings</a></li>
+          <li><a class="icon-challenge" href="/user/<%= session.username %>/challenges">Challenges</a></li>
+          <li><a class="icon-idea" href="/user/<%= session.username %>/ideas">Ideas</a></li>
+          <li><a class="icon-project" href="/user/<%= session.username %>/projects">Projects</a></li>
+          <li><a class="icon-discussion" href="/user/<%= session.username %>/discussions">Discussions</a></li>
+          <li><a class="icon-log-out" href="/logout/">Log out</a></li>
+          <li><a class="icon-close" href="/logout-all/">Log out everywhere</a></li>
         </ul>
       </li>
 <% } 

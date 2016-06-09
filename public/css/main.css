@@ -1,3 +1,113 @@
+.icon-user:before {
+  content: "\f007";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-user:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-edit:before {
+  content: "\f040";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-edit:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-project:before {
+  content: "\f1b3";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-project:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-challenge:before {
+  content: "\f12e";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-challenge:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-discussion:before {
+  content: "\f086";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-discussion:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-idea:before {
+  content: "\f0eb";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-idea:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-log-out:before {
+  content: "\f08b";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-log-out:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-log-in:before {
+  content: "\f090";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-log-in:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-tag:before {
+  content: "\f02b";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-tag:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-settings:before {
+  content: "\f013";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-settings:not(:empty):before {
+  padding-right: 0.1em;
+}
+
+.icon-close:before {
+  content: "\f00d";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.icon-close:not(:empty):before {
+  padding-right: 0.1em;
+}
+
 *, body {
   font-family: Lato;
   box-sizing: border-box;
@@ -18,10 +128,6 @@ body {
   src: url("/fonts/lato/Lato2OFLWeb/Lato/fonts/Lato-Light.ttf");
 }
 
-a {
-  /*text-decoration: none;*/
-}
-
 .button {
   padding-top: 15px !important;
   padding-right: 20px !important;
@@ -29,10 +135,10 @@ a {
   padding-left: 20px !important;
   margin: 0px;
   display: inline-block !important;
-  color: white;
+  background-color: #011149;
+  color: #eee;
   text-decoration: none;
   font-size: 1.1em !important;
-  background-color: #0c30c3;
   border: none;
   cursor: pointer;
 }
@@ -41,21 +147,11 @@ a {
   display: inline;
 }
 
-/*.button {
-  background:none!important;
-  border:none; 
-  padding:0!important;
-
-  font-family:arial,sans-serif;
-  color:#069;
-  text-decoration:underline;
-  cursor:pointer;
-}*/
 .tag {
   display: inline-block;
-  background-color: #ac3ac3;
-  border: 1px solid #ac3ac3;
-  color: white;
+  background-color: #011149;
+  border: 1px solid #011149;
+  color: #eee;
   padding: 5px;
   margin: 5px;
   border-radius: 5px;
@@ -63,9 +159,9 @@ a {
 
 .tag.unsaved {
   display: inline-block;
-  border: 1px solid black;
-  background-color: white;
-  color: black;
+  border: 1px solid #011149;
+  background-color: #eee;
+  color: #011149;
   padding: 5px;
   margin: 5px;
   border-radius: 5px;

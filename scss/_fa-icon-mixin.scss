@@ -8,3 +8,15 @@
   line-height:0;
 }
 
+@mixin fa-icon-before ($code) {
+  &:before{
+    @include fa-icon($code);
+  }
+  &:not(:empty):before {
+    //@extend .no-class-like-this;
+    padding-right:0.1em;
+  }
+}
+
+//.no-class-like-this {
+//}

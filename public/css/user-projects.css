@@ -38,24 +38,12 @@
   padding-top: 5px;
 }
 
-.project:before {
-  content: "\f1b2";
-  font-family: FontAwesome;
-  line-height: 0;
-  padding-right: 3px;
-}
-
 .project .common-tagno {
   float: right;
 }
 
-.user:before {
-  content: "\f007";
-  font-family: FontAwesome;
-  line-height: 0;
-}
-
 /* creating a pure css tooltip */
+/* https://jsfiddle.net/AndreaLigios/jtLbpy62/ */
 [data-tooltip]:before {
   /* needed - do not touch */
   content: attr(data-tooltip);
@@ -64,7 +52,8 @@
   pointer-events: none;
   /* customizable */
   padding: 10px;
-  color: #333;
+  color: #011149;
+  border: 1px solid #011149;
   border-radius: 10px;
   box-shadow: 2px 2px 1px gray;
 }
@@ -73,7 +62,7 @@
   /* needed - do not touch */
   display: block;
   /* customizable */
-  background: yellow;
+  background-color: #eee;
   margin-top: -40px;
   margin-left: 0;
 }

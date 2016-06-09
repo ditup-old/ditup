@@ -1,0 +1,35 @@
+@import 'fa-icon-mixin';
+
+.icon-user {
+  @include fa-icon-before('f007'); //user
+}
+.icon-edit {
+  @include fa-icon-before('f040'); //pencil
+}
+.icon-project {
+  @include fa-icon-before('f1b3'); //cubes
+}
+.icon-challenge {
+  @include fa-icon-before('f12e'); //puzzle-piece
+}
+.icon-discussion {
+  @include fa-icon-before('f086'); //comments
+}
+.icon-idea {
+  @include fa-icon-before('f0eb'); //lightbulb-o
+}
+.icon-log-out {
+  @include fa-icon-before('f08b'); //sign-out
+}
+.icon-log-in {
+  @include fa-icon-before('f090'); //sign-in
+}
+.icon-tag {
+  @include fa-icon-before('f02b'); //tag
+}
+.icon-settings {
+  @include fa-icon-before('f013'); //cog
+}
+.icon-close {
+  @include fa-icon-before('f00d'); //times
+}
