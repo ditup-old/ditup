@@ -97,6 +97,7 @@
   "userFollowProject": [
     {"user":0,"collection":0},
     {"user":1,"collection":0,"hide":true},
+    {"user":1,"collection":1},
     {"user":2,"collection":0},
     {"user":3,"collection":0},
     {"user":4,"collection":0,"hide":true}

@@ -14,16 +14,38 @@
 %><%
 include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
-<section>
-  <h1></h1>
-<section class="member-joining-invited-list">
-  <header><h2>involved in</h2></header>
-  <ul>
-    <% for(var i = 0, len=involved.length; i<len; ++i) {
-      var involvedProject = involved[i];
-      %><li class="project"><a class="project-link project-id-<%= involvedProject.id %>" href="/project/<%= involvedProject.id %>"><span class="project-name"><%= involvedProject.name %></span></a><span class="project-involvement"><%= involvedProject.status %></span></li><%
-    } %>
-  </ul>
-</section>
+<section class="page">
+  <h1>Projects of <a class="user" href="/user/<%= user.username %>"><%= user.username %></a></h1>
+  <section class="project-list involved-list">
+    <header><h2>User is involved in</h2></header>
+    <ul class=""><% for(var i = 0, len=involved.length; i<len; ++i) {
+        var involvedProject = involved[i];
+        %><li class="project"><a class="project-link project-id-<%= involvedProject.id %>" href="/project/<%= involvedProject.id %>"><span class="project-name"><%= involvedProject.name %></span></a><span class="project-involvement"><%= involvedProject.status %></span></li><%
+      } 
+    %></ul>
+  </section><!--
+  --><section class="project-list following-list">
+    <header><h2>User is following</h2></header>
+    <ul>
+      <% for(var i = 0, len=following.length; i<len; ++i) {
+        var followingProject = following[i];
+        %><li class="project"><a class="project-link project-id-<%= followingProject.id %>" href="/project/<%= followingProject.id %>"><span class="project-name"><%= followingProject.name %></span></a></li><%
+      } %>
+    </ul>
+  </section><!--
+  --><section class="project-list common-tags-list">
+    <header><h2>User has common tags with</h2></header>
+    <ul>
+      <% for(var i = 0, len=commonTags.length; i<len; ++i) {
+        var commonTagsProject = commonTags[i];
+        var tagArray = [];
+        for(let tg of commonTagsProject.tags) {
+          tagArray.push(tg.name)
+        }
+        var tagList = tagArray.sort().join(', ');
+      %><li class="project"><a class="project-link project-id-<%= commonTagsProject.id %>" href="/project/<%= commonTagsProject.id %>"><span class="project-name"><%= commonTagsProject.name %></span></a><span class="common-tagno" data-tooltip="<%= tagList %>" title="<%= tagList %>"><%= commonTagsProject.tags.length %> tags</span></li><%
+      } %>
+    </ul>
+  </section>
 </section>
 <% include ./partial/page-bottom.ejs %>
