@@ -7,6 +7,11 @@ var db = require('../services/data');
 var functions = require('./discussion/functions');
 var generateUrl = functions.generateUrl;
 
+var postHideFollow = require('./partial/post-hide-follow');
+
+router.use(postHideFollow('project', {router: express.Router(), db: db }));
+
+
 router.all(['/:id/:url', '/:id'], function (req, res, next) {
   var sessUser = req.session.user;
 
@@ -66,6 +71,32 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       project.tags = _tags;
     })
     //**********END
+    //if user is logged in, find out whether she follows the project
+    .then(function () {
+      if(sessUser.logged === true) {
+        return db.project.followingUser(id, sessUser.username)
+          .then(function(_flwng) {
+            project.following = _flwng;
+            return;
+          });
+      }
+      else {
+        return;
+      }
+    })
+    //if user is logged in, find out whether she hides the project
+    .then(function () {
+      if(sessUser.logged === true) {
+        return db.project.followingUser(id, sessUser.username, true)
+          .then(function(_hdng) {
+            project.hiding = _hdng;
+            return;
+          });
+      }
+      else {
+        return;
+      }
+    })
 
     //sending the response
     .then(function () {

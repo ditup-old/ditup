@@ -57,8 +57,8 @@ include ./partial/header.ejs %>
 
       var hideFollow = {
         view: !!logged,
-        hiding: !!false,//challenge.hiding,
-        following: !!false,//challenge.following,
+        hiding: project.hiding,
+        following: project.following,
         collection: 'project'
       };
 
