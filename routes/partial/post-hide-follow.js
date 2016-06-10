@@ -45,11 +45,11 @@ module.exports = function (collection, dependencies) {
           .then(null, next);
       }
       else {
-        next();
+        return next();
       }
     }
     else {
-      next();
+      return next();
     }
   });
 };

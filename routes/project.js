@@ -27,7 +27,7 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       expectedUrl = generateUrl(project.name);
       if(expectedUrl !== url) throw new Error('wrong url');
       project.url = expectedUrl;
-      project.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
+      project.link = req.protocol + '://' + req.headers.host+req.originalUrl; //this is a link for users for copying
       project.id = id;
       //copying params from previous routes
       for(var param in req.ditup.project) {

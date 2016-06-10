@@ -26,17 +26,17 @@ include ./partial/header.ejs %>
   </section><!--
   --><section class="project-list following-list">
     <header><h2>User is following</h2></header>
-    <ul>
-      <% for(var i = 0, len=following.length; i<len; ++i) {
+    <ul><%
+      for(var i = 0, len=following.length; i<len; ++i) {
         var followingProject = following[i];
         %><li class="project"><a class="icon-project project-link project-id-<%= followingProject.id %>" href="/project/<%= followingProject.id %>"><span class="project-name"><%= followingProject.name %></span></a></li><%
-      } %>
-    </ul>
+      }
+    %></ul>
   </section><!--
   --><section class="project-list common-tags-list">
     <header><h2>User has common tags with</h2></header>
-    <ul>
-      <% for(var i = 0, len=commonTags.length; i<len; ++i) {
+    <ul><%
+      for(var i = 0, len=commonTags.length; i<len; ++i) {
         var commonTagsProject = commonTags[i];
         var tagArray = [];
         for(let tg of commonTagsProject.tags) {
@@ -45,8 +45,8 @@ include ./partial/header.ejs %>
         var tagList = tagArray.sort().join(", ");//"
 
       %><li class="project"><a class="icon-project project-link project-id-<%= commonTagsProject.id %>" href="/project/<%= commonTagsProject.id %>"><span class="project-name"><%= commonTagsProject.name %></span></a><span class="common-tagno" data-tooltip="<%= tagList %>" title="<%= tagList %>"><%= commonTagsProject.tags.length %> tags</span></li><%
-      } %>
-    </ul>
+      }
+    %></ul>
   </section>
 </section>
 <% include ./partial/page-bottom.ejs %>
