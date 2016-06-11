@@ -62,5 +62,9 @@ module.exports = function (db) {
   challenge.unhide = proto.unhide('challenges', db);
   challenge.readChallengesByTags = proto.readCollectionsByTags(['name', 'description'], 'challenges', db);
 
+  challenge.popular = proto.popular('challenges', db);
+  challenge.newest = proto.newest('challenges', db);
+  challenge.random = proto.random('challenges', db);
+
   return challenge;
 };

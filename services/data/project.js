@@ -232,6 +232,9 @@ module.exports = function (db) {
       });
   };
   //********************END
+  project.popular = proto.popular('projects', db);
+  project.newest = proto.newest('projects', db);
+  project.random = proto.random('projects', db);
 
   return project;
 };

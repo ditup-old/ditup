@@ -157,6 +157,10 @@ module.exports = function (db) {
       });
   }
 
+  discussion.popular = proto.popular('discussions', db);
+  discussion.newest = proto.newest('discussions', db);
+  discussion.random = proto.random('discussions', db);
+
 
   return discussion;
 };
