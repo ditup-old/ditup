@@ -72,8 +72,19 @@ describe('database/idea (lists)', function () {
   });
 
   describe('new()', function () {
-    it('should fulfill with 5 newest ideas');
-    it('should fulfill with timestamps of the ideas\' creation time');
+    it('should fulfill with 5 newest ideas including their creation time', function (done) {
+      return idea.new()
+          .then(function (_new) {
+            expect(_new).to.be.an('array');
+            console.log(_new);
+            for(let i=0, len=_new.length; i<len-1; ++i) {
+              expect(_new[i].created).to.be.a('number');
+              expect(_new[i].created).to.be.at.least(_new[i+1].created);
+            }
+          })
+          .then(done, done);
+        
+    });
   });
 
   describe('random', function () {

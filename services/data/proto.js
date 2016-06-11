@@ -614,6 +614,38 @@ proto.popular = function (collectionName, db) {
   };
 };
 
+proto.new = function (collectionName, db) {
+  return function (options) {
+
+    var options = options || {};
+    options.limit = options.limit || {};
+    options.limit.offset = options.limit.offset || 0;
+    options.limit.count = options.limit.count || 5;
+
+    let sg = singularLowercase(collectionName);
+    let sgUp = singularUppercase(collectionName);
+
+    var query=`FOR i IN ` + collectionName + `
+      SORT i.created DESC
+      LIMIT @offset, @count
+      RETURN MERGE(i, {id: i._key})`;
+
+    var params = {
+      offset: options.limit.offset,
+      count: options.limit.count
+    };
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (results) {
+        //you can do something with results here
+        return results;
+      });
+  };
+};
+
 function singularUppercase(collectionName) {
   return collectionName.slice(0,1).toUpperCase()+collectionName.slice(1, -1);
 }
