@@ -72,6 +72,7 @@ module.exports = function (collection, dbData, dependencies, settings) {
     
     context('logged', function () {
       let loggedUser = dbData.users[0];
+      console.log(loggedUser);
 
       beforeLogged(loggedUser);
 

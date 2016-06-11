@@ -1,0 +1,113 @@
+{
+  "users": [
+    {
+      "username": "test0",
+      "password": "asdfasdf",
+      "email": "test0@example.com"
+    },
+    {
+      "username": "test1",
+      "password": "asdfasdf",
+      "email": "test1@example.com"
+    },
+    {
+      "username": "test2",
+      "password": "asdfasdf",
+      "email": "test2@example.com"
+    },
+    {
+      "username": "test3",
+      "password": "asdfasdf",
+      "email": "test3@example.com"
+    },
+    {
+      "username": "test4",
+      "password": "asdfasdf",
+      "email": "test4@example.com"
+    }
+  ],
+  "tags": [],
+  "discussions": [],
+  "ideas": [],
+  "challenges": [
+    {
+      "name": "challenge0",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge1",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge2",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge3",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge4",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge5",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge6",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "challenge7",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "id": null,
+      "creator": 2
+    }
+  ],
+  "projects": [],
+  "challengeCommentAuthor": [],
+  "discussionCommentAuthor": [],
+  "ideaCommentAuthor": [],
+  "projectCommentAuthor": [],
+  "userFollowIdea": [],
+  "userFollowDiscussion": [],
+  "userFollowChallenge": [
+    {"user":0,"collection":3},
+    {"user":1,"collection":3},
+    {"user":2,"collection":3},
+    {"user":3,"collection":3},
+    {"user":4,"collection":3},
+    {"user":0,"collection":5},
+    {"user":1,"collection":5},
+    {"user":2,"collection":5},
+    {"user":3,"collection":5},
+    {"user":0,"collection":4},
+    {"user":1,"collection":4},
+    {"user":2,"collection":4},
+    {"user":0,"collection":6},
+    {"user":1,"collection":6},
+    {"user":0,"collection":7}
+  ],
+  "userFollowProject": [],
+  "userTag": [],
+  "discussionTag": [],
+  "challengeTag": [],
+  "ideaTag": [],
+  "projectTag": [],
+  "projectMember": []
+}

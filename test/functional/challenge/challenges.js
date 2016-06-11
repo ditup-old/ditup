@@ -1,17 +1,113 @@
 'use strict';
 
-describe('user visits /challenges', function () {
-  it('should show new challenges');
-  it('should show random challenge');
-  it('should show popular challenges');
-  it('may show some activity feed');
-  it('may have a search field');
-  context('user (logged in)', function () {
-    it('should show a \'create new challenge\' link');
-    it('should show challenges of interest (by common tags)')
+// force the test environment to 'test'
+process.env.NODE_ENV = 'development';
+// get the application server module
+var app = require('../../../app');
+var session = require('../../../session');
+
+var Database = require('arangojs');
+var config = require('../../../services/db-config');//but the app is running on different required db-config!!
+var db = new Database({url: config.url, databaseName: config.dbname});
+var dbChallenge = require('../../../services/data/challenge')(db);
+var generateUrl = require('../../../routes/discussion/functions').generateUrl;
+
+var dbData = require('./dbDataChallenges');
+var dbPopulate = require('../../dbPopulate')(db);
+var collections = require('../../../services/data/collections');
+
+var testCollections = require('../partial/collections');
+
+//let runFollowTest = require('../partial/follow');
+
+//let dependencies = {};
+//let collectionName = 'challenge';
+
+// use zombie.js as headless browser
+var Browser = require('zombie');
+describe('visiting /challenges', function () {
+//TODO user, challenge, challenge, challenge, discussion
+  var server, browser;
+  var browserObj = {};
+  var serverObj = {};
+
+//*********************setting server & browser
+  before(function () {
+    server = app(session).listen(3000);
+    serverObj.Value = server;
+    browser = new Browser({ site: 'http://localhost:3000' });
+    browserObj.Value = browser;
   });
-  context('visitor (not logged in)', function () {
-    it('should not show a \'create new challenge\' link');
-    it('should suggest logging in to create a new challenge and view more');
+
+  after(function (done) {
+    server.close(done);
   });
+//*******************END*****************
+
+//**************populate database
+  before(function (done) {
+    dbPopulate.init(collections, config.dbname)
+      .then(done, done);
+  });
+  before(function (done) {
+    dbPopulate.clear()
+      .then(done, done);
+  });
+
+  beforeEach(function (done) {
+    dbPopulate.populate(dbData)
+      .then(done, done);
+  });
+
+  afterEach(function (done) {
+    dbPopulate.clear()
+      .then(done, done);
+  });
+//*******************END*****************
+
+//**************shared variables & functions
+  function loginUser(user, browserObj) {
+    return function login (done) {
+      browserObj.Value.visit('/login')
+        .then(() => {
+          return browserObj.Value.fill('username', user.username)
+            .fill('password', user.password)
+            .pressButton('log in');
+        })
+        .then(done, done);
+    }
+  }
+  
+  function logoutUser (browserObj) {
+    return function logout (done) {
+      let browser = browserObj.Value;
+      browser.visit('/logout')
+        .then(done, done);
+    }
+  }
+
+  function visit (url, browserObj) {
+    return function logout (done) {
+      let browser = browserObj.Value;
+      browser.visit(url)
+        .then(done, done);
+    }
+  }
+
+  //******************END************************************
+
+  //***********tests
+
+  let dependencies = {
+    server: serverObj,
+    browser: browserObj,
+    functions: {
+      login: loginUser,
+      logout: logoutUser,
+      visit: visit
+    },
+    db: dbChallenge
+  };
+
+  testCollections('challenge', dbData, dependencies);
 });

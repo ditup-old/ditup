@@ -1,0 +1,54 @@
+<%
+
+  //we need var collection
+
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  var Collection = capitalize(collection);
+  var css = [
+    '/css/header.css',
+    '/css/'+collection+'s.css'
+  ];
+
+  var title = '' + collection + 's';
+  var headScripts = [];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+%><%
+include ./page-top.ejs %><%
+include ./header.ejs %>
+<section class="page">
+  <header class="non-list <%= collection %>s-header">
+    <h1><%= Collection %>s</h1>
+    <% if(logged === true) { %><nav>
+      <a class="create-new-<%= collection %> button" href="/<%= collection %>s/new" >Create a new <%= collection %></a>
+    </nav><% } %>
+  </header>
+  <section class="<%= collection %>-list popular-list-followers">
+    <header><h2>Popular <%= collection %>s (most followed)</h2></header>
+    <ul><% for(let popularCollection of popular) {
+        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= popularCollection.id %>"><span class="<%= collection %>-name"><%= popularCollection.name %></span></a><span class="info-detail followerno"><%= popularCollection.followerno %> followers</span></li><%
+      } 
+    %></ul>
+  </section><!--
+  --><section class="<%= collection %>-list new-list">
+    <header><h2>Newest <%= collection %>s</h2></header>
+    <ul><% for(let newCollection of newest) {
+      %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= newCollection.id %>"><span class="<%= collection %>-name"><%= newCollection.name %></span></a><span class="info-detail created">created <%= newCollection.past %></span></li><%
+    } 
+    %></ul>
+  </section><!--
+  --><section class="<%= collection %>-list random-list">
+    <header><h2>Random <%= collection %></h2></header>
+    <ul><% for(let randomCollection of random) {
+      %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= randomCollection.id %>"><span class="<%= collection %>-name"><%= randomCollection.name %></span></a></li><%
+    } 
+    %></ul>
+  </section>
+</section>
+<% include ./page-bottom.ejs %>

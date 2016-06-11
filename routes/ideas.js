@@ -6,54 +6,11 @@ var router = express.Router();
 var validate = require('../services/validation');
 var db = require('../services/data');
 var generateUrl = require('./discussion/functions').generateUrl;
+
 let countPastTime = require('../services/processing').cpt;
-/*
-router.get('/', function (req, res, next) {
-  var sessUser = req.session.user;
-  return res.render('ideas', {session: sessUser});
-});
-*/
+var getCollections = require('./partial/collections');
 
-router.get('/', function (req, res, next) {
-  var sessUser = req.session.user;
-
-  let popular, newest, random;
-  //read popular (by followers) ideas
-  return db.idea.popular('followers')
-    .then(function (_pop) {
-      popular = _pop;
-    })
-    //read newest ideas
-    .then(() => {
-      return db.idea.newest();
-    })
-    .then(function (_new) {
-      newest = _new;
-
-      for(let n of newest) {
-        //if older than 2 days, show date. otherwise show days/hours/minutes/... passed.
-        //let msDay = 3600*1000*24;//miliseconds in a day
-        //let showDate = Date.now()-n.created > msDay*2;
-        //n.past = showDate ? 'on '+Date(n.created) : countPastTime(n.created);
-        n.past = countPastTime(n.created);
-      }
-    })
-    //read random idea(s)
-    .then(() => {
-      return db.idea.random();
-    })
-    .then(function (_rand) {
-      random = _rand;
-    })
-    //render
-    .then(function () {
-      return res.render('ideas', {session: sessUser, popular: popular, newest: newest, random: random});
-    })
-    //catch errors
-    .then(null, function (err) {
-      next(err);
-    })
-});
+router.use(getCollections('idea', {router: express.Router(), db: db, countPastTime: countPastTime }));
 
 router.all('/new', function (req, res, next) {
   var sessUser = req.session.user;

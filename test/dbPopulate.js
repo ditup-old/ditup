@@ -101,7 +101,6 @@ module.exports = function (db) {
             challenges[i].id = _ids[i].id;
             challenges[i].tags = challenges[i].tags || [];
           }
-
           return;
         });
     }
@@ -262,66 +261,56 @@ module.exports = function (db) {
           return;
         });
     }
+    
+    /////************** BEGIN building promise chain to return
+    let collections = ['idea', 'challenge', 'project', 'discussion'];
 
-    return populateUsers(dbData.users)
+    //promise to return
+    var ret = populateUsers(dbData.users)
       .then(function () {
         return populateTags(dbData.tags, dbData.users);
       })
       .then(function () {
         return populateUserTag(dbData.userTag, dbData.users, dbData.tags);
-      })
-      .then(function () {
-        //populate challenges
-        return populateCollections(dbData.challenges, dbData.users, 'challenge');
-      })
-      .then(function () {
-        return populateCollectionTag(dbData.challengeTag, dbData.challenges, dbData.tags, dbData.users, 'challenge');
-      })
-      .then(function () {
-        return populateCollectionCommentAuthor(dbData.challengeCommentAuthor, dbData.challenges, dbData.users, 'challenge');
-      })
-      .then(function () {
-        //populate discussions
-        return populateCollections(dbData.discussions, dbData.users, 'discussion');
-      })
-      .then(function () {
-        return populateCollectionTag(dbData.discussionTag, dbData.discussions, dbData.tags, dbData.users, 'discussion');
-      })
-      .then(function () {
-        return populateCollectionCommentAuthor(dbData.discussionCommentAuthor, dbData.discussions, dbData.users, 'discussion');
-      })
-      .then(function () {
-        //populate ideas
-        return populateCollections(dbData.ideas, dbData.users, 'idea');
-      })
-      .then(function () {
-        return populateCollectionTag(dbData.ideaTag, dbData.ideas, dbData.tags, dbData.users, 'idea');
-      })
-      .then(function () {
-        return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
-      })
-      .then(function () {
-        return populateUserFollowCollection(dbData.userFollowIdea, dbData.users, dbData.ideas, 'idea');
-      })
-      .then(function () {
-        //populate projects
-        return populateCollections(dbData.projects, dbData.users, 'project');
-      })
-      .then(function () {
-        return populateCollectionTag(dbData.projectTag, dbData.projects, dbData.tags, dbData.users, 'project');
-      })
-      .then(function () {
-        return populateCollectionCommentAuthor(dbData.projectCommentAuthor, dbData.projects, dbData.users, 'project');
-      })
-      .then(function () {
-        return populateUserFollowCollection(dbData.userFollowProject, dbData.users, dbData.projects, 'project');
-      })
+      });
+    
+    //**************** populating collections
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    ret = ret.then(function () {
+
+      let popCol = [];
+      for(let col of collections) {
+        let Col = capitalize(col);
+        let popc = populateCollections(dbData[col + 's'], dbData.users, col)
+          .then(function () {
+            return populateCollectionTag(dbData[col+'Tag'], dbData[col+'s'], dbData.tags, dbData.users, col);
+          })
+          .then(function () {
+            return populateCollectionCommentAuthor(dbData[col+'CommentAuthor'], dbData[col+'s'], dbData.users, col);
+          })
+          .then(function () {
+            return populateUserFollowCollection(dbData['userFollow'+Col], dbData.users, dbData[col+'s'], col);
+          });
+
+        popCol.push(popc);
+      }
+
+      return Promise.all(popCol).then(()=>{});
+    });
+    ///******** finishing with collection specific populating
+    ret = ret
       .then(function () {
         return populateProjectMember(dbData.projectMember, dbData.projects, dbData.users);
       })
       .then(function () {
         //console.log(dbData);
       });
+
+    return ret;
   }
   
   /**
