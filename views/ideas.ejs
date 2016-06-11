@@ -1,0 +1,30 @@
+<%
+  var css = [
+    '/css/header.css',
+    '/css/ideas.css'
+  ];
+
+  var title = 'ideas';
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+%><%
+include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <% if(logged === true) { %><nav>
+    <a class="create-new-idea button" href="/ideas/new" >Create a new idea</a>
+  </nav>
+  <% } %>
+  <section class="idea-list popular-list-followers">
+    <header><h2>Popular ideas</h2></header>
+    <ul><% for(let popularIdea of popular) {
+        %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= popularIdea.id %>"><span class="idea-name"><%= popularIdea.name %></span></a><span class="followerno"><%= popularIdea.followerno %> followers</span></li><%
+      } 
+    %></ul>
+  </section>
+</section>
+<% include ./partial/page-bottom.ejs %>

@@ -301,6 +301,9 @@ module.exports = function (db) {
         return populateCollectionCommentAuthor(dbData.ideaCommentAuthor, dbData.ideas, dbData.users, 'idea');
       })
       .then(function () {
+        return populateUserFollowCollection(dbData.userFollowIdea, dbData.users, dbData.ideas, 'idea');
+      })
+      .then(function () {
         //populate projects
         return populateCollections(dbData.projects, dbData.users, 'project');
       })

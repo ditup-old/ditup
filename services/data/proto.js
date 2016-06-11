@@ -119,7 +119,6 @@ proto.readComments = function (collectionName, db) {
       })
       .then(function (out) {
         if(out[0] == '404') throw new Error('404');
-        //console.log(out);
         return out[0];
       });
   };
@@ -568,6 +567,50 @@ proto.readCollectionsByTags = function (collectionParams, collectionName, db) {
         return collections;
       });
     ; 
+  };
+};
+
+/**
+ * this is not that correct. this describes what return function is
+ * in options: number of shown dits, limit, dittype or all
+ * @param {Object} [options]
+ * @param {Object} [options.limit]
+ * @param {number} [options.limit.offset=0]
+ * @param {number} [options.limit.count=5]
+ * @returns {Promise} {name, description, userno, ditno, no}[]
+ */
+proto.popular = function (collectionName, db) {
+  return function (type, options) {
+    let allowedTypes = ['followers'];
+    if(allowedTypes.indexOf(type) === -1) throw new Error('bad popular parameter');
+
+    var options = options || {};
+    options.limit = options.limit || {};
+    options.limit.offset = options.limit.offset || 0;
+    options.limit.count = options.limit.count || 5;
+
+    let sg = singularLowercase(collectionName);
+    let sgUp = singularUppercase(collectionName);
+
+    var query=`FOR i IN ` + collectionName + `
+      LET followerno = LENGTH(FOR ufi IN userFollow` + sgUp + ` FILTER ufi._to == i._id RETURN i._key)
+      SORT followerno DESC
+      LIMIT @offset, @count
+      RETURN MERGE(i, {id: i._key, followerno: followerno})`;
+
+    var params = {
+      offset: options.limit.offset,
+      count: options.limit.count
+    };
+
+    return db.query(query, params)
+      .then(function (cursor) {
+        return cursor.all();
+      })
+      .then(function (results) {
+        //you can do something with results here
+        return results;
+      });
   };
 };
 

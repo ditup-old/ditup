@@ -62,5 +62,6 @@ module.exports = function (db) {
   idea.unhide = proto.unhide('ideas', db);
   idea.readIdeasByTags = proto.readCollectionsByTags(['name', 'description'], 'ideas', db);
 
+  idea.popular = proto.popular('ideas', db);
   return idea;
 };

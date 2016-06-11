@@ -14,7 +14,20 @@ router.get('/', function (req, res, next) {
 */
 
 router.get('/', function (req, res, next) {
-  return res.end();
+  var sessUser = req.session.user;
+
+  let popular;
+
+  return db.idea.popular('followers')
+    .then(function (_pop) {
+      popular = _pop;
+    })
+    .then(function () {
+      return res.render('ideas', {session: sessUser, popular: popular});
+    })
+    .then(null, function (err) {
+      next(err);
+    })
 });
 
 router.all('/new', function (req, res, next) {
@@ -111,7 +124,7 @@ router.post('/new', function (req, res, next) {
       var url = generateUrl(values.name);
       
       req.session.messages.push('the new idea was successfully created.');
-      console.log(id, _id, url);
+      //console.log(id, _id, url);
       return res.redirect('/idea/'+id.id+'/'+url);
     })
     .then(null, function (err) {
