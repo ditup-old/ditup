@@ -74,21 +74,32 @@ describe('database/idea (lists)', function () {
   describe('newest()', function () {
     it('should fulfill with 5 newest ideas including their creation time', function (done) {
       return idea.newest()
-          .then(function (_new) {
-            expect(_new).to.be.an('array');
-            console.log(_new);
-            for(let i=0, len=_new.length; i<len-1; ++i) {
-              expect(_new[i].created).to.be.a('number');
-              expect(_new[i].created).to.be.at.least(_new[i+1].created);
-            }
-          })
-          .then(done, done);
-        
+        .then(function (_new) {
+          expect(_new).to.be.an('array');
+          console.log(_new);
+          for(let i=0, len=_new.length; i<len-1; ++i) {
+            expect(_new[i].created).to.be.a('number');
+            expect(_new[i].created).to.be.at.least(_new[i+1].created);
+          }
+        })
+        .then(done, done);
     });
   });
 
   describe('random', function () {
-    it('should fulfill with random idea');
+    it('should fulfill with random idea', function (done) {
+      return idea.random()
+        .then(function (_rand) {
+          expect(_rand).to.be.an('array');
+          console.log(_rand);
+          expect(_rand.length).to.equal(1);
+          for(let i=0, len=_rand.length; i<len-1; ++i) {
+            expect(_rand[i]).to.have.a.property('id');
+            expect(_rand[i]).to.have.a.property('name');
+          }
+        })
+        .then(done, done);
+    });
   });
 });
 
