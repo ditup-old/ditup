@@ -111,7 +111,10 @@ describe('visiting /ideas', function () {
     browser.assert.link('.new-list a', 'idea7', new RegExp('/idea/'+dbData.ideas[7].id+'.*')); //links to idea pages
     browser.assert.elements('.idea .created', 5);
   });
-  it('should show 1 random idea');
+  it('should show 1 random idea', function () {
+    browser.assert.element('.random-list'); //the list is there
+    browser.assert.elements('.random-list .idea', 1); //there is 5 of them
+  });
   it('should show 5 recently active ideas');
   
   context('logged', function () {

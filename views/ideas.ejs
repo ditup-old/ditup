@@ -33,5 +33,12 @@ include ./partial/header.ejs %>
     } 
     %></ul>
   </section>
+  <section class="idea-list random-list">
+    <header><h2>Random idea</h2></header>
+    <ul><% for(let randomIdea of random) {
+      %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= randomIdea.id %>"><span class="idea-name"><%= randomIdea.name %></span></a></li><%
+    } 
+    %></ul>
+  </section>
 </section>
 <% include ./partial/page-bottom.ejs %>

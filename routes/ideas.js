@@ -17,7 +17,7 @@ router.get('/', function (req, res, next) {
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
 
-  let popular, newest;
+  let popular, newest, random;
   //read popular (by followers) ideas
   return db.idea.popular('followers')
     .then(function (_pop) {
@@ -38,9 +38,16 @@ router.get('/', function (req, res, next) {
         n.past = countPastTime(n.created);
       }
     })
+    //read random idea(s)
+    .then(() => {
+      return db.idea.random();
+    })
+    .then(function (_rand) {
+      random = _rand;
+    })
     //render
     .then(function () {
-      return res.render('ideas', {session: sessUser, popular: popular, newest: newest});
+      return res.render('ideas', {session: sessUser, popular: popular, newest: newest, random: random});
     })
     //catch errors
     .then(null, function (err) {
