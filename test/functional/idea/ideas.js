@@ -9,12 +9,14 @@ var session = require('../../../session');
 var Database = require('arangojs');
 var config = require('../../../services/db-config');//but the app is running on different required db-config!!
 var db = new Database({url: config.url, databaseName: config.dbname});
-var dbProject = require('../../../services/data/idea')(db);
+var dbIdea = require('../../../services/data/idea')(db);
 var generateUrl = require('../../../routes/discussion/functions').generateUrl;
 
 var dbData = require('./dbDataIdeas');
 var dbPopulate = require('../../dbPopulate')(db);
 var collections = require('../../../services/data/collections');
+
+var testCollections = require('../partial/collections');
 
 //let runFollowTest = require('../partial/follow');
 
@@ -96,45 +98,17 @@ describe('visiting /ideas', function () {
 
   //***********tests
 
-  beforeEach(visit('/ideas', browserObj));
+  let dependencies = {
+    server: serverObj,
+    browser: browserObj,
+    functions: {
+      login: loginUser,
+      logout: logoutUser,
+      visit: visit
+    },
+    db: dbIdea
+  };
 
-  it('should show 5 popular ideas', function () {
-    browser.assert.element('.popular-list-followers'); //the list is there
-    browser.assert.elements('.popular-list-followers .idea', 5); //there is 5 of them
-    browser.assert.text('.popular-list-followers .idea .idea-name', 'idea3idea5idea4idea6idea7'); //the names of ideas are displayed
-    browser.assert.link('.popular-list-followers a', 'idea3', new RegExp('/idea/'+dbData.ideas[3].id+'.*')); //links to idea pages
-    browser.assert.text('.popular-list-followers li:first-child .followerno', '5 followers');
-  });
-  it('should show 5 new ideas', function () {
-    browser.assert.element('.new-list'); //the list is there
-    browser.assert.elements('.new-list .idea', 5); //there is 5 of them
-    browser.assert.link('.new-list a', 'idea7', new RegExp('/idea/'+dbData.ideas[7].id+'.*')); //links to idea pages
-    browser.assert.elements('.idea .created', 5);
-  });
-  it('should show 1 random idea', function () {
-    browser.assert.element('.random-list'); //the list is there
-    browser.assert.elements('.random-list .idea', 1); //there is 5 of them
-  });
-  it('should show 5 recently active ideas');
-  
-  context('logged', function () {
-    let loggedUser = dbData.users[0];
+  testCollections('idea', dbData, dependencies);
 
-    beforeEach(logoutUser(browserObj));
-    beforeEach(loginUser(loggedUser, browserObj));
-    beforeEach(visit('/ideas', browserObj));
-
-    it('should show create new idea button', function () {
-      browser.assert.element('.create-new-idea');
-      browser.assert.link('.create-new-idea', 'Create a new idea', '/ideas/new');
-    });
-  });
-  context('not logged', function () {
-    beforeEach(logoutUser(browserObj));
-    beforeEach(visit('/ideas', browserObj));
-
-    it('not show create-new-idea button', function () {
-      browser.assert.elements('.create-new-idea', 0);
-    });
-  });
 });
