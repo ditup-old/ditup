@@ -20,10 +20,17 @@ include ./partial/header.ejs %>
   </nav>
   <% } %>
   <section class="idea-list popular-list-followers">
-    <header><h2>Popular ideas</h2></header>
+    <header><h2>Popular ideas (most followed)</h2></header>
     <ul><% for(let popularIdea of popular) {
         %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= popularIdea.id %>"><span class="idea-name"><%= popularIdea.name %></span></a><span class="followerno"><%= popularIdea.followerno %> followers</span></li><%
       } 
+    %></ul>
+  </section>
+  <section class="idea-list new-list">
+    <header><h2>Newest ideas</h2></header>
+    <ul><% for(let newIdea of newest) {
+      %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= newIdea.id %>"><span class="idea-name"><%= newIdea.name %></span></a><span class="created">created <%= newIdea.past %></span></li><%
+    } 
     %></ul>
   </section>
 </section>

@@ -71,9 +71,9 @@ describe('database/idea (lists)', function () {
     });
   });
 
-  describe('new()', function () {
+  describe('newest()', function () {
     it('should fulfill with 5 newest ideas including their creation time', function (done) {
-      return idea.new()
+      return idea.newest()
           .then(function (_new) {
             expect(_new).to.be.an('array');
             console.log(_new);

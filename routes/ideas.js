@@ -6,6 +6,7 @@ var router = express.Router();
 var validate = require('../services/validation');
 var db = require('../services/data');
 var generateUrl = require('./discussion/functions').generateUrl;
+let countPastTime = require('../services/processing').cpt;
 /*
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
@@ -16,15 +17,32 @@ router.get('/', function (req, res, next) {
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
 
-  let popular;
-
+  let popular, newest;
+  //read popular (by followers) ideas
   return db.idea.popular('followers')
     .then(function (_pop) {
       popular = _pop;
     })
-    .then(function () {
-      return res.render('ideas', {session: sessUser, popular: popular});
+    //read newest ideas
+    .then(() => {
+      return db.idea.newest();
     })
+    .then(function (_new) {
+      newest = _new;
+
+      for(let n of newest) {
+        //if older than 2 days, show date. otherwise show days/hours/minutes/... passed.
+        //let msDay = 3600*1000*24;//miliseconds in a day
+        //let showDate = Date.now()-n.created > msDay*2;
+        //n.past = showDate ? 'on '+Date(n.created) : countPastTime(n.created);
+        n.past = countPastTime(n.created);
+      }
+    })
+    //render
+    .then(function () {
+      return res.render('ideas', {session: sessUser, popular: popular, newest: newest});
+    })
+    //catch errors
     .then(null, function (err) {
       next(err);
     })

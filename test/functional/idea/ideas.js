@@ -105,7 +105,12 @@ describe('visiting /ideas', function () {
     browser.assert.link('.popular-list-followers a', 'idea3', new RegExp('/idea/'+dbData.ideas[3].id+'.*')); //links to idea pages
     browser.assert.text('.popular-list-followers li:first-child .followerno', '5 followers');
   });
-  it('should show 5 new ideas');
+  it('should show 5 new ideas', function () {
+    browser.assert.element('.new-list'); //the list is there
+    browser.assert.elements('.new-list .idea', 5); //there is 5 of them
+    browser.assert.link('.new-list a', 'idea7', new RegExp('/idea/'+dbData.ideas[7].id+'.*')); //links to idea pages
+    browser.assert.elements('.idea .created', 5);
+  });
   it('should show 1 random idea');
   it('should show 5 recently active ideas');
   

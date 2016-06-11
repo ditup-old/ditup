@@ -614,7 +614,7 @@ proto.popular = function (collectionName, db) {
   };
 };
 
-proto.new = function (collectionName, db) {
+proto.newest = function (collectionName, db) {
   return function (options) {
 
     var options = options || {};

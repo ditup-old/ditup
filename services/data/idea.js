@@ -63,6 +63,6 @@ module.exports = function (db) {
   idea.readIdeasByTags = proto.readCollectionsByTags(['name', 'description'], 'ideas', db);
 
   idea.popular = proto.popular('ideas', db);
-  idea.new = proto.new('ideas', db);
+  idea.newest = proto.newest('ideas', db);
   return idea;
 };
