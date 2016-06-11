@@ -1,0 +1,33 @@
+@import 'colors';
+
+@mixin tooltip() {
+
+  /* creating a pure css tooltip */
+  /* https://jsfiddle.net/AndreaLigios/jtLbpy62/ */
+  [data-tooltip] {
+    &:before {
+      /* needed - do not touch */
+      content: attr(data-tooltip);
+      position: absolute;
+      display:none;
+      pointer-events: none;
+      
+      /* customizable */
+      padding: 10px;
+      color: $dark;
+      border: 1px solid $dark;
+      border-radius: 10px;
+      box-shadow: 2px 2px 1px gray;    
+    }
+
+    &:hover:before {
+      /* needed - do not touch */
+      display:block;
+      
+      /* customizable */
+      background-color: $light;
+      margin-top: -40px;
+      margin-left: 0;
+    }
+  }
+}

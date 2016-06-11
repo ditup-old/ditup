@@ -1,0 +1,25 @@
+@import 'sizes';
+
+@mixin page() {
+  .page {
+    max-width:$page-max-width;
+    margin:auto;
+    margin-top:10px;
+
+    h1 {
+      font-size: 25px;
+      /*margin-left: $list-margin;*/
+      /*padding:0;*/
+    }
+
+    h2 {
+      font-size:20px;
+    }
+
+    a {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      cursor: pointer;
+    }
+  }
+}

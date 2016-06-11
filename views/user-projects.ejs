@@ -15,7 +15,7 @@
 include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <section class="page">
-  <h1>Projects of <a class="user icon-user" href="/user/<%= user.username %>"><%= user.username %></a></h1>
+  <header class="non-list"><h1>Projects of <a class="user icon-user" href="/user/<%= user.username %>"><%= user.username %></a></h1></header>
   <section class="project-list involved-list">
     <header><h2>User is involved in</h2></header>
     <ul class=""><% for(var i = 0, len=involved.length; i<len; ++i) {

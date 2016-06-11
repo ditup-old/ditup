@@ -15,25 +15,27 @@
 include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <section class="page">
-  <% if(logged === true) { %><nav>
-    <a class="create-new-idea button" href="/ideas/new" >Create a new idea</a>
-  </nav>
-  <% } %>
+  <header class="non-list ideas-header">
+    <h1>Ideas</h1>
+    <% if(logged === true) { %><nav>
+      <a class="create-new-idea button" href="/ideas/new" >Create a new idea</a>
+    </nav><% } %>
+  </header>
   <section class="idea-list popular-list-followers">
     <header><h2>Popular ideas (most followed)</h2></header>
     <ul><% for(let popularIdea of popular) {
-        %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= popularIdea.id %>"><span class="idea-name"><%= popularIdea.name %></span></a><span class="followerno"><%= popularIdea.followerno %> followers</span></li><%
+        %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= popularIdea.id %>"><span class="idea-name"><%= popularIdea.name %></span></a><span class="info-detail followerno"><%= popularIdea.followerno %> followers</span></li><%
       } 
     %></ul>
-  </section>
-  <section class="idea-list new-list">
+  </section><!--
+  --><section class="idea-list new-list">
     <header><h2>Newest ideas</h2></header>
     <ul><% for(let newIdea of newest) {
-      %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= newIdea.id %>"><span class="idea-name"><%= newIdea.name %></span></a><span class="created">created <%= newIdea.past %></span></li><%
+      %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= newIdea.id %>"><span class="idea-name"><%= newIdea.name %></span></a><span class="info-detail created">created <%= newIdea.past %></span></li><%
     } 
     %></ul>
-  </section>
-  <section class="idea-list random-list">
+  </section><!--
+  --><section class="idea-list random-list">
     <header><h2>Random idea</h2></header>
     <ul><% for(let randomIdea of random) {
       %><li class="idea"><a class="icon-idea idea-link" href="/idea/<%= randomIdea.id %>"><span class="idea-name"><%= randomIdea.name %></span></a></li><%
