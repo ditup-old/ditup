@@ -31,6 +31,7 @@
     "watch-signup": "mocha ./test/functional/signup --watch",
     "watch-user-projects": "mocha ./test/functional/user/user-projects --watch",
     "watch-challenges": "mocha ./test/functional/challenge/challenges --watch",
+    "watch-discussions": "mocha ./test/functional/discussion/discussions --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {
