@@ -1,0 +1,19 @@
+@import 'list-mixin';
+@import 'page-mixin';
+
+@include list('challenge');
+@include page();
+
+.challenges-header{
+  h1{
+    float:left;
+  }
+  nav{
+    float:right
+  }
+  &:after{
+    content:"";
+    clear:both;
+    display:block;
+  }
+}

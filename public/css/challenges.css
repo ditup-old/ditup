@@ -1,0 +1,63 @@
+.non-list {
+  margin-left: 20px;
+  /* fix the parts which are out of list */
+  margin-right: 20px;
+}
+
+.challenge-list {
+  display: inline-block;
+  width: 360px;
+  margin: 20px;
+  padding: 10px;
+  border: 10px solid #6ca6ca;
+  vertical-align: top;
+}
+
+.challenge-list ul:empty:after {
+  content: "no challenges found";
+  color: red;
+}
+
+.challenge {
+  padding-top: 5px;
+}
+
+.challenge .info-detail {
+  float: right;
+}
+
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.challenges-header h1 {
+  float: left;
+}
+
+.challenges-header nav {
+  float: right;
+}
+
+.challenges-header:after {
+  content: "";
+  clear: both;
+  display: block;
+}
