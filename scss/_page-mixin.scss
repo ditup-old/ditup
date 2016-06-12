@@ -16,7 +16,7 @@
       font-size:20px;
     }
 
-    a {
+    a:not(.button) {
       text-decoration: underline;
       text-decoration-style: dotted;
       cursor: pointer;
