@@ -13,7 +13,10 @@ module.exports = proto;
 
 proto.create = function (expectedParams, collectionName, db, otherParams) {
   otherParams = otherParams || '';
+
   return function (data) {
+    //fixing some discussion problems (topic vs. name)
+    data.name = data.name || data.topic;
     var isDataComplete = !!data.creator;
     for (let param of expectedParams) {
       isDataComplete = isDataComplete && data.hasOwnProperty(param);

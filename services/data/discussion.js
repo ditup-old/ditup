@@ -6,7 +6,7 @@ var proto = require('./proto');
 module.exports = function (db) {
   var discussion = {};
 
-  discussion.create = proto.create(['topic'], 'discussions', db);
+  discussion.create = proto.create(['topic', 'name'], 'discussions', db);
   
   discussion.read = function (id) {
     var query = `FOR d IN discussions FILTER d._key == @id
