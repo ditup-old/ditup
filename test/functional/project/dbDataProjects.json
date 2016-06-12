@@ -1,0 +1,129 @@
+{
+  "users": [
+    {
+      "username": "test0",
+      "password": "asdfasdf",
+      "email": "test0@example.com"
+    },
+    {
+      "username": "test1",
+      "password": "asdfasdf",
+      "email": "test1@example.com"
+    },
+    {
+      "username": "test2",
+      "password": "asdfasdf",
+      "email": "test2@example.com"
+    },
+    {
+      "username": "test3",
+      "password": "asdfasdf",
+      "email": "test3@example.com"
+    },
+    {
+      "username": "test4",
+      "password": "asdfasdf",
+      "email": "test4@example.com"
+    }
+  ],
+  "tags": [],
+  "discussions": [],
+  "ideas": [],
+  "projects": [
+    {
+      "name": "project0",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project1",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project2",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project3",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project4",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project5",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project6",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    },
+    {
+      "name": "project7",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "join": true,
+      "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+      "id": null,
+      "creator": 2
+    }
+  ],
+  "challenges": [],
+  "challengeCommentAuthor": [],
+  "discussionCommentAuthor": [],
+  "ideaCommentAuthor": [],
+  "projectCommentAuthor": [],
+  "userFollowIdea": [],
+  "userFollowDiscussion": [],
+  "userFollowProject": [
+    {"user":0,"collection":3},
+    {"user":1,"collection":3},
+    {"user":2,"collection":3},
+    {"user":3,"collection":3},
+    {"user":4,"collection":3},
+    {"user":0,"collection":5},
+    {"user":1,"collection":5},
+    {"user":2,"collection":5},
+    {"user":3,"collection":5},
+    {"user":0,"collection":4},
+    {"user":1,"collection":4},
+    {"user":2,"collection":4},
+    {"user":0,"collection":6},
+    {"user":1,"collection":6},
+    {"user":0,"collection":7}
+  ],
+  "userFollowChallenge": [],
+  "userTag": [],
+  "discussionTag": [],
+  "challengeTag": [],
+  "ideaTag": [],
+  "projectTag": [],
+  "projectMember": []
+}

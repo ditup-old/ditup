@@ -7,9 +7,12 @@ var validate = require('../services/validation');
 var db = require('../services/data');
 var generateUrl = require('./discussion/functions').generateUrl;
 
-router.get(['/'], function (req, res, next) {
-  return res.end();
-});
+//***************** BEGIN router for / ********//
+let countPastTime = require('../services/processing').cpt;
+var getCollections = require('./partial/collections');
+
+router.use(getCollections('project', {router: express.Router(), db: db, countPastTime: countPastTime }));
+//***************** END ***********************//
 
 router.all('/new', function (req, res, next) {
   var sessUser = req.session.user;
