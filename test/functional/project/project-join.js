@@ -65,12 +65,25 @@ describe('joining a project', function () {
         });
 
         context('join info empty', function () {
-          beforeEach(functions.visit(() => { return '/project/' + dbData.projects[1].id + '/' + dbData.projects[1].url + '/join'; }, browserObj));
+          beforeEach(functions.visit(() => { return '/project/' + project1.id + '/' + project1.url + '/join'; }, browserObj));
           it('should show default join info', function () {
             let browser = browserObj.Value;
             browser.assert.success();
             browser.assert.text('.join-info', 'default join info text');
           });
+        });
+
+        it('should show a form to fill the request', function () {
+          let browser = browserObj.Value;
+          //form
+          browser.assert.element('form.join-request');
+          browser.assert.attribute('form.join-request', 'method', 'post');
+          //textarea
+          browser.assert.element('.join-request textarea[name=request-text]');
+          //join button
+          browser.assert.element('.join-request input[type=submit][name=join][value]');
+          //cancel link
+          browser.assert.link('.join-request a.cancel-join', 'Cancel', '/project/' + project0.id + '/' + project0.name);
         });
       });
     });
@@ -89,7 +102,14 @@ describe('joining a project', function () {
       });
 
       context('/project/.../join', function () {
-        it('should show join message');
+        beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
+
+        it('should show join message', function () {
+          let browser = browserObj.Value;
+          browser.assert.element('.join-info');
+          browser.assert.text('.join-info', project0.join_info);
+        });
+        it('should show textarea with join request');
         it('should offer editing join request');
         it('should offer deleting join request');
         it('should offer cancel of this action');

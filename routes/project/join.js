@@ -14,6 +14,9 @@ module.exports = function (dependencies) {
     co(function *() {
       let weHaveDataAlready = req.ditup && req.ditup.project && req.ditup.project.name && req.ditup.project.join_info && req.ditup.project.id === id;
       let project = yield weHaveDataAlready ? Promise.resolve(req.ditup.project) : db.project.read(id);
+
+      if(sessUser.logged === true) project.userStatus = yield db.project.userStatus(id, sessUser.username);
+
       return res.render('project-join', {session: sessUser, project});
     })
     .catch(function (err) {

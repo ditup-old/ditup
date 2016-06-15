@@ -23,6 +23,15 @@
 include ./partial/header.ejs %>
 <section class="page">
   <header><h1>Joining <a class="icon-project" href="<%= longUrl %>"><%= project.name %></a></h1></header>
+  <%  if(['', 'joining'].indexOf(project.userStatus) !== -1) { %>
   <div class="join-info"><%= joinInfo %></div>
+  <% } %>
+  <%  if(['', 'joining'].indexOf(project.userStatus) !== -1) { %>
+  <form method="post" class="join-request">
+    <textarea name="request-text"></textarea>
+    <input type="submit" name="join" value="Send request" />
+    <a class="cancel-join" href="<%= longUrl %>">Cancel</a>
+  </form>
+  <% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>
