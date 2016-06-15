@@ -32,6 +32,8 @@ describe('joining a project', function () {
   let project1 = dbData.projects[1];
 
   config.beforeTest(browserObj, deps);
+
+
   context('logged', function () {
     context('user has no relation', function () {
       //login
@@ -72,9 +74,44 @@ describe('joining a project', function () {
         });
       });
     });
-    context('joining', function () {});
-    context('invited', function () {});
-    context('member', function () {});
+
+    context('joining', function () {
+      context('/project', function () {
+        it('should show \'edit join\' button');
+      });
+
+      context('/project/.../join', function () {
+        it('should show join message');
+        it('should offer editing join request');
+        it('should offer deleting join request');
+        it('should offer cancel of this action');
+      });
+    });
+    context('invited', function () {
+      context('/project', function () {
+        it('should show \'accept or reject invite\' button');
+        it('should show \'~you were invited to join the project\' message');
+      });
+      context('/project/.../join', function () {
+        it('should say that user is invited and can just accept or reject the invite');
+        it('should offer accept button');
+        it('should offer reject button');
+        it('should offer cancel the action');
+      });
+    });
+    context('member', function () {
+      context('/project', function () {
+        it('show Member button');
+      });
+      context('/project/../join', function () {
+        it('say user is member and can edit the join info');
+        it('offer submit/cancel');
+        it('offer link to managing joiners (invite, accept, reject)');
+        it('offer link to leave the project');
+      });
+    });
   });
-  context('not logged', function () {});
+  context('not logged', function () {
+    it('should ask user to log in (with proper redirect)');
+  });
 });
