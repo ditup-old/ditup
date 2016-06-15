@@ -17,9 +17,11 @@
   var longUrl = '/project/' + project.id + '/' + project.url;
   var shortUrl = '/p/' + project.id;
 
+  var joinInfo = project.join_info || 'default join info text';
+
 %><% include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <section class="page">
-  <div class="join-info"></div>
+  <div class="join-info"><%= joinInfo %></div>
 </section>
 <% include ./partial/page-bottom.ejs %>

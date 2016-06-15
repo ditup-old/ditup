@@ -48,7 +48,7 @@ describe('joining a project', function () {
       });
 
       context('visit /project/.../join', function () {
-        beforeEach(functions.visit(() => { return '/project/' + dbData.projects[0].id + '/' + dbData.projects[0].url + 'aa/join'; }, browserObj));
+        beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
         it('should show a join page', function () {
           let browser = browserObj.Value;
           browser.assert.success();
@@ -63,8 +63,11 @@ describe('joining a project', function () {
         });
 
         context('join info empty', function () {
+          beforeEach(functions.visit(() => { return '/project/' + dbData.projects[1].id + '/' + dbData.projects[1].url + '/join'; }, browserObj));
           it('should show default join info', function () {
-            throw new Error('todo');
+            let browser = browserObj.Value;
+            browser.assert.success();
+            browser.assert.text('.join-info', 'default join info text');
           });
         });
       });

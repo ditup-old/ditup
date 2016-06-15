@@ -23,5 +23,6 @@
   {"url":"/feedback", "router":"feedback"},
   {"url":"/search", "router":"search"},
   {"url":"/map", "router":"map"},
-  {"url":"/brainstorm", "router":"brainstorm"}
+  {"url":"/brainstorm", "router":"brainstorm"},
+  {"url":"/p", "router":"project"}
 ]
