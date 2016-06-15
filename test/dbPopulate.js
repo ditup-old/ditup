@@ -9,6 +9,7 @@ module.exports = function (db) {
     data[md] = require('../services/data/'+md)(db);
   }
 
+  var generateUrl = require('../routes/discussion/functions').generateUrl;
   
   var dependencies = (function () {
     var validate = require('../services/validation');
@@ -22,7 +23,8 @@ module.exports = function (db) {
       validate: validate,
       database: database,
       accountService: accountService,
-      accountConfig: accountConfig
+      accountConfig: accountConfig,
+      generateUrl: generateUrl
     };
 
     return dependencies;
@@ -78,28 +80,28 @@ module.exports = function (db) {
     }
 
     function populateCollections(collections, users, collectionName) {
-      var challenges = collections;
-      var challengePromises = [];
-      for(let i = 0, len = challenges.length; i < len; ++i) {
-        let creator = typeof(challenges[i].creator) === 'number' ? users[challenges[i].creator].username : challenges[i].creator;
-        challenges[i].creator = creator;
+      var collectionPromises = [];
+      for(let i = 0, len = collections.length; i < len; ++i) {
+        let creator = typeof(collections[i].creator) === 'number' ? users[collections[i].creator].username : collections[i].creator;
+        collections[i].creator = creator;
         let cp = data[collectionName].create({
-          name: challenges[i].name,
-          description: challenges[i].description,
-          topic: challenges[i].topic,
+          name: collections[i].name,
+          description: collections[i].description,
+          topic: collections[i].topic,
           join: collections[i].join,
           join_info: collections[i].join_info,
           creator: creator
         });
-        challengePromises.push(cp);
+        collectionPromises.push(cp);
       }
-      return Promise.all(challengePromises)
+      return Promise.all(collectionPromises)
         .then(function (_ids) {
-          //copying the ids of the newly saved challenges into the original challenge object (for further use)
+          //copying the ids of the newly saved collections into the original collection object (for further use)
           
           for(let i=0, len = _ids.length; i<len; ++i) {
-            challenges[i].id = _ids[i].id;
-            challenges[i].tags = challenges[i].tags || [];
+            collections[i].id = _ids[i].id;
+            collections[i].url = generateUrl(collections[i].name);
+            collections[i].tags = collections[i].tags || [];
           }
           return;
         });

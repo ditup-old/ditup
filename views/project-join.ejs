@@ -1,0 +1,25 @@
+<%
+
+  //view needs project = {name: '', tags: []}
+
+  var css = [
+    '/css/header.css',
+    '/css/project-join.css'
+  ];
+
+  var title = 'join ' + project.name;
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+  var member = project.userStatus === 'member' ? true : false;
+  var loggedUser = session.username || false;
+  var longUrl = '/project/' + project.id + '/' + project.url;
+  var shortUrl = '/p/' + project.id;
+
+%><% include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <div class="join-info"></div>
+</section>
+<% include ./partial/page-bottom.ejs %>

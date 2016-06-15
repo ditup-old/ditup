@@ -26,6 +26,7 @@
     "watch-projects-new": "mocha ./test/functional/project/projects-new --watch",
     "watch-project-id": "mocha ./test/functional/project/project-id-name --watch",
     "watch-project-follow": "mocha ./test/functional/project/project-follow --watch",
+    "watch-project-join": "mocha ./test/functional/project/project-join --watch",
     "watch-exist": "mocha ./test/functional/all/exist --watch",
     "watch-tags": "mocha ./test/functional/all/tags --watch",
     "watch-signup": "mocha ./test/functional/signup --watch",

@@ -4,18 +4,20 @@
 
   var css = [
     '/css/header.css',
-    '/css/project-id-name.css'
+    '/css/project.css'
   ];
 
   project.tags = project.tags || [];
 
-  var title = project.topic;
+  var title = project.name;
   var headScripts = [];
   var scripts = [];
   var session = session || {logged:false, username: null};
   var logged = session.logged || false;
   var member = project.userStatus === 'member' ? true : false;
   var loggedUser = session.username || false;
+  var longUrl = '/project/' + project.id + '/' + project.url;
+  var shortUrl = '/p/' + project.id;
 
 %><% include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
@@ -30,7 +32,7 @@ include ./partial/header.ejs %>
 
     <span class="membership-field"><%
       if(project.userStatus === 'member') {
-        %><a class="link-to-members" href="/project/<%= project.id %>/<%= project.url %>/members">members: <span class="number-of-members"><%= project.memberno %></span></a><%
+        %><a class="link-to-members" href="<%= longUrl %>/members">members: <span class="number-of-members"><%= project.memberno %></span></a><%
       }
       else {
         %>members: <span class="number-of-members"><%= project.memberno %></span><%
@@ -44,11 +46,11 @@ include ./partial/header.ejs %>
             else if(project.userStatus === 'invited') {
               %><span id="accept-reject-invite-button">accept/reject invite</span><%
             } else if (logged === true) {
-              %><span id="join-button">join</span><%
+              %><a class="join-button" href="<%= longUrl %>/join">join</a><%
             }%><!--
     --></span>
 
-    <a class="link-to-followers" href="/project/<%= project.id %>/<%= project.url %>/followers">followers: <span class="number-of-followers"><%= project.followerno %></span></a><%
+    <a class="link-to-followers" href="<%= longUrl %>/followers">followers: <span class="number-of-followers"><%= project.followerno %></span></a><%
       /**
        * ********************** *
        *    hide-follow         *
@@ -66,12 +68,12 @@ include ./partial/header.ejs %>
   </nav>
   <h1 class="project-name"><%= project.name %><%
     if(member === true) {
-      %><a class="edit" href="/project/id/name/edit?fields=name">[edit]</a><% 
+      %><a class="edit" href="<%= longUrl %>/edit?fields=name">[edit]</a><% 
     }
     %></h1>
 </header>
 <nav class="link-container">
-  <a id="edit-project-link" href="/project/<%= project.id %>/<%= project.url %>/edit" >edit</a>
+  <a id="edit-project-link" href="<%= longUrl %>/edit" >edit</a>
 </nav>
 <div class="tag-container">
   <%
@@ -90,18 +92,18 @@ include ./partial/header.ejs %>
     for(var i=0, len=project.tags.length; i<len; ++i) {
       tags.list.push({name: project.tags[i].name});
     }
-  %><% include ./partial/tags.ejs %><a class="edit" href="/project/<%= project.id %>/<%= project.url %>/edit?fields=tags">[edit]</a>
+  %><% include ./partial/tags.ejs %><a class="edit" href="<%= longUrl %>/edit?fields=tags">[edit]</a>
 </div>
 <span id="project-status" ><%= project.status %></span>
 <div class="project-description" ><%
   if(member === true) {
-    %><a class="edit" href="/project/<%= project.id %>/<%= project.url %>/edit?fields=description"></a><% 
+    %><a class="edit" href="<%= longUrl %>/edit?fields=description"></a><% 
   }
   %><%= project.description %>
 </div>
 <% if(logged === true) {} 
   else {
-    var redirectUrl = encodeURIComponent('/project/' + project.id + '/' + project.url);
+    var redirectUrl = encodeURIComponent(longUrl);
     var action = '/login?redirect='+redirectUrl;
 %>
 <% include ./partial/login-form-simple.ejs %>
