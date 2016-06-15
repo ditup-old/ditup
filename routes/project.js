@@ -1,5 +1,6 @@
 'use strict';
 
+var co = require('co');
 var express = require('express');
 var router = express.Router();
 
@@ -9,6 +10,10 @@ var generateUrl = functions.generateUrl;
 
 var postHideFollow = require('./partial/post-hide-follow');
 var joinRouter = require('./project/join');
+
+
+//first the post, to get the updated data already when querying database for the project
+router.use(postHideFollow('project', {router: express.Router(), db: db }));
 
 //redirect to the correct address
 router.get(['/:id', '/:id/:url','/:id/:url/*', '/:id/*'], function (req, res, next) {
@@ -22,33 +27,34 @@ router.get(['/:id', '/:id/:url','/:id/:url/*', '/:id/*'], function (req, res, ne
   var project, expectedUrl;
 
 //first reading the project
-  return db.project.read(id)
-    .then(function (_project) {
-      for(let p in _project) {
-        project[p] = _project[p];
-      }
 
-      expectedUrl = generateUrl(project.name);
+  return co(function *() {
+    let pr = yield db.project.read(id);
 
-      //redirect to the correct url
-      if(expectedUrl !== url) {
-        let urlPieces = req.originalUrl.split('/');
-        urlPieces[3] = expectedUrl;
-        let redirectUrl = urlPieces.join('/');
-        return res.redirect(redirectUrl);
-      }
+    for(let p in pr) {
+      project[p] = pr[p];
+    }
 
-      project.url = expectedUrl;
-      project.link = req.protocol + '://' + req.headers.host+req.originalUrl; //this is a link for users for copying
-      project.id = id;
-      return next();
-    })
-    .then(null, function (err) {
-      return next(err);
-    });
+    expectedUrl = generateUrl(project.name);
+
+    //redirect to the correct url
+    if(expectedUrl !== url) {
+      let urlPieces = req.originalUrl.split('/');
+      urlPieces[3] = expectedUrl;
+      let redirectUrl = urlPieces.join('/');
+      return res.redirect(redirectUrl);
+    }
+
+    project.url = expectedUrl;
+    project.link = req.protocol + '://' + req.headers.host+req.originalUrl; //this is a link for users for copying
+    project.id = id;
+    return next();
+  })
+  .catch(function (err) {
+    return next(err);
+  });
 });
 
-router.use(postHideFollow('project', {router: express.Router(), db: db }));
 router.use(joinRouter({router: express.Router(), db: db}));
 
 
@@ -85,80 +91,37 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
         return;
       });
   }
-    //********reading user status in project
-  getProject
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.project.userStatus(id, sessUser.username);
-      }
-      return '';
-    })
-    .then(function (_status) {
-      project.userStatus = (['member', 'joining', 'invited'].indexOf(_status)>-1) ? _status : '';
-      return;
-    })
-    //**********END
-    //********reading number of followers
-    .then(function () {
-      return db.project.countFollowers(id);
-    })
-    .then(function (fno) {
-      project.followerno = fno;
-    })
-    //**********END
-    //********reading number of members
-    .then(function () {
-      return db.project.countMembers(id, 'member');
-    })
-    .then(function (mno) {
-      project.memberno = mno;
-    })
-    //**********END
-    //********reading tags
-    .then(function () {
-      return db.project.tags(id);
-    })
-    .then(function (_tags) {
-      project.tags = _tags;
-    })
-    //**********END
-    //if user is logged in, find out whether she follows the project
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.project.followingUser(id, sessUser.username)
-          .then(function(_flwng) {
-            project.following = _flwng;
-            return;
-          });
-      }
-      else {
-        return;
-      }
-    })
-    //if user is logged in, find out whether she hides the project
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.project.followingUser(id, sessUser.username, true)
-          .then(function(_hdng) {
-            project.hiding = _hdng;
-            return;
-          });
-      }
-      else {
-        return;
-      }
-    })
+  //********reading user status in project
+  return co(function *() {
+    yield getProject;
 
+    if(sessUser.logged === true) {
+      let involvement = yield db.project.userStatus(id, sessUser.username);
+      project.userStatus = (['member', 'joining', 'invited'].indexOf(involvement)>-1) ? involvement : '';
+    }
+
+    //read number of followers
+    project.followerno = yield db.project.countFollowers(id);
+    //********reading number of members
+    project.memberno = yield db.project.countMembers(id, 'member');
+    //********reading tags
+    project.tags = yield db.project.tags(id);
+    //if user is logged in, find out whether she follows the project
+    if(sessUser.logged === true) {
+      project.following = yield db.project.followingUser(id, sessUser.username);
+      //if user is logged in, find out whether she hides the project
+      project.hiding = yield db.project.followingUser(id, sessUser.username, true);
+    }
     //sending the response
-    .then(function () {
-      if(sessUser.logged !== true) {
-        sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
-      }
-      return res.render('project', {session: sessUser, project: project});
-    })
-    .then(null, function (err) {
-      return next(err);
-    });
+    if(sessUser.logged !== true) {
+      sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
+    }
+
+    return res.render('project', {session: sessUser, project: project});
+  })
+  .catch(function (err) {
+    next(err);
+  });
 });
 
 

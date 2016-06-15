@@ -41,7 +41,7 @@ include ./partial/header.ejs %>
               %><span>member</span><% 
             }
             else if(project.userStatus === 'joining') {
-              %><span id="cancel-join-button">cancel joining</span><%
+              %><a class="edit-join-button" href="<%= longUrl %>/join">edit join</a><%
             }
             else if(project.userStatus === 'invited') {
               %><span id="accept-reject-invite-button">accept/reject invite</span><%

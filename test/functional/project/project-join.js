@@ -37,15 +37,15 @@ describe('joining a project', function () {
   context('logged', function () {
     context('user has no relation', function () {
       //login
-      beforeEach(functions.login(dbData.users[0], browserObj));
+      beforeEach(functions.login(users.none, browserObj));
       afterEach(functions.logout(browserObj)); //logout
 
       context('visit project page', function () {
-        beforeEach(functions.visit(() => { return '/project/' + dbData.projects[0].id; }, browserObj));
+        beforeEach(functions.visit(() => { return '/project/' + project0.id; }, browserObj));
         it('should contain a join button', function () {
           let browser = browserObj.Value;
           browser.assert.success();
-          browser.assert.link('a', 'join', new RegExp('/project/' + dbData.projects[0].id + '.*/join'));
+          browser.assert.link('a', 'join', new RegExp('/project/' + project0.id + '.*/join'));
         });
       });
 
@@ -76,8 +76,16 @@ describe('joining a project', function () {
     });
 
     context('joining', function () {
+      beforeEach(functions.login(users.joining, browserObj));
+      afterEach(functions.logout(browserObj));
+
       context('/project', function () {
-        it('should show \'edit join\' button');
+        beforeEach(functions.visit(() => { return '/project/' + project0.id; }, browserObj));
+        it('should show \'edit join\' button', function () {
+          let browser = browserObj.Value;
+          browser.assert.success();
+          browser.assert.link('a', 'edit join', new RegExp('/project/' + project0.id + '.*/join'));
+        });
       });
 
       context('/project/.../join', function () {
@@ -87,6 +95,7 @@ describe('joining a project', function () {
         it('should offer cancel of this action');
       });
     });
+
     context('invited', function () {
       context('/project', function () {
         it('should show \'accept or reject invite\' button');
