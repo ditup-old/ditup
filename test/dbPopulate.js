@@ -100,7 +100,7 @@ module.exports = function (db) {
           
           for(let i=0, len = _ids.length; i<len; ++i) {
             collections[i].id = _ids[i].id;
-            collections[i].url = generateUrl(collections[i].name);
+            collections[i].url = generateUrl(collections[i].name || collections[i].topic);
             collections[i].tags = collections[i].tags || [];
           }
           return;
