@@ -198,7 +198,7 @@ describe('database/project', function () {
 
             context('already some member status', function () {
               var alreadyStatus = [
-                {user: joiningUser,  status:'joining'},
+                {user: joiningUser,  status:'joining', request: 'this is my request'},
                 {user: invitedUser,  status:'invited'},
                 {user: member,  status:'member'}
               ];

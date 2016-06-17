@@ -1,6 +1,7 @@
 'use strict';
 
 var proto = require('./proto');
+var co = require('co');
 
 
 module.exports = function (db) {
@@ -64,9 +65,15 @@ module.exports = function (db) {
   project.readProjectsByTags = proto.readCollectionsByTags(['name', 'description'], 'projects', db);
 
   //******************** BEGIN membership functions
-  project.addMember = function (id, username, status) {
+  project.addMember = function (id, username, status, specificParams) {
     let allowedStates = ['joining', 'invited', 'member'];
     if(allowedStates.indexOf(status)<0) return Promise.reject('400');
+    specificParams = specificParams || {};
+
+    let request = null;
+    if(status === 'joining' && specificParams.hasOwnProperty('request')) {
+      request = specificParams.request;
+    }
 
     let query = `FOR p IN projects FILTER p._key == @id
       FOR u IN users FILTER u.username == @username
@@ -75,20 +82,22 @@ module.exports = function (db) {
           _to: u._id,
           unique: CONCAT(p._id, '-', u._id),
           status: @status,
-          created: @created
+          created: @created,
+          request: @request
         } IN projectMember`;
     let params = {
       id: id,
       username: username,
       status: status,
-      created: Date.now()
+      created: Date.now(),
+      request: request
     };
 
     return db.query(query, params)
       .then(function (cursor) {
         var writes = cursor.extra.stats.writesExecuted;
         if(writes === 0) throw new Error('404');
-        if(writes > 1) throw new Error('more than one tag added. This should never happen.');
+        if(writes > 1) throw new Error('more than one Involvement added. This should never happen.');
       })
       .then(null, function (err) {
         if(err.code === 409) throw new Error('409');
@@ -152,6 +161,45 @@ module.exports = function (db) {
         return mno;
       });
   }
+  
+
+  //extended information about user involvement in project (like request message etc...)
+  /**
+   * 
+   *
+   * @return {status: status[, request: request]}
+   */
+  project.userInvolved = function (id, username) {
+    let query = `FOR u IN users FILTER u.username == @username
+      FOR p IN projects FILTER p._key == @id
+        FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id
+          RETURN pm`;
+
+
+    let params = {id: id, username: username};
+    return co(function *() {
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+
+      if(output.length >1) return Promise.reject(new Error('duplicate membership. this should never happen.'));
+
+      if(output.length === 1) {
+        let allowedStates = ['joining', 'invited', 'member'];
+
+        if(allowedStates.indexOf(output[0].status)>-1) {
+          let returnObject = {status: output[0].status};
+          if(output[0].status === 'joining') {
+            returnObject.request = output[0].request || '';
+          }
+          return Promise.resolve(returnObject);
+        };
+      }
+      return Promise.resolve({status: ''});
+    })
+    .catch(function (err) {
+      return Promise.reject(err);
+    });
+  }; 
 
   project.userStatus = function (id, username) {
     let query = `FOR u IN users FILTER u.username == @username

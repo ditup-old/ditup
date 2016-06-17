@@ -58,8 +58,8 @@
   "ideaTag": [],
   "projectTag": [],
   "projectMember": [
-    {"collection": 0, "user": 1, "status": "joining"},
-    {"collection": 0, "user": 2, "status": "invited"},
+    {"collection": 0, "user": 1, "status": "joining", "request": "this is a request: i want to join your project very very very much. please accept me. :):w"},
+    {"collection": 0, "user": 2, "status": "invited", "invitedBy":3},
     {"collection": 0, "user": 3, "status": "member"}
   ]
 }

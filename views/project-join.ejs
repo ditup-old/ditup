@@ -28,9 +28,16 @@ include ./partial/header.ejs %>
   <% } %>
   <%  if(['', 'joining'].indexOf(project.userStatus) !== -1) { %>
   <form method="post" class="join-request">
-    <textarea name="request-text"></textarea>
+    <textarea name="request-text"><%= project.joinRequest %></textarea>
+  <% if(project.userStatus === '') { %>
     <input type="submit" name="join" value="Send request" />
     <a class="cancel-join" href="<%= longUrl %>">Cancel</a>
+  <% } %>
+  <% if(project.userStatus === 'joining') { %>
+    <input type="submit" name="submit" value="Edit request" />
+    <input type="submit" name="submit" value="Delete request" />
+    <a class="cancel-join" href="<%= longUrl %>">Cancel</a>
+  <% } %>
   </form>
   <% } %>
 </section>

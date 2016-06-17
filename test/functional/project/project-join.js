@@ -109,10 +109,32 @@ describe('joining a project', function () {
           browser.assert.element('.join-info');
           browser.assert.text('.join-info', project0.join_info);
         });
-        it('should show textarea with join request');
-        it('should offer editing join request');
-        it('should offer deleting join request');
-        it('should offer cancel of this action');
+        it('should show a form & textarea with join request', function () {
+          let browser = browserObj.Value;
+          browser.assert.element('form.join-request');
+          browser.assert.attribute('form.join-request', 'method', 'post');
+          //textarea
+          browser.assert.element('.join-request textarea[name=request-text]');
+          //join button
+          browser.assert.input('.join-request textarea[name=request-text]', dbData.projectMember[0].request);
+        });
+        it('should offer editing join request', function () {
+          let browser = browserObj.Value;
+          //edit request button
+          browser.assert.element('.join-request input[type=submit][name=submit][value="Edit request"]');
+        });
+
+        it('should offer deleting join request', function () {
+          let browser = browserObj.Value;
+          //delete request button
+          browser.assert.element('.join-request input[type=submit][name=submit][value="Delete request"]');
+        });
+
+        it('should offer cancel of this action', function () {
+          let browser = browserObj.Value;
+          //cancel link
+          browser.assert.link('.join-request a.cancel-join', 'Cancel', '/project/' + project0.id + '/' + project0.name);
+        });
       });
     });
 
