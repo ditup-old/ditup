@@ -159,10 +159,24 @@ describe('joining a project', function () {
         });
       });
       context('/project/.../join', function () {
-        it('should say that user is invited and can just accept or reject the invite');
-        it('should offer accept button');
-        it('should offer reject button');
-        it('should offer cancel the action');
+        beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
+
+        it('should say that user is invited and can just accept or reject the invite', function () {
+          let browser = browserObj.Value;
+          browser.assert.text('.join-info', 'You were invited to become a member of this project. You can accept or reject the invitation below.');
+        });
+        it('should offer accept button', function () {
+          let browser = browserObj.Value;
+          browser.assert.element('.process-invitation input[type=submit][name=submit][value="Accept invitation"]');
+        });
+        it('should offer reject button', function () {
+          let browser = browserObj.Value;
+          browser.assert.element('.process-invitation input[type=submit][name=submit][value="Reject invitation"]');
+        });
+        it('should offer cancel the action', function () {
+          let browser = browserObj.Value;
+          browser.assert.link('.process-invitation a.cancel-join', 'Cancel', '/project/' + project0.id + '/' + project0.name);
+        });
       });
     });
     context('member', function () {

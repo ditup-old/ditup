@@ -40,5 +40,13 @@ include ./partial/header.ejs %>
   <% } %>
   </form>
   <% } %>
+  <% if(project.userStatus === 'invited') { %>
+  <div class="join-info" >You were invited to become a member of this project. You can accept or reject the invitation below. </div>
+  <form method="post" class="process-invitation">
+    <input type="submit" name="submit" value="Accept invitation" />
+    <input type="submit" name="submit" value="Reject invitation" />
+    <a class="cancel-join" href="<%= longUrl %>">Cancel</a>
+  </form>
+  <% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>
