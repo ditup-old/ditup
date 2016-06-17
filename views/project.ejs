@@ -44,7 +44,7 @@ include ./partial/header.ejs %>
               %><a class="edit-join-button" href="<%= longUrl %>/join">edit join</a><%
             }
             else if(project.userStatus === 'invited') {
-              %><span id="accept-reject-invite-button">accept/reject invite</span><%
+              %><a class="process-invite-button" href="<%= longUrl %>/join">invited</a><%
             } else if (logged === true) {
               %><a class="join-button" href="<%= longUrl %>/join">join</a><%
             }%><!--

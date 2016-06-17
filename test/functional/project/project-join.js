@@ -109,6 +109,7 @@ describe('joining a project', function () {
           browser.assert.element('.join-info');
           browser.assert.text('.join-info', project0.join_info);
         });
+
         it('should show a form & textarea with join request', function () {
           let browser = browserObj.Value;
           browser.assert.element('form.join-request');
@@ -118,6 +119,7 @@ describe('joining a project', function () {
           //join button
           browser.assert.input('.join-request textarea[name=request-text]', dbData.projectMember[0].request);
         });
+
         it('should offer editing join request', function () {
           let browser = browserObj.Value;
           //edit request button
@@ -139,9 +141,22 @@ describe('joining a project', function () {
     });
 
     context('invited', function () {
+      beforeEach(functions.login(users.invited, browserObj));
+      afterEach(functions.logout(browserObj));
+
       context('/project', function () {
-        it('should show \'accept or reject invite\' button');
-        it('should show \'~you were invited to join the project\' message');
+        beforeEach(functions.visit(() => { return '/project/' + project0.id; }, browserObj));
+
+        it('should show \'accept or reject invite\' button', function () {
+          let browser = browserObj.Value;
+          browser.assert.success();
+          browser.assert.link('a', 'invited', new RegExp('/project/' + project0.id + '.*/join'));
+        });
+
+        it('should show \'~you were invited to join the project\' message', function () {
+          let browser = browserObj.Value;
+          browser.assert.text('.popup-message.info', new RegExp('.*you were invited to join the project.*'));
+        });
       });
       context('/project/.../join', function () {
         it('should say that user is invited and can just accept or reject the invite');

@@ -98,6 +98,10 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
     if(sessUser.logged === true) {
       let involvement = yield db.project.userStatus(id, sessUser.username);
       project.userStatus = (['member', 'joining', 'invited'].indexOf(involvement)>-1) ? involvement : '';
+      //show a message that user was invited when invited
+      if(project.userStatus === 'invited') {
+        sessUser.messages.push('you were invited to join the project');
+      }
     }
 
     //read number of followers
