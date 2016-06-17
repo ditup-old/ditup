@@ -33,7 +33,18 @@ describe('joining a project', function () {
 
   config.beforeTest(browserObj, deps);
 
-
+  context('not logged', function () {
+    beforeEach(functions.logout(browserObj));
+    beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
+      
+    it('should ask user to log in (with proper redirect)', function () {
+      let browser = browserObj.Value;
+      browser.assert.success();
+      browser.assert.text('.popup-message.info', new RegExp('.*you need to log in before joining the project.*'));
+      browser.assert.text('.popup-message.info a', 'log in');
+      browser.assert.attribute('.popup-message.info a', 'href', /\/login\?redirect=%2Fproject%2F.*%2Fjoin/);
+    });
+  });
   context('logged', function () {
     context('user has no relation', function () {
       //login
@@ -190,8 +201,5 @@ describe('joining a project', function () {
         it('offer link to leave the project');
       });
     });
-  });
-  context('not logged', function () {
-    it('should ask user to log in (with proper redirect)');
   });
 });

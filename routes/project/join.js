@@ -6,6 +6,15 @@ module.exports = function (dependencies) {
   let router = dependencies.router;
   let db = dependencies.db;
 
+  router.all('/:id/:url/join', function (req, res, next) {
+    let sessUser = req.session.user;
+    if(req.session.user.logged !== true) {
+      sessUser.messages.push('you need to <a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> before joining the project');
+      return res.render('sysinfo', {session: sessUser});
+    }
+    return next();
+  });
+
   router.get('/:id/:url/join', function (req, res, next) {
     let sessUser = req.session.user;
     let id = req.params.id;
