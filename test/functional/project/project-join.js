@@ -46,6 +46,59 @@ describe('joining a project', function () {
     });
   });
   context('logged', function () {
+    context('POST', function () {
+      context('[no relation] new join request', function () {
+        it('should add the user to database as joining');
+        it('should redirect to the project page with proper button');
+        it('should show the message that request was sent wait for response');
+      });
+      context('[joining] edit join request', function () {
+        it('should change the join request in database');
+        it('should redirect to the project page');
+        it('should show the message that request was updated');
+      });
+      context('[joining] delete join request', function () {
+        it('should remove request from database');
+        it('should show project page with join button');
+        it('should show info that the request was deleted');
+      });
+      context('[invited] accept invitation (become a member)', function () {
+        it('should update the user to member in the database');
+        it('should show project page for members');
+        it('should say that user is now member');
+      });
+      context('[invited] reject invitation', function () {
+        it('should remove the invitation from db');
+        it('should redirect to project page with join button');
+        it('should say that invitation was rejected');
+      });
+      context('[member] edit join info', function () {
+        it('should update the join info');
+        it('should display the new join info');
+        it('should say that info was updated');
+      });
+      context('[member] add joiner', function () {
+        it('should make user>member in db');
+        it('should display info that user ... is now member');
+        it('should give the new member a notification');
+      });
+      context('[member] reject joiner', function () {
+        it('should remove joining from database');
+        it('should display that user ... was rejected');
+        it('should give the rejected user a notification');
+      });
+      context('[member] invite user [no relation]', function () {
+        it('should add invite for user to db');
+        it('TODO');
+      });
+      context('[member] cancel invitation [invited]', function () {
+        it('TODO');
+      });
+      context('all the other options', function () {
+        it('should show error not authorized (or some other one?)');
+      });
+    });
+
     context('user has no relation', function () {
       //login
       beforeEach(functions.login(users.none, browserObj));
