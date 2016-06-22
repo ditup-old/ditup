@@ -57,6 +57,8 @@ module.exports = function (session) {
   });
 
   app.use(function (req, res, next) {
+    //push message into req.session.user.messages to show it in the nearest view
+    //push message into req.session.messages to show it in next view (i.e. useful for redirects)
     req.app = req.app || {};
     req.app.messages = req.session.messages;
     req.session.messages = req.session.messages || [];
