@@ -1,5 +1,7 @@
 'use strict';
 
+let co = require('co');
+
 module.exports = {
   init: init,
   beforeTest: beforeTest
@@ -62,6 +64,38 @@ function init (config, dbData) {
     }
   }
 
+  function fill(url, data, browserObj) {
+    return function (done) {
+      let browser = browserObj.Value;
+
+      //get the url
+      let _url;
+      if(typeof(url) === 'string') {
+        _url = url;
+      }
+      else if (typeof(url) === 'function') {
+        _url = url();
+      }
+      else {
+        throw new Error('url needs to have type function or string, but has '+typeof(url));
+      }
+      //**
+      return co(function *(){
+        yield browser.visit(_url);
+        for(let name in data) {
+          if(name !== 'submit') {
+            browser.fill(name, data[name]);
+          }
+        }
+        yield browser.pressButton(data['submit'] || 'submit');
+        done();
+      })
+      .catch(function (err) {
+        done(err);
+      });
+    };
+  }
+
   return {
     dbPopulate: dbPopulate,
     app: app,
@@ -73,7 +107,8 @@ function init (config, dbData) {
     functions: {
       login: loginUser,
       logout: logoutUser,
-      visit: visit
+      visit: visit,
+      fill: fill
     }
   };
 }
