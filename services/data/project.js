@@ -104,7 +104,50 @@ module.exports = function (db) {
         throw err;
       });
   };
+
+  project.updateInvolvement = function(id, username, involvement, specificParams) {
+    return co(function *(){
+      let query, params;
+      if(involvement === 'joining'){
+        query = `
+            FOR p IN projects FILTER p._key == @id
+              FOR u IN users FILTER u.username == @username
+                FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id && pm.status == "joining"
+                  UPDATE pm WITH {
+                    request: @request,
+                    updated: @now
+                  } IN projectMember
+            RETURN NEW
+          `;
+        params = {id: id, username: username, request: specificParams.request, now: Date.now()};
+      }
+
+      let out = yield db.query(query, params);
+      return Promise.resolve(out);
+    })
+    .catch(function (err) {
+      return Promise.reject(err);
+    });
+  };
   
+  project.removeInvolvement = function(id, username, involvement) {
+    return co(function *(){
+      let query = `
+          FOR p IN projects FILTER p._key == @id
+            FOR u IN users FILTER u.username == @username
+              FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
+                REMOVE pm IN projectMember
+        `;
+      let params = {id: id, username: username, involvement: involvement};
+
+      let out = yield db.query(query, params);
+      return Promise.resolve(out);
+    })
+    .catch(function (err) {
+      return Promise.reject(err);
+    });
+  };
+
   project.countMembers = function (id, status) {
     let allowedStates = ['joining', 'invited', 'member'];
     if(allowedStates.indexOf(status)<0) return Promise.reject('400');
