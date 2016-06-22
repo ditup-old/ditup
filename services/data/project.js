@@ -105,21 +105,35 @@ module.exports = function (db) {
       });
   };
 
-  project.updateInvolvement = function(id, username, involvement, specificParams) {
+  project.updateInvolvement = function(id, username, involvement, targetInvolvement, specificParams) {
     return co(function *(){
       let query, params;
-      if(involvement === 'joining'){
+      if(involvement === targetInvolvement){
         query = `
             FOR p IN projects FILTER p._key == @id
               FOR u IN users FILTER u.username == @username
-                FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id && pm.status == "joining"
+                FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
                   UPDATE pm WITH {
                     request: @request,
                     updated: @now
                   } IN projectMember
             RETURN NEW
           `;
-        params = {id: id, username: username, request: specificParams.request, now: Date.now()};
+        params = {id: id, username: username, involvement: involvement, request: specificParams.request, now: Date.now()};
+      }
+
+      else{
+        query = `
+            FOR p IN projects FILTER p._key == @id
+              FOR u IN users FILTER u.username == @username
+                FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
+                  UPDATE pm WITH {
+                    status: @targetInvolvement,
+                    updated: @now
+                  } IN projectMember
+            RETURN NEW
+          `;
+        params = {id: id, username: username, involvement: involvement, targetInvolvement: targetInvolvement, now: Date.now()};
       }
 
       let out = yield db.query(query, params);

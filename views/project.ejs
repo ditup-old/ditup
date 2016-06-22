@@ -38,7 +38,7 @@ include ./partial/header.ejs %>
         %>members: <span class="number-of-members"><%= project.memberno %></span><%
       }
     %><% if(project.userStatus === 'member') {
-              %><span>member</span><% 
+              %><a class="member-join-button" href="<%= longUrl %>/join">member</a><%
             }
             else if(project.userStatus === 'joining') {
               %><a class="edit-join-button" href="<%= longUrl %>/join">edit join</a><%

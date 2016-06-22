@@ -38,6 +38,10 @@ describe('joining a project', function () {
     browser = browserObj.Value;
   });
 
+  function assertMemberLink() {
+    browser.assert.link('a', 'member', new RegExp('/project/' + project0.id + '.*/join'));
+  }
+
   context('not logged', function () {
     beforeEach(functions.logout(browserObj));
     beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
@@ -80,6 +84,7 @@ describe('joining a project', function () {
         beforeEach(functions.logout(browserObj)); //logout
         beforeEach(functions.login(users.joining, browserObj));
         beforeEach(functions.fill(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; },{'request-text': 'this is an updated request', submit: 'Edit request'}, browserObj));
+        afterEach(functions.logout(browserObj));
         it('should change the join request in database', function (done) {
           browser.assert.success();
           return browser.visit('/project/'+project0.id+'/'+project0.url + '/join')
@@ -99,6 +104,7 @@ describe('joining a project', function () {
         beforeEach(functions.logout(browserObj)); //logout
         beforeEach(functions.login(users.joining, browserObj));
         beforeEach(functions.fill(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; },{'request-text': 'this is an updated request', submit: 'Delete request'}, browserObj));
+        afterEach(functions.logout(browserObj));
         it('should remove request from database', function () {
           browser.assert.success();
         });
@@ -112,8 +118,18 @@ describe('joining a project', function () {
         });
       });
       context('[invited] accept invitation (become a member)', function () {
-        it('should update the user to member in the database');
-        it('should show project page for members');
+        beforeEach(functions.logout(browserObj)); //logout
+        beforeEach(functions.login(users.invited, browserObj));
+        beforeEach(functions.fill(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; },{submit: 'Accept invitation'}, browserObj));
+        afterEach(functions.logout(browserObj));
+
+        it('should update the user to member in the database', function () {
+          browser.assert.success();
+        });
+        it('should redirect to project page for members', function () {
+          browser.assert.redirected();
+          assertMemberLink();
+        });
         it('should say that user is now member');
       });
       context('[invited] reject invitation', function () {
@@ -277,8 +293,14 @@ describe('joining a project', function () {
       });
     });
     context('member', function () {
+      beforeEach(functions.logout(browserObj)); //logout
+      beforeEach(functions.login(users.member, browserObj));
+      beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url; }, browserObj));
+      afterEach(functions.logout(browserObj));
       context('/project', function () {
-        it('show Member button');
+        it('show Member button', function () {
+          assertMemberLink();
+        });
       });
       context('/project/../join', function () {
         it('say user is member and can edit the join info');
@@ -289,3 +311,4 @@ describe('joining a project', function () {
     });
   });
 });
+

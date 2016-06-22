@@ -80,7 +80,6 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       .then(function (_project) {
         project = _project;
         expectedUrl = generateUrl(project.name);
-        if(expectedUrl !== url) throw new Error('wrong url');
         project.url = expectedUrl;
         project.link = req.protocol + '://' + req.headers.host+req.originalUrl; //this is a link for users for copying
         project.id = id;

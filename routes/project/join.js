@@ -34,12 +34,15 @@ module.exports = function (dependencies) {
         req.session.messages.push('The request to join the project was sent. You need to wait for a response now.'); //show message after redirect
       }
       else if(involvement === 'joining' && submit === 'Edit request') {
-        yield db.project.updateInvolvement(id, sessUser.username, 'joining', {request: request});
+        yield db.project.updateInvolvement(id, sessUser.username, 'joining', 'joining', {request: request});
         req.session.messages.push('Your request was updated.'); //show message after redirect
       }
       else if(involvement === 'joining' && submit === 'Delete request') {
         yield db.project.removeInvolvement(id, sessUser.username, 'joining');
         req.session.messages.push('The request was successfully deleted.'); //show message after redirect
+      }
+      else if(involvement === 'invited' && submit === 'Accept invitation') {
+        yield db.project.updateInvolvement(id, sessUser.username, 'invited', 'member');
       }
       else {
         throw new Error('post not recognized');
