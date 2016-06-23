@@ -106,6 +106,11 @@
   display: block;
 }
 
+/* make a horizontal separator between dit and connect menu */
+.connect-menu {
+  border-left: 1px dotted #eee;
+}
+
 /* align the last expanded items to the right */
 .people-menu:last-child .header-submenu {
   right: 0;

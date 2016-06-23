@@ -5,27 +5,24 @@
     <ul class="dit-menu header-menu">
       <li class="home-logo"><a class="expand" href="/" ><img src="/img/logo3.png" /></a>
         <ul class="header-submenu">
-          <li><a href="/development">development</a></li>
-          <li><a href="/feedback">feedback</a></li>
+          <li><a href="/about">about</a></li>
         </ul>
       </li><!--
-      --><li><a class="icon-idea" href="/ideas">ideas</a></li><!--
       --><li><a class="icon-challenge" href="/challenges">challenges</a></li><!--
+      --><li><a class="icon-idea" href="/ideas">ideas</a></li><!--
       --><li><a class="icon-project" href="/projects">projects</a></li><!--
       --><li><a class="icon-discussion" href="/discussions">discussions</a></li><!--
-      --><li><a><i class="fa fa-bars" ></i></a>
-        <ul class="header-submenu">
-          <li><a class="icon-tag" href="/tags">tags</a></li>
-        </ul>
-      </li>
+      --></ul><!--
+    --><!--div style="background-color:white;height:40px;width:1px;display:inline-block;position:relative;top:-10px;">aaa</div--><!--
+    --><ul class="header-menu connect-menu"><!--
+      --><li><a class="icon-user" href="/people">people</a></li><!--
+      --><li><a class="icon-tag" href="/tags">tags</a></li><!--
+      --></li>
     </ul>
-    <form method="get" action="/search">
-      <input type="text" /><button type="submit" name="search" ><span class="fa fa-search" ></span></button>
-    </form>
     <ul class="people-menu header-menu">
       <% if(session.logged === true) { %>
       <li><a href="/notifications"><span class="fa fa-bell" ></span></a></li><!--
-      --><li><a href="/talk" ><span class="fa fa-comments" ></span></a></li><!--
+      --><li><a href="/messages" ><span class="fa fa-comments" ></span></a></li><!--
       --><li class="header-avatar"><!--
         --><a class="expand" href="/user/<%= session.username %>"><img src="/user/<%= session.username %>/avatar" /><!--
           --><span><%= session.username %></span><!--
