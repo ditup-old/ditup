@@ -21,94 +21,96 @@
 
 %><% include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
-<header class="collection-header">
-  <nav class="action-container">
+<section class="page">
+  <header class="collection-header">
+    <nav class="action-container">
+      <%
+        var share = {
+          link: project.link
+        };
+      %>
+      <% include ./partial/share.ejs %>
+
+      <span class="membership-field"><%
+        if(project.userStatus === 'member') {
+          %><a class="link-to-members" href="<%= longUrl %>/members">members: <span class="number-of-members"><%= project.memberno %></span></a><%
+        }
+        else {
+          %>members: <span class="number-of-members"><%= project.memberno %></span><%
+        }
+      %><% if(project.userStatus === 'member') {
+                %><a class="member-join-button" href="<%= longUrl %>/join">member</a><%
+              }
+              else if(project.userStatus === 'joining') {
+                %><a class="edit-join-button" href="<%= longUrl %>/join">edit join</a><%
+              }
+              else if(project.userStatus === 'invited') {
+                %><a class="process-invite-button" href="<%= longUrl %>/join">invited</a><%
+              } else if (logged === true) {
+                %><a class="join-button" href="<%= longUrl %>/join">join</a><%
+              }%><!--
+      --></span>
+
+      <a class="link-to-followers" href="<%= longUrl %>/followers">followers: <span class="number-of-followers"><%= project.followerno %></span></a><%
+        /**
+         * ********************** *
+         *    hide-follow         *
+         * ********************** *
+         */
+
+        var hideFollow = {
+          view: !!logged,
+          hiding: project.hiding,
+          following: project.following,
+          collection: 'project'
+        };
+
+      %><% include partial/hide-follow.ejs %>
+    </nav>
+    <h1 class="project-name icon-project"><%= project.name %><%
+      if(member === true) {
+        %><a class="edit" href="<%= longUrl %>/edit?fields=name">[edit]</a><% 
+      }
+      %></h1>
+  </header>
+  <nav class="link-container">
+    <a id="edit-project-link" href="<%= longUrl %>/edit" >edit</a>
+  </nav>
+  <div class="tag-container">
     <%
-      var share = {
-        link: project.link
-      };
-    %>
-    <% include ./partial/share.ejs %>
-
-    <span class="membership-field"><%
-      if(project.userStatus === 'member') {
-        %><a class="link-to-members" href="<%= longUrl %>/members">members: <span class="number-of-members"><%= project.memberno %></span></a><%
-      }
-      else {
-        %>members: <span class="number-of-members"><%= project.memberno %></span><%
-      }
-    %><% if(project.userStatus === 'member') {
-              %><a class="member-join-button" href="<%= longUrl %>/join">member</a><%
-            }
-            else if(project.userStatus === 'joining') {
-              %><a class="edit-join-button" href="<%= longUrl %>/join">edit join</a><%
-            }
-            else if(project.userStatus === 'invited') {
-              %><a class="process-invite-button" href="<%= longUrl %>/join">invited</a><%
-            } else if (logged === true) {
-              %><a class="join-button" href="<%= longUrl %>/join">join</a><%
-            }%><!--
-    --></span>
-
-    <a class="link-to-followers" href="<%= longUrl %>/followers">followers: <span class="number-of-followers"><%= project.followerno %></span></a><%
       /**
        * ********************** *
-       *    hide-follow         *
+       *         tags           *
        * ********************** *
        */
 
-      var hideFollow = {
-        view: !!logged,
-        hiding: project.hiding,
-        following: project.following,
+      var tags = {
+        add: false,
+        list: [],
         collection: 'project'
       };
-
-    %><% include partial/hide-follow.ejs %>
-  </nav>
-  <h1 class="project-name"><%= project.name %><%
+      //populating the tag list
+      for(var i=0, len=project.tags.length; i<len; ++i) {
+        tags.list.push({name: project.tags[i].name});
+      }
+    %><% include ./partial/tags.ejs %><a class="edit" href="<%= longUrl %>/edit?fields=tags">[edit]</a>
+  </div>
+  <span id="project-status" ><%= project.status %></span>
+  <div class="project-description" ><%
     if(member === true) {
-      %><a class="edit" href="<%= longUrl %>/edit?fields=name">[edit]</a><% 
+      %><a class="edit" href="<%= longUrl %>/edit?fields=description"></a><% 
     }
-    %></h1>
-</header>
-<nav class="link-container">
-  <a id="edit-project-link" href="<%= longUrl %>/edit" >edit</a>
-</nav>
-<div class="tag-container">
+    %><%= project.description %>
+  </div>
+  <% if(logged === true) {} 
+    else {
+      var redirectUrl = encodeURIComponent(longUrl);
+      var action = '/login?redirect='+redirectUrl;
+  %>
+  <% include ./partial/login-form-simple.ejs %>
   <%
-    /**
-     * ********************** *
-     *         tags           *
-     * ********************** *
-     */
-
-    var tags = {
-      add: false,
-      list: [],
-      collection: 'project'
-    };
-    //populating the tag list
-    for(var i=0, len=project.tags.length; i<len; ++i) {
-      tags.list.push({name: project.tags[i].name});
     }
-  %><% include ./partial/tags.ejs %><a class="edit" href="<%= longUrl %>/edit?fields=tags">[edit]</a>
-</div>
-<span id="project-status" ><%= project.status %></span>
-<div class="project-description" ><%
-  if(member === true) {
-    %><a class="edit" href="<%= longUrl %>/edit?fields=description"></a><% 
-  }
-  %><%= project.description %>
-</div>
-<% if(logged === true) {} 
-  else {
-    var redirectUrl = encodeURIComponent(longUrl);
-    var action = '/login?redirect='+redirectUrl;
-%>
-<% include ./partial/login-form-simple.ejs %>
-<%
-  }
-%>
-</div>
+  %>
+  </div>
+</section>
 <% include ./partial/page-bottom.ejs %>

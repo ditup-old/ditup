@@ -1,0 +1,106 @@
+<%
+
+  //view needs collection = {name: '', tags: []}
+
+  var css = [
+    '/css/header.css',
+    '/css/'+collectionName+'.css'
+  ];
+
+  var title = collection.name;
+  var headScripts = [];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+  var loggedUser = session.username || false;
+%><%include ./page-top.ejs %><%
+include ./header.ejs %>
+<style>
+  form#add-tag-form, form.edit-comment-form, form.remove-comment-form {
+    display: inline;
+  }
+</style>
+<section class="page">
+  <header class="collection-header">
+    <nav class="action-container">
+      <%
+        var share = {
+          link: collection.link
+        };
+      %>
+      <% include ./share.ejs %>
+
+      <a class="link-to-followers" href="">followers: <span class="number-of-followers"><%= collection.followerno %></span></a><%
+        /**
+         * ********************** *
+         *    hide-follow         *
+         * ********************** *
+         */
+
+        var hideFollow = {
+          view: !!logged,
+          hiding: !!collection.hiding,
+          following: !!collection.following,
+          collection: collectionName
+        };
+
+      %><% include ./hide-follow.ejs %>
+    </nav>
+    <h1 class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" ><%= collection.name %></h1>
+  </header>
+  <div class="tag-container">
+    <%
+      /**
+       * ********************** *
+       *         tags           *
+       * ********************** *
+       */
+
+      var tags = {
+        add: !!logged,
+        list: [],
+        collection: collectionName
+      };
+      //populating the tag list
+      for(var i=0, len=collection.tags.length; i<len; ++i) {
+        tags.list.push({name: collection.tags[i]});
+      }
+    %><% include ./tags.ejs %>
+  </div>
+  <div id="<%= collectionName %>-description" ><%= collection.description %></div>
+  <div id="new-comment">
+  <% if (logged === true) { %>
+    <form id="comment-form" method="post" action="" >
+      <textarea name="comment"></textarea>
+      <input type="submit" name="submit" value="comment" />
+    </form>
+  <% } 
+    else {
+      var redirectUrl = encodeURIComponent('/' + collectionName + '/' + collection.id + '/' + collection.url);
+      var action = '/login?redirect='+redirectUrl;
+  %>
+  <% include ./login-form-simple.ejs %>
+  <%
+    }
+  %>
+  </div>
+  <div id="<%= collectionName %>-comments">
+  <% for(let co of collection.comments) { %>
+  <div class="<%= collectionName %>-comment" id="<%= collectionName %>-comment-<%= co.id %>">
+      <span class="<%= collectionName %>-comment-text"><%= co.text %></span>
+      <a class="<%= collectionName %>-comment-author" href="/user/<%= co.author.username %>"><%= co.author.username %></a>
+    <% if(co.author.username === loggedUser) { %>
+      <form class="edit-comment-form" method="post" >
+        <input type="hidden" name="comment-id" value="<%= co.id %>" />
+        <input type="submit" name="submit" value="edit comment" />
+      </form>
+      <form class="remove-comment-form" method="post" >
+        <input type="hidden" name="comment-id" value="<%= co.id %>" />
+        <input type="submit" name="submit" value="remove comment" />
+      </form>
+    <% } %>
+    </div>
+  <% } %>
+  </div>
+</section>
+<% include ./page-bottom.ejs %>

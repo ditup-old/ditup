@@ -1,0 +1,49 @@
+@import "fa-icon-mixin";
+@import "share-link";
+@import "page-mixin";
+
+@include page();
+
+.action-container {
+  float:right;
+
+  form {
+    display:inline;
+  }
+}
+
+.collection-name {
+  float:left;
+}
+
+.edit {
+  visibility:hidden;
+
+  &:before{
+    visibility:visible;
+
+    @include fa-icon('f040');
+  }
+}
+
+
+.more {
+  visibility:hidden;
+
+  &:before{
+    visibility:visible;
+
+    @include fa-icon('f141');
+  }
+}
+
+.collection-header:after {
+  clear:both;
+  display:block;
+  content:"";
+}
+
+.collection-name {
+  font-size:30px;
+}
+

@@ -1,5 +1,8 @@
 @import "fa-icon-mixin";
 @import "share-link";
+@import "page-mixin";
+
+@include page();
 
 .action-container {
   float:right;
@@ -43,9 +46,9 @@
 .project-name {
   font-size:30px;
 
-  &:before{
-    @include fa-icon('f1b3');
-    margin:0 5px;
-  }
+//  &:before{
+//    @include fa-icon('f1b3');
+//    margin:0 5px;
+//  }
 }
 

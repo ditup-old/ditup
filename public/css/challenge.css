@@ -10,6 +10,28 @@
   padding: 3px;
 }
 
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
 .action-container {
   float: right;
 }
@@ -18,7 +40,7 @@
   display: inline;
 }
 
-.project-header {
+.collection-name {
   float: left;
 }
 
@@ -50,13 +72,6 @@
   content: "";
 }
 
-.project-name {
+.collection-name {
   font-size: 30px;
-}
-
-.project-name:before {
-  content: "\f1b3";
-  font-family: FontAwesome;
-  line-height: 0;
-  margin: 0 5px;
 }

@@ -1,0 +1,77 @@
+.share-link:before {
+  content: "\f0c1";
+  font-family: FontAwesome;
+  line-height: 0;
+  /* fa-link */
+}
+
+.share-link input {
+  border: 1px solid #6ca6ca;
+  padding: 3px;
+}
+
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.action-container {
+  float: right;
+}
+
+.action-container form {
+  display: inline;
+}
+
+.collection-name {
+  float: left;
+}
+
+.edit {
+  visibility: hidden;
+}
+
+.edit:before {
+  visibility: visible;
+  content: "\f040";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.more {
+  visibility: hidden;
+}
+
+.more:before {
+  visibility: visible;
+  content: "\f141";
+  font-family: FontAwesome;
+  line-height: 0;
+}
+
+.collection-header:after {
+  clear: both;
+  display: block;
+  content: "";
+}
+
+.collection-name {
+  font-size: 30px;
+}
