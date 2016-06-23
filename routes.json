@@ -5,7 +5,6 @@
   {"url":"/signup", "router":"signup"},
   {"url":"/logout", "router":"logout"},
   {"url":"/logout-all", "router":"logout"},
-  {"url":"/talk", "router":"talk"},
   {"url":"/user", "router":"user"},
   {"url":"/users", "router":"users"},
   {"url": "/discussion", "router": "discussion"},
