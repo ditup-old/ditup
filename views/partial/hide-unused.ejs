@@ -1,0 +1,18 @@
+<% 
+//showing a hide/unhide form
+if(hideFollow.view === true) {
+  if(hideFollow.hiding === true) {
+  //showing an unhide form
+  %>
+    <form id="unhide-form" method="post">
+      <input type="submit" name="submit" value="unhide" />
+    </form>
+    
+  <%} else {
+  //showing a hide form %>
+    <form id="hide-form" method="post">
+      <input type="submit" name="submit" value="hide" />
+    </form>
+<%
+  }
+}%>
