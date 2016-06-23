@@ -43,6 +43,11 @@ module.exports = function (dependencies) {
       }
       else if(involvement === 'invited' && submit === 'Accept invitation') {
         yield db.project.updateInvolvement(id, sessUser.username, 'invited', 'member');
+        req.session.messages.push('You are a member of the project now.'); //show message after redirect
+      }
+      else if(involvement === 'invited' && submit === 'Reject invitation') {
+        yield db.project.removeInvolvement(id, sessUser.username, 'invited');
+        req.session.messages.push('The invitation was successfully removed.'); //show message after redirect
       }
       else {
         throw new Error('post not recognized');

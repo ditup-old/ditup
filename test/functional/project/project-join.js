@@ -39,7 +39,19 @@ describe('joining a project', function () {
   });
 
   function assertMemberLink() {
-    browser.assert.link('a', 'member', new RegExp('/project/' + project0.id + '.*/join'));
+    browser.assert.link('a', 'member', new RegExp('/project/' + project0.id + '/' + project0.url + '/join'));
+  }
+
+  function assertNoneLink() {
+    browser.assert.link('a', 'join', new RegExp('/project/' + project0.id + '/' + project0.url + '/join'));
+  }
+
+  function assertJoiningLink() {
+    browser.assert.link('a', 'edit join', new RegExp('/project/' + project0.id + '/' + project0.url + '/join'));
+  }
+
+  function assertInvitedLink() {
+    browser.assert.link('a', 'invited', new RegExp('/project/' + project0.id + '/' + project0.url + '/join'));
   }
 
   context('not logged', function () {
@@ -72,7 +84,7 @@ describe('joining a project', function () {
         it('should redirect to the project page with proper button', function () {
           browser.assert.redirected();
           browser.assert.success();
-          browser.assert.link('a', 'edit join', new RegExp('/project/' + project0.id + '.*/join'));
+          assertJoiningLink();
         });
 
         it('should show the message that request was sent wait for response', function () {
@@ -111,7 +123,7 @@ describe('joining a project', function () {
 
         it('should redirect to project page and display \'join\' button', function () {
           browser.assert.redirected();
-          browser.assert.link('a', 'join', new RegExp('/project/' + project0.id + '.*/join'));
+          assertNoneLink();
         });
         it('should show the message that request was deleted', function () {
           browser.assert.text('.popup-message.info', 'The request was successfully deleted.');
@@ -130,12 +142,25 @@ describe('joining a project', function () {
           browser.assert.redirected();
           assertMemberLink();
         });
-        it('should say that user is now member');
+        it('should say that user is now member', function () {
+          browser.assert.text('.popup-message.info', 'You are a member of the project now.');
+        });
       });
       context('[invited] reject invitation', function () {
-        it('should remove the invitation from db');
-        it('should redirect to project page with join button');
-        it('should say that invitation was rejected');
+        beforeEach(functions.logout(browserObj)); //logout
+        beforeEach(functions.login(users.invited, browserObj));
+        beforeEach(functions.fill(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; },{submit: 'Reject invitation'}, browserObj));
+        afterEach(functions.logout(browserObj));
+        it('should remove the invitation from db', function () {
+          browser.assert.success();
+        });
+        it('should redirect to project page with join button', function () {
+          browser.assert.redirected();
+          assertNoneLink();
+        });
+        it('should say that invitation was rejected', function () {
+          browser.assert.text('.popup-message.info', 'The invitation was successfully removed.');
+        });
       });
       context('[member] edit join info', function () {
         it('should update the join info');
@@ -174,7 +199,7 @@ describe('joining a project', function () {
         beforeEach(functions.visit(() => { return '/project/' + project0.id; }, browserObj));
         it('should contain a join button', function () {
           browser.assert.success();
-          browser.assert.link('a', 'join', new RegExp('/project/' + project0.id + '.*/join'));
+          assertNoneLink();
         });
       });
 
@@ -221,7 +246,7 @@ describe('joining a project', function () {
         beforeEach(functions.visit(() => { return '/project/' + project0.id; }, browserObj));
         it('should show \'edit join\' button', function () {
           browser.assert.success();
-          browser.assert.link('a', 'edit join', new RegExp('/project/' + project0.id + '.*/join'));
+          assertJoiningLink();
         });
       });
 
@@ -268,7 +293,7 @@ describe('joining a project', function () {
 
         it('should show \'accept or reject invite\' button', function () {
           browser.assert.success();
-          browser.assert.link('a', 'invited', new RegExp('/project/' + project0.id + '.*/join'));
+          assertInvitedLink();
         });
 
         it('should show \'~you were invited to join the project\' message', function () {
@@ -307,6 +332,7 @@ describe('joining a project', function () {
         it('offer submit/cancel');
         it('offer link to managing joiners (invite, accept, reject)');
         it('offer link to leave the project');
+        // TODO how to manage member-accepting joiners and inviting?
       });
     });
   });
