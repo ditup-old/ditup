@@ -12,8 +12,7 @@
     %>no tags<%
   }
   for(var i=0, len=tags.list.length; i < len; ++i){
-   %><span class="tag"><%= tags.list[i].name %></span>
-   <%
+  %><a href="/tag/<%= tags.list[i].name %>" class="tag"><%= tags.list[i].name %></a><%
   }
   %><a class="more" href="/project/id/name/tags">more</a><%
   if(tags.add === true){
