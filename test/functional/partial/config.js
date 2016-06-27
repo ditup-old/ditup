@@ -4,8 +4,84 @@ let co = require('co');
 
 module.exports = {
   init: init,
-  beforeTest: beforeTest
+  beforeTest: beforeTest,
+  funcs: {
+    login: loginUser,
+    logout: logoutUser,
+    visit: visit,
+    fill: fill
+  }
 };
+
+function loginUser(user, browserObj) {
+  return function login (done) {
+    browserObj.Value.visit('/login')
+      .then(() => {
+        return browserObj.Value.fill('username', user.username)
+          .fill('password', user.password)
+          .pressButton('log in');
+      })
+      .then(done, done);
+  }
+}
+  
+function logoutUser (browserObj) {
+  return function logout (done) {
+    let browser = browserObj.Value;
+    browser.visit('/logout')
+      .then(done, done);
+  }
+}
+
+function visit (url, browserObj) {
+  return function (done) {
+    let browser = browserObj.Value;
+    let _url;
+    if(typeof(url) === 'string') {
+      _url = url;
+    }
+    else if (typeof(url) === 'function') {
+      _url = url();
+    }
+    else {
+      throw new Error('url needs to have type function or string, but has '+typeof(url));
+    }
+    browser.visit(_url)
+      .then(done, done);
+  }
+}
+
+function fill(url, data, browserObj) {
+  return function (done) {
+    let browser = browserObj.Value;
+
+    //get the url
+    let _url;
+    if(typeof(url) === 'string') {
+      _url = url;
+    }
+    else if (typeof(url) === 'function') {
+      _url = url();
+    }
+    else {
+      throw new Error('url needs to have type function or string, but has '+typeof(url));
+    }
+    //**
+    return co(function *(){
+      yield browser.visit(_url);
+      for(let name in data) {
+        if(name !== 'submit') {
+          browser.fill(name, data[name]);
+        }
+      }
+      yield browser.pressButton(data['submit'] || 'submit');
+      done();
+    })
+    .catch(function (err) {
+      done(err);
+    });
+  };
+}
 
 function init (config, dbData) {
   // force the test environmentV to 'test'
@@ -26,76 +102,7 @@ function init (config, dbData) {
   var Browser = require('zombie');
 
   //**************shared variables & functions: loggedUser, existentProject, nonexistentProject, login(done), logout(done)
-  function loginUser(user, browserObj) {
-    return function login (done) {
-      browserObj.Value.visit('/login')
-        .then(() => {
-          return browserObj.Value.fill('username', user.username)
-            .fill('password', user.password)
-            .pressButton('log in');
-        })
-        .then(done, done);
-    }
-  }
-  
-  function logoutUser (browserObj) {
-    return function logout (done) {
-      let browser = browserObj.Value;
-      browser.visit('/logout')
-        .then(done, done);
-    }
-  }
-
-  function visit (url, browserObj) {
-    return function (done) {
-      let browser = browserObj.Value;
-      let _url;
-      if(typeof(url) === 'string') {
-        _url = url;
-      }
-      else if (typeof(url) === 'function') {
-        _url = url();
-      }
-      else {
-        throw new Error('url needs to have type function or string, but has '+typeof(url));
-      }
-      browser.visit(_url)
-        .then(done, done);
-    }
-  }
-
-  function fill(url, data, browserObj) {
-    return function (done) {
-      let browser = browserObj.Value;
-
-      //get the url
-      let _url;
-      if(typeof(url) === 'string') {
-        _url = url;
-      }
-      else if (typeof(url) === 'function') {
-        _url = url();
-      }
-      else {
-        throw new Error('url needs to have type function or string, but has '+typeof(url));
-      }
-      //**
-      return co(function *(){
-        yield browser.visit(_url);
-        for(let name in data) {
-          if(name !== 'submit') {
-            browser.fill(name, data[name]);
-          }
-        }
-        yield browser.pressButton(data['submit'] || 'submit');
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
-    };
-  }
-
+  //
   return {
     dbPopulate: dbPopulate,
     app: app,
@@ -105,10 +112,10 @@ function init (config, dbData) {
     dbData: dbData,
     Browser: Browser,
     functions: {
-      login: loginUser,
-      logout: logoutUser,
-      visit: visit,
-      fill: fill
+      login: this.funcs.login,
+      logout: this.funcs.logout,
+      visit: this.funcs.visit,
+      fill: this.funcs.fill
     }
   };
 }

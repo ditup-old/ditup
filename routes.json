@@ -22,5 +22,8 @@
   {"url":"/feedback", "router":"feedback"},
   {"url":"/search", "router":"search"},
   {"url":"/map", "router":"map"},
-  {"url":"/brainstorm", "router":"brainstorm"}
+  {"url":"/brainstorm", "router":"brainstorm"},
+  {"url":"/people", "router":"people"},
+  {"url":"/messages", "router":"messages"},
+  {"url":"/about", "router":"about"}
 ]
