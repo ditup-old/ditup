@@ -1,0 +1,7 @@
+@import 'list-mixin';
+@import 'page-mixin';
+@import 'tooltip-mixin';
+
+@include page();
+@include list('discussion');
+@include tooltip();

@@ -8,7 +8,7 @@
   var title = collection + 's of user ' + user.username;
   var headScripts = [];
   var scripts = [];
-  var session = session || {logged:false, username: null};
+  session = session || {logged:false, username: null};
   var logged = session.logged === true ? true : false;
   var loggedUser = session.username || null;
 

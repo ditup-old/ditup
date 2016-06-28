@@ -1,0 +1,74 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.non-list {
+  margin-left: 20px;
+  /* fix the parts which are out of list */
+  margin-right: 20px;
+}
+
+.idea-list {
+  display: inline-block;
+  width: 360px;
+  margin: 20px;
+  padding: 10px;
+  border: 10px solid #6ca6ca;
+  vertical-align: top;
+}
+
+.idea-list ul:empty:after {
+  content: "no ideas found";
+  color: red;
+}
+
+.idea {
+  padding-top: 5px;
+}
+
+.idea .info-detail {
+  float: right;
+}
+
+/* creating a pure css tooltip */
+/* https://jsfiddle.net/AndreaLigios/jtLbpy62/ */
+[data-tooltip]:before {
+  /* needed - do not touch */
+  content: attr(data-tooltip);
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  /* customizable */
+  padding: 10px;
+  color: #011149;
+  border: 1px solid #011149;
+  border-radius: 10px;
+  box-shadow: 2px 2px 1px gray;
+}
+
+[data-tooltip]:hover:before {
+  /* needed - do not touch */
+  display: block;
+  /* customizable */
+  background-color: #eee;
+  margin-top: -40px;
+  margin-left: 0;
+}
