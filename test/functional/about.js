@@ -28,4 +28,6 @@ describe('visit /about', function () {
   it('should show markdowned test', function () {
     browser.assert.text('.page', new RegExp('.*About.*'));
   });
+
+  it('should show statistics (amount of users, dits, tags, etc.)');
 });
