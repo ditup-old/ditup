@@ -139,8 +139,12 @@ module.exports = function (db) {
         c.tags = [];
       }
       for(let _ct of challengeTag) {
+        _ct.collection = _ct.hasOwnProperty('collection') ? _ct.collection : _ct[collectionName];
+      }
+
+      for(let _ct of challengeTag) {
         let creator = typeof(_ct.creator) === 'number' ? users[_ct.creator].username : _ct.creator;
-        let challenge = challenges[_ct[collectionName]].id;
+        let challenge = challenges[_ct.collection].id;
         let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].name : _ct.tag;
         let ctp = data[collectionName].addTag(challenge, tag, creator);
         ctPromises.push(ctp);
@@ -148,7 +152,7 @@ module.exports = function (db) {
       return Promise.all(ctPromises)
         .then(function () {
           for(let _ct of challengeTag) {
-            let tagsArray = challenges[_ct[collectionName]].tags = challenges[_ct[collectionName]].tags || [];
+            let tagsArray = challenges[_ct.collection].tags = challenges[_ct.collection].tags || [];
             let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].name : _ct.tag;
             tagsArray.push(tag);
           }

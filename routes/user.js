@@ -10,6 +10,7 @@ var validate = require('../services/validation');
 var image = require('../services/image');
 
 var routeUserProjects = require('./user/projects');
+var routeUserCollections = require('./user/collections');
 
 router.get('/', function (req, res, next) {
   return res.redirect('/users');
@@ -30,6 +31,9 @@ router.all(['/:username', '/:username/*'], function (req, res, next) {
 
 //router for /user/[username]/projects
 router.use(routeUserProjects({router: express.Router(), data: database}));
+router.use(routeUserCollections('idea', {router: express.Router(), data: database}));
+router.use(routeUserCollections('challenge', {router: express.Router(), data: database}));
+router.use(routeUserCollections('discussion', {router: express.Router(), data: database}));
 
 router.get('/:username', function (req, res, next) {
   var username = req.params.username;

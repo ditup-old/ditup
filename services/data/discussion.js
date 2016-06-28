@@ -161,6 +161,8 @@ module.exports = function (db) {
   discussion.newest = proto.newest('discussions', db);
   discussion.random = proto.random('discussions', db);
 
+  discussion.discussionsByTagsOfUser = proto.collectionsByTagsOfUser('discussions', db);
+
 
   return discussion;
 };

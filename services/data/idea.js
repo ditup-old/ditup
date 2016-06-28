@@ -65,5 +65,7 @@ module.exports = function (db) {
   idea.popular = proto.popular('ideas', db);
   idea.newest = proto.newest('ideas', db);
   idea.random = proto.random('ideas', db);
+
+  idea.ideasByTagsOfUser = proto.collectionsByTagsOfUser('ideas', db);
   return idea;
 };

@@ -289,53 +289,7 @@ module.exports = function (db) {
    *
    *
    */
-  project.projectsByTagsOfUser = function (username, showHidden) {
-    let showHiddenIsGood = showHidden === true || showHidden === false || showHidden === undefined;
-    if(!showHiddenIsGood) return Promise.reject('400');
-    var showHidden = showHidden === true ? true : false;
-    
-
-    var query = `LET usrs = (FOR u IN users FILTER u.username == @username
-        RETURN u)
-      LET tagsOfUser = (FOR u IN usrs
-        FOR ut IN userTag FILTER ut._from == u._id
-            FOR t IN tags FILTER t._id == ut._to
-              RETURN t)
-      LET output = (FOR t IN tagsOfUser
-        FOR pt IN projectTag FILTER pt._to == t._id
-          FOR p IN projects FILTER p._id == pt._from
-            RETURN {project: p, tag: t})
-      LET projs = (FOR pt IN output
-        COLLECT proj = pt.project INTO tags = {name: pt.tag.name, description: pt.tag.description}
-        LET tagno = LENGTH(tags)
-        SORT tagno DESC
-        //LET project = {id: proj._key, name: proj.name, _id: proj._id}
-        RETURN {project: proj, tags: tags, tagno: tagno})
-      
-      //now finding out whether the project is hidden
-      LET hip = (FOR p IN projs
-        FOR u IN usrs
-          LET hidden = (COUNT(FOR ufp IN userFollowProject FILTER u._id == ufp._from && p.project._id == ufp._to && ufp.hide == true RETURN ufp))
-          RETURN {id: p.project._key, name: p.project.name, description: p.project.description, tags: p.tags, hidden: hidden})
-          
-      LET ret = (FOR h IN hip ` + (showHidden === true ? '' : 'FILTER h.hidden == 0') + ` RETURN h)
-      RETURN COUNT(usrs)==0 ? '404' : (COUNT(usrs)>1 ? 'duplicate': ret)`;
-    var params = {username: username};
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (out) {
-        //console.log(ret);
-        return out[0];
-      })
-      .then(function (out) {
-        if(out === '404') throw new Error('404');
-        if(out === 'duplicate') throw new Error('duplicate');
-        return out;
-      });
-  };
+  project.projectsByTagsOfUser = proto.collectionsByTagsOfUser('projects', db);
   //********************END
   project.popular = proto.popular('projects', db);
   project.newest = proto.newest('projects', db);

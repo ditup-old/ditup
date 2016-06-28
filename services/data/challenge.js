@@ -65,6 +65,8 @@ module.exports = function (db) {
   challenge.popular = proto.popular('challenges', db);
   challenge.newest = proto.newest('challenges', db);
   challenge.random = proto.random('challenges', db);
+  
+  challenge.challengesByTagsOfUser = proto.collectionsByTagsOfUser('challenges', db);
 
   return challenge;
 };
