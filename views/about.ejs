@@ -1,0 +1,20 @@
+<%
+  var css = [
+    '/css/header.css',
+    '/css/about.css'
+  ];
+
+  var title = 'about ditup';
+  var headScripts = [];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+%><%
+include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <%- content %>
+</section>
+<% include ./partial/page-bottom.ejs %>

@@ -37,6 +37,7 @@
     "watch-challenges": "mocha ./test/functional/challenge/challenges --watch",
     "watch-discussions": "mocha ./test/functional/discussion/discussions --watch",
     "watch-projects": "mocha ./test/functional/project/projects --watch",
+    "watch-about": "mocha ./test/functional/about --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "entities": "^1.1.1",
     "express": "~4.13.1",
     "express-session": "^1.11.3",
+    "marked": "^0.3.5",
     "morgan": "~1.6.1",
     "multer": "^1.0.5",
     "nodemailer": "^1.5.0",
