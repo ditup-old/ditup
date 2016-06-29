@@ -6,7 +6,7 @@ var nodemailer = require('nodemailer');
 var smtpTransport = require('nodemailer-smtp-transport');
 var EmailTemplate = require('email-templates').EmailTemplate;
 
-var config = require('./config.json');
+var config = require('../../config/secret/mailer');
 
 
 var exports = module.exports = {};
