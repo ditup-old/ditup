@@ -74,12 +74,33 @@ describe('visit /messages/:username', function () {
     });
 
     context(':username === logged username', function () {
-      it('should complain and give error');
+      beforeEach(funcs.visit('/messages/'+loggedUser.username, browserObj));
+      it('should redirect to /messages', function () {
+        browser.assert.redirected();
+        browser.assert.url('/messages');
+      });
     });
 
     context('POST', function () {
-      it('should not submit empty message');
-      it('should not submit too long message');
+      context('empty message', function () {
+        beforeEach(funcs.fill('/messages/'+otherUser.username, {submit: 'send'}, browserObj));
+        it('should not submit & complain', function () {
+          browser.assert.text('.popup-message', 'the message cannot be empty');
+        });
+      });
+      
+      context('too long message', function () {
+        let longMessage = '................';
+        for(let i=0; i<11; ++i) {
+          longMessage += longMessage;
+        }
+
+        beforeEach(funcs.fill('/messages/'+otherUser.username, {message: longMessage, submit: 'send'}, browserObj));
+        it('should not submit & complain', function () {
+          browser.assert.text('.popup-message', 'the message is too long');
+        });
+      });
+
       context('receiver exists', function () {
         context('message is good', function () {
           let message = 'this is a good message';
@@ -95,6 +116,18 @@ describe('visit /messages/:username', function () {
         });
 
         it('should show the new message');
+      });
+      context('receiver === logged user', function () {
+        it('should return error 400 - bad data'/*, TODO function (done) {
+          return co(function *() {
+            browser.fill('/messages/'+loggedUser.username);
+            browser.assert.status(400);
+            done();
+          })
+            .catch(function (err) {
+              done(err);
+            });
+        }*/);
       });
       context('receiver does not exist', function () {
         it('should say that receiver was not found');

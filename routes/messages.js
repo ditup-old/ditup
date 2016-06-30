@@ -6,6 +6,8 @@ var router = express.Router();
 
 var db = require('../services/data');
 
+const MAX_MESSAGE_LENGTH = 16384;
+
 router.get('/', function(req, res, next) {
   res.end('TODO show list of message threads with users');
 });
@@ -31,7 +33,18 @@ router.post('/:username', function(req, res, next) {
   //sending to oneself
   if(sessUser.username === username) {
     let err = new Error('sending to oneself is not possible');
-    err.status = 500; //TODO find out better status
+    err.status = 400; //TODO find out better status
+    return next(err);
+  }
+
+  //validate message
+  if(message.length === 0) {
+    sessUser.messages.push('the message cannot be empty');
+    return next();
+  }
+  if(message.length > MAX_MESSAGE_LENGTH) {
+    sessUser.messages.push('the message is too long');
+    return next();
   }
 
   return co(function *() {
