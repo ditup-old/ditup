@@ -78,5 +78,9 @@
   "userTag": {
     "type": "edge",
     "unique": ["unique"]
+  },
+  "messages": {
+    "type": "edge",
+    "unique": []
   }
 }

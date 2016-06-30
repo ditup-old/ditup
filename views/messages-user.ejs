@@ -1,0 +1,32 @@
+<%
+
+  var css = [
+    '/css/header.css',
+    '/css/messages-user.css'
+  ];
+
+  var title = 'messages to user ' + recipient.username;
+  var headScripts = [];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+%><%
+include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <header><h1>Messages with <a class="icon-user" href="/user/<%= recipient.username %>"><%= recipient.username %></a></h1></header>
+  <section><ul><% for(msg of messages) {
+      %><li class="message">
+        <span class="msg-sender"><a class="icon-user" href="/user/<%= msg.from.username %>"><%= msg.from.username %></a></span><span><%= msg.text %></span>
+      </li><%
+    }
+    %></ul></section>
+
+  <form method="post" action="">
+    <textarea name="message"></textarea>
+    <input type="submit" name="send" value="send" />
+  </form>
+</section>
+<% include ./partial/page-bottom.ejs %>

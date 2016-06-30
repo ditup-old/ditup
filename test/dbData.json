@@ -200,5 +200,8 @@
     {"collection": 0, "user": 5, "status": "joining"},
     {"collection": 1, "user": 5, "status": "invited"},
     {"collection": 2, "user": 5, "status": "member"}
+  ],
+  "messages": [
+  
   ]
 }

@@ -38,6 +38,8 @@
     "watch-discussions": "mocha ./test/functional/discussion/discussions --watch",
     "watch-projects": "mocha ./test/functional/project/projects --watch",
     "watch-about": "mocha ./test/functional/about --watch",
+    "watch-messages": "mocha ./test/functional/messages/messages --watch",
+    "watch-messages-user": "mocha ./test/functional/messages/messages-user --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

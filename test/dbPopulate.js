@@ -1,8 +1,10 @@
 'use strict';
 
+var co = require('co');
+
 module.exports = function (db) {
   var data = {};
-  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project'];
+  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project', 'messages'];
 
 
   for (let md of modules) {
@@ -39,6 +41,16 @@ module.exports = function (db) {
   function populate(dbData) {
     //put dbData to database
     //create users
+    
+    function populateMessages(messages, users) {
+      return co(function *() {
+        for(let msg of messages) {
+          yield data.messages.create({from: users[msg.from].username, to: users[msg.to].username, text: msg.text});
+        }
+        return;
+      });
+    };
+
     function populateUsers(users) {
       var userPromises = [];
       
@@ -273,51 +285,37 @@ module.exports = function (db) {
     let collections = ['idea', 'challenge', 'project', 'discussion'];
 
     //promise to return
-    var ret = populateUsers(dbData.users)
-      .then(function () {
-        return populateTags(dbData.tags, dbData.users);
-      })
-      .then(function () {
-        return populateUserTag(dbData.userTag, dbData.users, dbData.tags);
-      });
     
+    return co(function *() {
+      yield populateUsers(dbData.users);
+      yield populateTags(dbData.tags, dbData.users);
+      yield populateUserTag(dbData.userTag, dbData.users, dbData.tags);
+      //**************** populating collections
+      for(let col of collections) {
+        let Col = capitalize(col);
+
+        yield populateCollections(dbData[col + 's'], dbData.users, col);
+        yield Promise.all([
+            populateCollectionTag(dbData[col+'Tag'], dbData[col+'s'], dbData.tags, dbData.users, col),
+            populateCollectionCommentAuthor(dbData[col+'CommentAuthor'], dbData[col+'s'], dbData.users, col),
+            populateUserFollowCollection(dbData['userFollow'+Col], dbData.users, dbData[col+'s'], col)]);
+      }
+      yield populateProjectMember(dbData.projectMember, dbData.projects, dbData.users);
+      yield populateMessages(dbData.messages || [], dbData.users);
+
+      return Promise.resolve();
+
+    })
+    .catch(function (err) {
+      return Promise.reject(err);
+    });
+
+
     //**************** populating collections
 
     function capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
-
-    ret = ret.then(function () {
-
-      let popCol = [];
-      for(let col of collections) {
-        let Col = capitalize(col);
-        let popc = populateCollections(dbData[col + 's'], dbData.users, col)
-          .then(function () {
-            return populateCollectionTag(dbData[col+'Tag'], dbData[col+'s'], dbData.tags, dbData.users, col);
-          })
-          .then(function () {
-            return populateCollectionCommentAuthor(dbData[col+'CommentAuthor'], dbData[col+'s'], dbData.users, col);
-          })
-          .then(function () {
-            return populateUserFollowCollection(dbData['userFollow'+Col], dbData.users, dbData[col+'s'], col);
-          });
-
-        popCol.push(popc);
-      }
-
-      return Promise.all(popCol).then(()=>{});
-    });
-    ///******** finishing with collection specific populating
-    ret = ret
-      .then(function () {
-        return populateProjectMember(dbData.projectMember, dbData.projects, dbData.users);
-      })
-      .then(function () {
-        //console.log(dbData);
-      });
-
-    return ret;
   }
   
   /**
