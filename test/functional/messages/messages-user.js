@@ -56,8 +56,22 @@ describe('visit /messages/:username', function () {
       browser.assert.element('form input[type=submit][name=send][value=send]');
     });
 
-    it('should highlight unseen messages');
-    it('when viewed should make unseen messages seen');
+    it('should highlight unseen messages', function () {
+      browser.assert.elements('.message.msg-not-viewed', 2);
+      //TODO test that when viewed, they'll be not highlighted
+    });
+
+    it('when viewed should make unseen messages seen', function (done) {
+      //this is already a second visit
+      return co(function *() {
+        yield browser.visit('/messages/'+ otherUser.username);
+        browser.assert.elements('.message.msg-not-viewed', 0);
+        done();
+      })
+      .catch(function (err) {
+        done(err);
+      })
+    });
 
     context(':username === logged username', function () {
       it('should complain and give error');

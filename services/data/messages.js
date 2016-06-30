@@ -29,10 +29,15 @@ module.exports = function (db) {
   };
 
   messages.read = function (users) {
+    if(users.length !== 2 || users[0] === users[1]) {
+      let err = new Error('bad data');
+      err.status = 400;
+      throw err;
+    };
     var query = `FOR usr0 IN users FILTER usr0.username == @usr0
       FOR usr1 IN users FILTER usr1.username == @usr1
         FOR msg IN messages FILTER (msg._from == usr0._id && msg._to == usr1._id) || (msg._from == usr1._id && msg._to == usr0._id)
-          SORT msg.created DESC
+          SORT msg.created ASC
           RETURN MERGE(
               msg,
               {from: (msg._from == usr0._id ? {username: usr0.username} : {username: usr1.username})},
@@ -47,30 +52,22 @@ module.exports = function (db) {
     });
   };
 
-  /*messages.read = function (id) {
-    var query = `FOR d IN messages FILTER d._key == @id
-      LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
-      FOR c IN creator
-        RETURN MERGE(d, {creator: {username: c.username}})`;
+  messages.view = function (which) {
+    let from = which.from;
+    let to = which.to;
 
-    var params = {id: id};
+    let query = `FOR fr IN users FILTER fr.username == @from
+      FOR to IN users FILTER to.username == @to
+        FOR msg IN messages FILTER msg._from == fr._id && msg._to == to._id && msg.created <= @now
+          UPDATE msg WITH {viewed: true} IN messages`;
+    let params = {from: from, to: to, now: Date.now()};
 
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (discs) {
-        if(discs.length === 1) {
-          return discs[0];        }
-        else if(discs.length === 0) {
-          throw new Error(404);
-        }
-        else {
-          throw new Error('duplicate messages id. this should never happen.');
-        }
-      });
-  };
-  */
+    return co(function *() {
+      yield db.query(query, params);
+      return;
+    });
+  }
+
 
   messages.update = function () {
     throw new Error('TODO!');

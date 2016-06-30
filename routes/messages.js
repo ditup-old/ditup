@@ -53,6 +53,7 @@ router.all('/:username', function (req, res, next) {
 
   return co(function *() {
     let messages = yield db.messages.read([sessUser.username, username]);
+    yield db.messages.view({from: username, to: sessUser.username});
     return res.render('messages-user', {session: sessUser, recipient: {username: username}, messages: messages});
   })
   .catch(function (err) {

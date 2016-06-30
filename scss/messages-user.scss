@@ -1,0 +1,7 @@
+@import "page-mixin";
+
+@include page();
+
+.message.msg-not-viewed {
+  font-weight: bold;
+}

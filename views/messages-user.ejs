@@ -18,12 +18,12 @@ include ./partial/header.ejs %>
 <section class="page">
   <header><h1>Messages with <a class="icon-user" href="/user/<%= recipient.username %>"><%= recipient.username %></a></h1></header>
   <section><ul><% for(msg of messages) {
-      %><li class="message">
+      let notViewedClass = (msg.viewed === true || msg.from.username === loggedUser) ? '' : ' msg-not-viewed';
+      %><li class="message<%= notViewedClass %>">
         <span class="msg-sender"><a class="icon-user" href="/user/<%= msg.from.username %>"><%= msg.from.username %></a></span><span><%= msg.text %></span>
       </li><%
     }
     %></ul></section>
-
   <form method="post" action="">
     <textarea name="message"></textarea>
     <input type="submit" name="send" value="send" />
