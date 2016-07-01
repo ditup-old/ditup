@@ -1,7 +1,17 @@
+@import "colors";
 @import "page-mixin";
 
 @include page();
 
-.message.msg-not-viewed {
-  font-weight: bold;
+
+.message{
+  border: 3px solid $darker;
+
+  &>span {
+    padding: 5px;
+  }
+
+  &.msg-not-viewed {
+    font-weight: bold;
+  }
 }
