@@ -8,12 +8,8 @@ var db = require('../services/data');
 
 const MAX_MESSAGE_LENGTH = 16384;
 
-router.get('/', function(req, res, next) {
-  res.end('TODO show list of message threads with users');
-});
-
 //authorize all
-router.all('/:username', function (req, res, next) {
+router.all(['/', '/:username'], function (req, res, next) {
   let sessUser = req.session.user;
   let username = req.params.username;
   if(sessUser.logged !== true) {
@@ -22,6 +18,15 @@ router.all('/:username', function (req, res, next) {
     return next(err);
   }
   return next();
+});
+
+router.get('/', function(req, res, next) {
+  let sessUser = req.session.user;
+  return co(function *() {
+    let lastMessages = yield db.messages.readLast(sessUser.username);
+    return res.render('messages', {session: sessUser, lastMessages: lastMessages});
+  })
+  .catch((err) => {return next(err);});
 });
 
 //if post, post message

@@ -99,8 +99,8 @@ module.exports = (function () {
         text: 'this is a message',
       },
       {
-        from: 0,
-        to: 1,
+        from: 1,
+        to: 0,
         text: 'this is a message',
       }
     ]

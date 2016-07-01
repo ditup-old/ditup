@@ -60,13 +60,56 @@ module.exports = function (db) {
     });
   };
 
+  messages.readLast = function (username, settings) {
+    let query = `
+      LET msgs = (FOR usr IN users FILTER usr.username == @username
+        FOR msg IN messages FILTER msg._from == usr._id || msg._to == usr._id
+          LET otherUserId = msg._from == usr._id ? msg._to : msg._from
+          FOR ousr IN users FILTER ousr._id == otherUserId
+            RETURN MERGE(msg, {user: {username: usr.username, _id: usr._id}}, {otherUser: {username: ousr.username, _id: ousr._id}})
+      )
+      LET msgsByUser = (
+        FOR msg IN msgs
+          SORT msg.created DESC
+          COLLECT ou = msg.otherUser, u = msg.user INTO messagesOfUser
+          RETURN {user: u, otherUser: ou, msgs: messagesOfUser[*].msg}
+      )
+
+      FOR mbu IN msgsByUser
+        LET lastMsg = (FOR m IN mbu.msgs
+          LIMIT 1
+          RETURN m
+        )
+        FOR lm IN lastMsg
+          SORT lm.created DESC
+          RETURN {
+            text: lm.text,
+            created: lm.created,
+            viewed: mbu.otherUser._id == lm._from ? lm.viewed : null,
+            from: mbu.otherUser._id == lm._from ? {username: mbu.otherUser.username} : {username: mbu.user.username},
+            to: mbu.otherUser._id == lm._to ? {username: mbu.otherUser.username} : {username: mbu.user.username}
+          }`;
+    var params = {username: username};
+
+    return co(function *() {
+      let cursor = yield db.query(query, params);
+      let out = yield cursor.all();
+      return out;
+    });
+  };
+  
+  /**
+   * this makes all the messages from someone to someone viewed: true;
+   *
+   *
+   */
   messages.view = function (which) {
     let from = which.from;
     let to = which.to;
 
     let query = `FOR fr IN users FILTER fr.username == @from
       FOR to IN users FILTER to.username == @to
-        FOR msg IN messages FILTER msg._from == fr._id && msg._to == to._id && msg.created <= @now
+        FOR msg IN messages FILTER msg._from == fr._id && msg._to == to._id && msg.viewed == false && msg.created <= @now
           UPDATE msg WITH {viewed: true} IN messages`;
     let params = {from: from, to: to, now: Date.now()};
 
