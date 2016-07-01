@@ -34,21 +34,29 @@ module.exports = function (db) {
       err.status = 400;
       throw err;
     };
-    var query = `FOR usr0 IN users FILTER usr0.username == @usr0
-      FOR usr1 IN users FILTER usr1.username == @usr1
-        FOR msg IN messages FILTER (msg._from == usr0._id && msg._to == usr1._id) || (msg._from == usr1._id && msg._to == usr0._id)
+    var query = `LET usrs=(FOR usr0 IN users FILTER usr0.username == @usr0
+      FOR usr1 IN users FILTER usr1.username == @usr1 RETURN {usr0: usr0, usr1: usr1})
+      
+      LET msgs=(FOR us IN usrs
+        FOR msg IN messages FILTER (msg._from == us.usr0._id && msg._to == us.usr1._id) || (msg._from == us.usr1._id && msg._to == us.usr0._id)
           SORT msg.created ASC
           RETURN MERGE(
               msg,
-              {from: (msg._from == usr0._id ? {username: usr0.username} : {username: usr1.username})},
-              {to: (msg._to == usr0._id ? {username: usr0.username} : {username: usr1.username})}
-          )`;
+              {from: (msg._from == us.usr0._id ? {username: us.usr0.username} : {username: us.usr1.username})},
+              {to: (msg._to == us.usr0._id ? {username: us.usr0.username} : {username: us.usr1.username})}
+          ))
+      RETURN LENGTH(usrs) == 0 ? '404' : msgs`;
     var params = {usr0: users[0], usr1: users[1]};
 
     return co(function *() {
       let cursor = yield db.query(query, params);
-      let msgs = yield cursor.all();
-      return msgs;
+      let out = yield cursor.all();
+      if(out[0] === '404') {
+        let err = new Error('user not found');
+        err.status = 404;
+        throw err;
+      }
+      return out[0];
     });
   };
 

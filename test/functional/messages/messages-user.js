@@ -81,6 +81,23 @@ describe('visit /messages/:username', function () {
       });
     });
 
+    context('nonexistent user', function () {
+      it('TODO, 404', function (done) {
+        return co(function *() {
+          try {
+            yield browser.visit('/messages/nonexistent-user');
+          }
+          catch(e) {}
+          browser.assert.status(404);
+          done();
+        })
+        .catch(function (err) {
+          done(err);
+        });
+        browser.visit('messages/nonexistent-user')
+      });
+    });
+
     context('POST', function () {
       context('empty message', function () {
         beforeEach(funcs.fill('/messages/'+otherUser.username, {submit: 'send'}, browserObj));
