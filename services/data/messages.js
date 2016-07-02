@@ -119,6 +119,21 @@ module.exports = function (db) {
     });
   }
 
+  messages.countUnread = function (username) {
+    let query = `FOR u IN users FILTER u.username == @username
+        LET m = (FOR m IN messages FILTER m._to == u._id && !m.viewed && !m.archived RETURN m)
+        RETURN COUNT(m)`;
+    var params = {username: username};
+
+    return co(function *() {
+      let cursor = yield db.query(query, params);
+      let out = yield cursor.all();
+      if(out.length === 0) throw new Error('404 - User not found');
+      if(out.length > 1) throw new Error('duplicate user');
+      return out[0];
+    });
+  };
+
 
   messages.update = function () {
     throw new Error('TODO!');

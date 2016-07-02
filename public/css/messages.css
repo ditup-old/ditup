@@ -1,0 +1,33 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.last-user-message {
+  border: 3px solid #6ca6ca;
+}
+
+.last-user-message > span {
+  padding: 5px;
+}
+
+.last-user-message.unseen {
+  font-weight: bold;
+}

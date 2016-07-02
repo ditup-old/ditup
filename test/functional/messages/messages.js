@@ -13,6 +13,7 @@ describe('messages', function () {
   let browser;
 
   let loggedUser = dbData.users[0];
+  let otherUser = dbData.users[1];
 
   config.beforeTest(browserObj, deps);
 
@@ -63,12 +64,26 @@ describe('messages', function () {
   });
 
   describe('header of all logged pages', function () {
-    it('should show notification about unread messages next to messages icon');
+    context('logged in', function () {
+      beforeEach(funcs.login(loggedUser, browserObj));
+      afterEach(funcs.logout(browserObj));
+      beforeEach(funcs.visit('/projects', browserObj));
+      it('should show notification about unread messages next to messages icon', function () {
+        browser.assert.text('.unread-messages-count', 3);
+      });
+    })
   });
 
   describe('/user/username', function () {
     context('logged in', function () {
-      it('should show icon \'write a message to the user\'');
+      beforeEach(funcs.login(loggedUser, browserObj));
+      afterEach(funcs.logout(browserObj));
+      context('page of other user than me', function () {
+        beforeEach(funcs.visit('/user/' + otherUser.username, browserObj));
+        it('should show icon \'write a message to the user\'', function () {
+          browser.assert.element('a.write-message[href="/messages/'+otherUser.username+'"]');
+        });
+      });
     });
   });
 });

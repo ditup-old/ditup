@@ -1,0 +1,17 @@
+@import "colors";
+@import "page-mixin";
+
+@include page();
+
+
+.last-user-message{
+  border: 3px solid $darker;
+
+  &>span {
+    padding: 5px;
+  }
+
+  &.unseen {
+    font-weight: bold;
+  }
+}

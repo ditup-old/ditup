@@ -16,7 +16,7 @@
 include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <section class="page">
-  <header><h1>Messages</h1></header>
+  <header><h1>Messages<% if(session.unreadMessagesCount > 0) { %> (<%= session.unreadMessagesCount %>)<% } %></h1></header>
   <section><ul><% for(msg of lastMessages) {
       let notViewedClass = (msg.viewed === true || msg.from.username === loggedUser) ? '' : ' unseen';
       let otherUser = loggedUser == msg.from.username ? msg.to.username : msg.from.username;
@@ -27,9 +27,5 @@ include ./partial/header.ejs %>
       </li><%
     }
     %></ul></section>
-  <form method="post" action="">
-    <textarea name="message"></textarea>
-    <input type="submit" name="send" value="send" />
-  </form>
 </section>
 <% include ./partial/page-bottom.ejs %>

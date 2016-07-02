@@ -67,6 +67,7 @@ module.exports = function (session) {
     next();
   });
 
+  app.use(require('./routes/count-messages'));
 
   //load routes to express
   var routes = require('./routes.json');

@@ -22,7 +22,11 @@
     <ul class="people-menu header-menu">
       <% if(session.logged === true) { %>
       <li><a href="/notifications"><span class="fa fa-bell" ></span></a></li><!--
-      --><li><a href="/messages" ><span class="fa fa-comments" ></span></a></li><!--
+      --><li><a href="/messages" ><span class="fa fa-comments" ></span><% 
+          if(session.unreadMessagesCount > 0) {
+          %><span class="unread-messages-count"><%= session.unreadMessagesCount %></span><%
+          }
+          %></a></li><!--
       --><li class="header-avatar"><!--
         --><a class="expand" href="/user/<%= session.username %>"><img src="/user/<%= session.username %>/avatar" /><!--
           --><span><%= session.username %></span><!--
