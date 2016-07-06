@@ -34,16 +34,23 @@ module.exports = function (db) {
       err.status = 400;
       throw err;
     };
-    var query = `LET usrs=(FOR usr0 IN users FILTER usr0.username == @usr0
-      FOR usr1 IN users FILTER usr1.username == @usr1 RETURN {usr0: usr0, usr1: usr1})
-      
-      LET msgs=(FOR us IN usrs
-        FOR msg IN messages FILTER (msg._from == us.usr0._id && msg._to == us.usr1._id) || (msg._from == us.usr1._id && msg._to == us.usr0._id)
+    var query = `
+      LET usrs=(
+        FOR usr0 IN users FILTER usr0.username == @usr0
+          FOR usr1 IN users FILTER usr1.username == @usr1
+            RETURN [
+              usr0,
+              usr1
+            ]
+      )
+      LET msgs=(
+        FOR us IN usrs
+          FOR msg IN messages FILTER (msg._from == us[0]._id && msg._to == us[1]._id) || (msg._from == us[1]._id && msg._to == us[0]._id)
           SORT msg.created ASC
           RETURN MERGE(
               msg,
-              {from: (msg._from == us.usr0._id ? {username: us.usr0.username} : {username: us.usr1.username})},
-              {to: (msg._to == us.usr0._id ? {username: us.usr0.username} : {username: us.usr1.username})}
+              {from: (msg._from == us[0]._id ? {username: us[0].username} : {username: us[1].username})},
+              {to: (msg._to == us[0]._id ? {username: us[0].username} : {username: us[1].username})}
           ))
       RETURN LENGTH(usrs) == 0 ? '404' : msgs`;
     var params = {usr0: users[0], usr1: users[1]};
@@ -133,269 +140,6 @@ module.exports = function (db) {
       return out[0];
     });
   };
-
-
-  messages.update = function () {
-    throw new Error('TODO!');
-  }; //TODO
-
-  messages.delete = proto.delete('messagess', db);
-
-  messages.addTag = proto.addTag('messagess', db);
-  messages.removeTag = proto.removeTag('messagess', db);
-  messages.tags = proto.tags('messagess', db);
-
-  //comment
-  messages.addComment = proto.addComment('messagess', db);
-
-  messages.readComment = function () {
-    throw new Error('TODO!');
-  };
-
-  messages.readComments = proto.readComments('messagess', db);
-  messages.updateComment;
-  messages.removeComment = proto.removeComment('messagess', db);
-
-  messages.follow = proto.follow('messagess', db);
-  messages.hide = proto.hide('messagess', db);
-  messages.following = proto.following('messagess', db);
-  messages.followingUser = proto.followingUser('messagess', db);
-  messages.followers = proto.followers('messagess', db);
-  messages.countFollowers = proto.countFollowers('messagess', db);
-  messages.unfollow = proto.unfollow('messagess', db);
-  messages.unhide = proto.unhide('messagess', db);
-  messages.readProjectsByTags = proto.readCollectionsByTags(['name', 'description'], 'messagess', db);
-
-  //******************** BEGIN membership functions
-  messages.addMember = function (id, username, status, specificParams) {
-    let allowedStates = ['joining', 'invited', 'member'];
-    if(allowedStates.indexOf(status)<0) return Promise.reject('400');
-    specificParams = specificParams || {};
-
-    let request = null;
-    if(status === 'joining' && specificParams.hasOwnProperty('request')) {
-      request = specificParams.request;
-    }
-
-    let query = `FOR p IN messagess FILTER p._key == @id
-      FOR u IN users FILTER u.username == @username
-        INSERT {
-          _from: p._id,
-          _to: u._id,
-          unique: CONCAT(p._id, '-', u._id),
-          status: @status,
-          created: @created,
-          request: @request
-        } IN messagesMember`;
-    let params = {
-      id: id,
-      username: username,
-      status: status,
-      created: Date.now(),
-      request: request
-    };
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        var writes = cursor.extra.stats.writesExecuted;
-        if(writes === 0) throw new Error('404');
-        if(writes > 1) throw new Error('more than one Involvement added. This should never happen.');
-      })
-      .then(null, function (err) {
-        if(err.code === 409) throw new Error('409');
-        throw err;
-      });
-  };
-
-  messages.updateInvolvement = function(id, username, involvement, targetInvolvement, specificParams) {
-    return co(function *(){
-      let query, params;
-      if(involvement === targetInvolvement){
-        query = `
-            FOR p IN messagess FILTER p._key == @id
-              FOR u IN users FILTER u.username == @username
-                FOR pm IN messagesMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
-                  UPDATE pm WITH {
-                    request: @request,
-                    updated: @now
-                  } IN messagesMember
-            RETURN NEW
-          `;
-        params = {id: id, username: username, involvement: involvement, request: specificParams.request, now: Date.now()};
-      }
-
-      else{
-        query = `
-            FOR p IN messagess FILTER p._key == @id
-              FOR u IN users FILTER u.username == @username
-                FOR pm IN messagesMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
-                  UPDATE pm WITH {
-                    status: @targetInvolvement,
-                    updated: @now
-                  } IN messagesMember
-            RETURN NEW
-          `;
-        params = {id: id, username: username, involvement: involvement, targetInvolvement: targetInvolvement, now: Date.now()};
-      }
-
-      let out = yield db.query(query, params);
-      return Promise.resolve(out);
-    })
-    .catch(function (err) {
-      return Promise.reject(err);
-    });
-  };
-  
-  messages.removeInvolvement = function(id, username, involvement) {
-    return co(function *(){
-      let query = `
-          FOR p IN messagess FILTER p._key == @id
-            FOR u IN users FILTER u.username == @username
-              FOR pm IN messagesMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
-                REMOVE pm IN messagesMember
-        `;
-      let params = {id: id, username: username, involvement: involvement};
-
-      let out = yield db.query(query, params);
-      return Promise.resolve(out);
-    })
-    .catch(function (err) {
-      return Promise.reject(err);
-    });
-  };
-
-  messages.countMembers = function (id, status) {
-    let allowedStates = ['joining', 'invited', 'member'];
-    if(allowedStates.indexOf(status)<0) return Promise.reject('400');
-
-    //console.log(id, status);
-
-    let query = `LET pr = (FOR p IN messagess FILTER p._key == @id RETURN p)
-      LET pm = (FOR p IN pr
-        FOR pm IN messagesMember FILTER pm._from == p._id && pm.status == @status
-          RETURN pm)
-      LET cpr = COUNT(pr)
-      RETURN cpr == 0 ? '404' : (cpr > 1 ? 'duplicate' : COUNT(pm))`;
-
-
-    let params = {id: id, status: status};
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (_memno) {
-        let mno = _memno[0];
-        if(mno === '404') throw new Error('404');
-        if(mno === 'duplicate') throw new Error('duplicate messages id. this should never happen.');
-        return mno;
-      });
-  };
-  
-  /** which messagess is user member of? **/
-  messages.userProjects = function (username, status) {
-    status = status || 'all';
-    let allowedStates = ['joining', 'invited', 'member'];
-    allowedStates.push('all');
-    if(allowedStates.indexOf(status)<0) return Promise.reject('400');
-
-    let query, params;
-    query = `LET usr = (FOR u IN users FILTER u.username == @username RETURN u) //find the user
-      LET pr = (FOR u IN usr
-        FOR pm IN messagesMember FILTER pm._to == u._id && (`+ (status === 'all' ? 'true || ' : '') +`pm.status == @status)
-          FOR pr IN messagess FILTER pm._from == pr._id 
-            RETURN {id: pr._key, status: pm.status, name: pr.name, description: pr.description})
-      LET cusr = COUNT(usr)
-      RETURN cusr == 0 ? '404' : (cusr > 1 ? 'duplicate' : pr)`;
-    params = {username: username, status: status};
-
-    return db.query(query, params) 
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (_proj) {
-        let mno = _proj[0];
-        if(mno === '404') throw new Error('404');
-        if(mno === 'duplicate') throw new Error('duplicate user. this should never happen.');
-        return mno;
-      });
-  }
-  
-
-  //extended information about user involvement in messages (like request message etc...)
-  /**
-   * 
-   *
-   * @return {status: status[, request: request]}
-   */
-  messages.userInvolved = function (id, username) {
-    let query = `FOR u IN users FILTER u.username == @username
-      FOR p IN messagess FILTER p._key == @id
-        FOR pm IN messagesMember FILTER pm._from == p._id && pm._to == u._id
-          RETURN pm`;
-
-
-    let params = {id: id, username: username};
-    return co(function *() {
-      let cursor = yield db.query(query, params);
-      let output = yield cursor.all();
-
-      if(output.length >1) return Promise.reject(new Error('duplicate membership. this should never happen.'));
-
-      if(output.length === 1) {
-        let allowedStates = ['joining', 'invited', 'member'];
-
-        if(allowedStates.indexOf(output[0].status)>-1) {
-          let returnObject = {status: output[0].status};
-          if(output[0].status === 'joining') {
-            returnObject.request = output[0].request || '';
-          }
-          return Promise.resolve(returnObject);
-        };
-      }
-      return Promise.resolve({status: ''});
-    })
-    .catch(function (err) {
-      return Promise.reject(err);
-    });
-  }; 
-
-  messages.userStatus = function (id, username) {
-    let query = `FOR u IN users FILTER u.username == @username
-      FOR p IN messagess FILTER p._key == @id
-        FOR pm IN messagesMember FILTER pm._from == p._id && pm._to == u._id
-          RETURN pm.status`;
-
-
-    let params = {id: id, username: username};
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (_status) {
-        if(_status.length > 1) throw new Error('duplicate membership. this should never happen.');
-        if(_status.length === 1) {
-          let allowedStates = ['joining', 'invited', 'member'];
-          if(allowedStates.indexOf(_status[0])>-1) return _status[0];
-        }
-        return '';
-      });
-  };
-
-  /**
-   * @param {Object} user
-   * @param {string} user.username
-   * @returns {Promise<Array<Object>>} promise of Array of objects: [{dit: Object, tags: [Object]}]
-   *
-   *
-   *
-   */
-  messages.messagessByTagsOfUser = proto.collectionsByTagsOfUser('messagess', db);
-  //********************END
-  messages.popular = proto.popular('messagess', db);
-  messages.newest = proto.newest('messagess', db);
-  messages.random = proto.random('messagess', db);
 
   return messages;
 };

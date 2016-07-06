@@ -2,7 +2,9 @@
 
 var Database = require('arangojs');
 var config = require('./db-config');
-var db = new Database({url: config.url, databaseName: config.dbname});
+
+var url = `http://${config.username}:${config.password}@${config.host}:${config.port}`;
+var db = new Database({url: url, databaseName: config.database});
 
 var independentData = require('./independentData');
 

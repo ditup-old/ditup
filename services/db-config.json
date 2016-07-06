@@ -1,4 +1,7 @@
 {
-  "url" : "http://127.0.0.1:8529",
-  "dbname" : "db_ditup"
+  "host" : "127.0.0.1",
+  "port": "8529",
+  "database" : "db_ditup",
+  "username": "db_ditup",
+  "password": "soMeRandomPasswordString0742"
 }

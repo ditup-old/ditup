@@ -2,7 +2,8 @@
 
 var Database = require('arangojs');
 var config = require('../services/db-config');
-var db = new Database({url: config.url, databaseName: config.dbname});
+var generateUrl = require('../services/generateUrl');
+var db = new Database({url: generateUrl(config), databaseName: config.database});
 
 var dbData = require('../test/dbData');
 var dbPopulate = require('../test/dbPopulate')(db);

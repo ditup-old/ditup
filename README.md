@@ -14,7 +14,7 @@ this will not work, yet, because
   * clone this repository
   * run `npm install` to install dependencies
 2. install the database
-  * install arangodb to your computer
+  * install arangodb to your computer (current supported version is 3.0)
   * run arangodb i.e. `sudo arangod`
   * go to the folder of this repository on your computer
   * initialize the database: run `npm run init-database`
@@ -34,7 +34,7 @@ this will not work, yet, because
 
 ### technology
 * server: nodejs
-* database: arangodb
+* database: [ArangoDB](https://github.com/arangodb/arangodb)
 
 npm library [sharp](https://github.com/lovell/sharp) depends on installing [libvips](https://github.com/jcupitt/libvips) (library for processing images)
 

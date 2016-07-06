@@ -90,8 +90,10 @@ function init (config, dbData) {
   var app = require('../../../app');
   var session = require('../../../session');
 
-  var Database = require('arangojs');
-  var db = new Database({url: config.db.url, databaseName: config.db.dbname});
+  var arangojs = require('arangojs');
+  var url = `http://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}`;
+  console.log(url);
+  var db = arangojs({url: url, databaseName: config.db.database});
 
   var generateUrl = require('../../../routes/discussion/functions').generateUrl;
 
@@ -146,11 +148,6 @@ function beforeTest(browserObj, dependencies) {
 //*******************END*****************
 
 //**************populate database
-  before(function (done) {
-    dbPopulate.init(collections, config.dbname)
-      .then(done, done);
-  });
-
   before(function (done) {
     dbPopulate.clear()
       .then(done, done);
