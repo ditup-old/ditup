@@ -82,5 +82,10 @@
   "messages": {
     "type": "edge",
     "unique": []
+  },
+  "notifications": {
+    "type": "document",
+    "unique": [],
+    "hash":["to"]
   }
 }
