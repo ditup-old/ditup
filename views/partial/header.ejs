@@ -21,7 +21,11 @@
     </ul>
     <ul class="people-menu header-menu">
       <% if(session.logged === true) { %>
-      <li><a href="/notifications"><span class="fa fa-bell" ></span></a></li><!--
+      <li><a href="/notifications"><span class="fa fa-bell" ></span><% 
+          if(session.unviewedNotificationsCount > 0) {
+          %><span class="unviewed-notifications-count"><%= session.unviewedNotificationsCount %></span><%
+          }
+          %></a></li><!--
       --><li><a href="/messages" ><span class="fa fa-comments" ></span><% 
           if(session.unreadMessagesCount > 0) {
           %><span class="unread-messages-count"><%= session.unreadMessagesCount %></span><%

@@ -4,7 +4,7 @@ var co = require('co');
 
 module.exports = function (db) {
   var data = {};
-  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project', 'messages'];
+  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project', 'messages', 'notifications'];
 
 
   for (let md of modules) {
@@ -41,6 +41,15 @@ module.exports = function (db) {
   function populate(dbData) {
     //put dbData to database
     //create users
+    //
+    function populateNotifications(notifications, users) {
+      return co(function *() {
+        for(let nt of notifications) {
+          yield data.notifications.create({to: users[nt.to].username, text: nt.text, url: nt.url});
+        }
+        return;
+      });
+    };
     
     function populateMessages(messages, users) {
       return co(function *() {
@@ -302,6 +311,7 @@ module.exports = function (db) {
       }
       yield populateProjectMember(dbData.projectMember, dbData.projects, dbData.users);
       yield populateMessages(dbData.messages || [], dbData.users);
+      yield populateNotifications(dbData.notifications || [], dbData.users);
 
       return Promise.resolve();
 

@@ -3,7 +3,7 @@
 module.exports = function independentData(dependencies) {
   var db = dependencies.db;
   //submodules to also export as a part of the object
-  var modules = [/*'search', 'feedback', */'user', /*'dit', */'tag', /*'talk',*/ 'discussion', 'challenge', 'idea', 'project', 'messages'];
+  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project', 'messages', 'notifications'];
   var exports = {};
 
   for (let md of modules) {

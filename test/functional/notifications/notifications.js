@@ -54,11 +54,11 @@ describe('notifications', function () {
       });
 
       it('should show list of notifications for logged user', function () {
-        browser.assert.elements('.notification', 5);
+        browser.assert.elements('.notification', 1);
       });
 
-      it('the unprocessed notifications should be highlighted', function () {
-        browser.assert.elements('.last-user-message.unseen', 1);
+      it('the unviewed notifications should be highlighted', function () {
+        browser.assert.elements('.notification.unviewed', 1);
       });
 
       it('when notification is clicked, it should make it viewed and redirect to the right url to process it');
@@ -72,8 +72,8 @@ describe('notifications', function () {
       beforeEach(funcs.login(loggedUser, browserObj));
       afterEach(funcs.logout(browserObj));
       beforeEach(funcs.visit('/projects', browserObj));
-      it('should show number of unprocessed notifications next to notifications icon', function () {
-        browser.assert.text('.unread-notifications-count', 3);
+      it('should show number of unviewed notifications next to notifications icon', function () {
+        browser.assert.text('.unviewed-notifications-count', 3);
       });
     })
   });

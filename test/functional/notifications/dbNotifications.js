@@ -78,30 +78,32 @@ module.exports = (function () {
     ],
     "projectMember": [],
     "messages": [
+    ],
+    "notifications": [
       {
-        from: 0,
-        to: 1,
-        text: 'this is a message',
+        "to":0,
+        "text": "you are notified, go to projects",
+        "url": "/projects"
       },
       {
-        from: 1,
-        to: 0,
-        text: 'this is a message',
+        "to":0,
+        "text": "you are notified, go to projects",
+        "url": "/projects"
       },
       {
-        from: 0,
-        to: 1,
-        text: 'this is a message',
+        "to":0,
+        "text": "you are notified, go to projects",
+        "url": "/projects"
       },
       {
-        from: 1,
-        to: 0,
-        text: 'this is a message',
+        "to":1,
+        "text": "you are notified, go to projects",
+        "url": "/projects"
       },
       {
-        from: 1,
-        to: 0,
-        text: 'this is a message',
+        "to":2,
+        "text": "you are notified, go to projects",
+        "url": "/projects"
       }
     ]
   }

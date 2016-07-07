@@ -17,7 +17,7 @@ include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <section class="page">
   <header><h1>Messages<% if(session.unreadMessagesCount > 0) { %> (<%= session.unreadMessagesCount %>)<% } %></h1></header>
-  <section><ul><% for(msg of lastMessages) {
+  <section><ul><% for(let msg of lastMessages) {
       let notViewedClass = (msg.viewed === true || msg.from.username === loggedUser) ? '' : ' unseen';
       let otherUser = loggedUser == msg.from.username ? msg.to.username : msg.from.username;
       %><li class="last-user-message<%= notViewedClass %>">

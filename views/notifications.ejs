@@ -1,0 +1,27 @@
+<%
+
+  var css = [
+    '/css/header.css',
+    '/css/notifications.css'
+  ];
+
+  var title = 'notifications';
+  var headScripts = [];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+%><%
+include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <header><h1>Notifications<% if(session.unreadNotificationsCount > 0) { %> (<%= session.unreadNotificationsCount %>)<% } %></h1></header>
+  <section><ul><% for(let note of notifications) {
+      let notViewedClass = note.viewed === true ? '' : ' unviewed';
+      %><li class="notification<%= notViewedClass %>">
+      </li><%
+    }
+    %></ul></section>
+</section>
+<% include ./partial/page-bottom.ejs %>
