@@ -45,7 +45,8 @@ module.exports = function (db) {
     function populateNotifications(notifications, users) {
       return co(function *() {
         for(let nt of notifications) {
-          yield data.notifications.create({to: users[nt.to].username, text: nt.text, url: nt.url});
+          let output = yield data.notifications.create({to: users[nt.to].username, text: nt.text, url: nt.url});
+          nt.id = output.id;
         }
         return;
       });

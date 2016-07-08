@@ -18,17 +18,37 @@ router.all('/', function (req, res, next) {
   return next();
 });
 
-router.get('/', function (req, res,next) {
+//processing the notifications (either process or delete it)
+router.post('/', function (req, res, next) {
+  let sessUser = req.session.user;
+  return co(function *() {
+    //process notification makes it viewed and redirects to the notification url
+    if(req.body['process-notification'] === 'process') {
+      let notificationId = req.body['notification-id'];
+      let notification = yield db.notifications.view(notificationId, sessUser.username);
+      return res.redirect(notification.url);
+    }
+    //delete notification - delete from database and show notification page (in next route)
+    else if(req.body['process-notification'] === 'delete') {
+      let notificationId = req.body['notification-id'];
+      let notification = yield db.notifications.remove(notificationId, sessUser.username);
+      next();
+    }
+    else{
+      throw new Error('unrecognized POST request');
+    }
+  })
+  .catch(next);
+});
+
+router.all('/', function (req, res,next) {
   let sessUser = req.session.user;
   
   return co(function *() {
     let notifications = yield db.notifications.read(sessUser.username);
-    //yield db.messages.view({from: username, to: sessUser.username});
     return res.render('notifications', {session: sessUser, notifications: notifications});
   })
-  .catch(function (err) {
-    return next(err);
-  });
+  .catch(next);
 });
 
 module.exports = router;

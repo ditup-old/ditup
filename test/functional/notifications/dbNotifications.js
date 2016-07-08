@@ -101,6 +101,11 @@ module.exports = (function () {
         "url": "/projects"
       },
       {
+        "to":1,
+        "text": "you are notified, go to projects",
+        "url": "/projects"
+      },
+      {
         "to":2,
         "text": "you are notified, go to projects",
         "url": "/projects"

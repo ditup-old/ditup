@@ -213,5 +213,32 @@
     {"from": 3, "to": 0, "text": "message text"},
     {"from": 4, "to": 3, "text": "message text"},
     {"from": 4, "to": 1, "text": "message text"}
+  ],
+  "notifications": [
+    {
+      "to":0,
+      "text": "you are notified, go to projects",
+      "url": "/projects"
+    },
+    {
+      "to":0,
+      "text": "you are notified, go to projects",
+      "url": "/projects"
+    },
+    {
+      "to":0,
+      "text": "you are notified, go to projects",
+      "url": "/projects"
+    },
+    {
+      "to":1,
+      "text": "you are notified, go to projects",
+      "url": "/projects"
+    },
+    {
+      "to":2,
+      "text": "you are notified, go to projects",
+      "url": "/projects"
+    }
   ]
 }

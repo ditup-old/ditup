@@ -14,7 +14,8 @@ module.exports = function (db) {
           url: @url,
           created: @created,
           viewed: false
-        } IN notifications`;
+        } IN notifications
+        RETURN NEW`;
 
     var params = {to: notification.to, text: notification.text, url: notification.url, created: Date.now()};
 
@@ -23,7 +24,8 @@ module.exports = function (db) {
       let saved = cursor.extra.stats.writesExecuted;
       if(saved === 0) throw new Error('404');
       if(saved > 1) throw new Error('duplicate user - this should never happen');
-      return Promise.resolve();
+      let out = yield cursor.all();
+      return {id: out[0]._key};
     });
   };
 
@@ -45,10 +47,11 @@ module.exports = function (db) {
             SORT nt.created ASC
             RETURN MERGE(
               nt,
-              {to: {username: us.username}}
+              {to: {username: us.username}},
+              {id: nt._key}
             )
       )
-      RETURN LENGTH(user) == 0 ? '404' : nots[0]`;
+      RETURN LENGTH(user) == 0 ? '404' : nots`;
     var params = {username: username};
 
     return co(function *() {
@@ -59,7 +62,7 @@ module.exports = function (db) {
         err.status = 404;
         throw err;
       }
-      return out;
+      return out[0];
     });
   };
 
@@ -68,16 +71,39 @@ module.exports = function (db) {
    *
    *
    */
-  notifications.view = function (username, id) {
-
-    let query = `FOR u IN users FILTER u.username == @from
-      FOR to IN users FILTER to.username == @to
-        FOR msg IN notifications FILTER msg._from == fr._id && msg._to == to._id && msg.viewed == false && msg.created <= @now
-          UPDATE msg WITH {viewed: true} IN notifications`;
-    let params = {from: from, to: to, now: Date.now()};
+  notifications.view = function (id, username) {
+    let query = `
+      FOR u IN users FILTER u.username == @username
+        FOR nt IN notifications FILTER nt._key == @id && nt.to == u._id
+          UPDATE nt WITH {viewed: true} IN notifications
+          RETURN {id: OLD._key, url: OLD.url, text: OLD.text}`;
+    let params = {username: username, id: id};
 
     return co(function *() {
-      yield db.query(query, params);
+      let cursor = yield db.query(query, params);
+      let out = yield cursor.all();
+      console.log(out[0]);
+      return out[0];
+    });
+  }
+
+  notifications.remove = function (id, username) {
+    let query = `
+      FOR u IN users FILTER u.username == @username
+        FOR nt IN notifications FILTER nt._key == @id && nt.to == u._id
+          REMOVE nt IN notifications
+          RETURN OLD`;
+    let params = {username: username, id: id};
+
+    return co(function *() {
+      let cursor = yield db.query(query, params);
+      let removed = cursor.extra.stats.writesExecuted;
+      if(removed === 0) {
+        throw new Error('Error, notification not deleted');
+      }
+      if(removed > 1) {
+        throw new Error('multiple notifications deleted. this should never happen.');
+      }
       return;
     });
   }

@@ -37,9 +37,7 @@ describe('notifications', function () {
 
           return done();
         })
-        .catch(function (err) {
-          return done(err);
-        });
+        .catch(done);
       });
     });
 
@@ -54,15 +52,31 @@ describe('notifications', function () {
       });
 
       it('should show list of notifications for logged user', function () {
-        browser.assert.elements('.notification', 1);
+        browser.assert.elements('.notification', 3);
       });
 
       it('the unviewed notifications should be highlighted', function () {
-        browser.assert.elements('.notification.unviewed', 1);
+        browser.assert.elements('.notification.unviewed', 3);
       });
 
-      it('when notification is clicked, it should make it viewed and redirect to the right url to process it');
-      it('when notification cross is clicked, it should delete it');
+      it('when notification is clicked, it should make it viewed and redirect to the right url to process it', function (done) {
+        return co(function *() {
+          yield browser.pressButton('process-notification');
+          browser.assert.redirected();
+          browser.assert.url('/projects');
+          done();
+        })
+        .catch(done);
+      });
+      it('when notification cross is clicked, it should delete it', function (done) {
+        return co(function *() {
+          yield browser.pressButton('delete');
+          browser.assert.success();
+          browser.assert.elements('.notification', 2);
+          done();
+        })
+        .catch(done);
+      });
       it('should show link to edit notification settings');
     });
   });

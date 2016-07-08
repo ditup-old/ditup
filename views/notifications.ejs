@@ -20,6 +20,7 @@ include ./partial/header.ejs %>
   <section><ul><% for(let note of notifications) {
       let notViewedClass = note.viewed === true ? '' : ' unviewed';
       %><li class="notification<%= notViewedClass %>">
+        <form method="post" action="" ><input type="hidden" name="notification-id" value="<%= note.id %>" /><button type="submit" name="process-notification" value="process"><%= note.text %></button><button type="submit" name="process-notification" value="delete" class="fa fa-times" ></button></form>
       </li><%
     }
     %></ul></section>
