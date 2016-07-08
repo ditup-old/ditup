@@ -1,0 +1,26 @@
+@import "colors";
+@import "page-mixin";
+
+@include page();
+
+
+.notification {
+  border: 3px solid $darker;
+
+  &>span {
+    padding: 5px;
+  }
+
+  &.unviewed {
+    font-weight: bold;
+  }
+
+  button {
+    cursor:pointer;
+    line-height:1;
+  }
+}
+
+.unviewed.unviewed.unviewed.unviewed {
+  font-weight:bold;
+}
