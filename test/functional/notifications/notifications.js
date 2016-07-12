@@ -77,7 +77,7 @@ describe('notifications', function () {
         })
         .catch(done);
       });
-      it('should show link to edit notification settings');
+      it('should show link to edit user notification settings');
     });
   });
 
@@ -90,5 +90,28 @@ describe('notifications', function () {
         browser.assert.text('.unviewed-notifications-count', 3);
       });
     })
+  });
+
+  describe('system creates the notification', function () {
+    //we want to have a module notify(username, text, url);
+    context('user is accepted to a project', function () {
+      beforeEach(funcs.login(otherUser, browserObj));
+      beforeEach(function (done) {
+        //accept the other user to the project
+        co(function *(){
+            done();
+        })
+          .catch(done);
+      });
+      beforeEach(funcs.logout(browserObj));
+      beforeEach(funcs.login(loggedUser, browserObj));
+      afterEach(funcs.logout(browserObj));
+      it('should show a higher number of notifications', function () {
+        browser.assert.text('.unviewed-notifications-count', 4);
+      });
+      it('on the notifications page, there should be this notification present', function () {
+        
+      });
+    });
   });
 });
