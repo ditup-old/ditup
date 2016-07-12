@@ -87,15 +87,15 @@ module.exports = function (db) {
           LIMIT 1
           RETURN m
         )
-        FOR lm IN lastMsg
-          SORT lm.created DESC
-          RETURN {
-            text: lm.text,
-            created: lm.created,
-            viewed: mbu.otherUser._id == lm._from ? lm.viewed : null,
-            from: mbu.otherUser._id == lm._from ? {username: mbu.otherUser.username} : {username: mbu.user.username},
-            to: mbu.otherUser._id == lm._to ? {username: mbu.otherUser.username} : {username: mbu.user.username}
-          }`;
+        LET lm = lastMsg[0]
+        SORT lm.created DESC
+        RETURN {
+          text: lm.text,
+          created: lm.created,
+          viewed: mbu.otherUser._id == lm._from ? lm.viewed : null,
+          from: mbu.otherUser._id == lm._from ? {username: mbu.otherUser.username} : {username: mbu.user.username},
+          to: mbu.otherUser._id == lm._to ? {username: mbu.otherUser.username} : {username: mbu.user.username}
+        }`;
     var params = {username: username};
 
     return co(function *() {
