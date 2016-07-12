@@ -19,7 +19,7 @@ router.all('*', function (req, res, next) {
 
 router.get('/', function (req, res, next) {
   var sessUser = req.session.user;
-  console.log(sessUser);
+  //console.log(sessUser);
   res.render('login', {session: sessUser});
 });
 
@@ -34,7 +34,7 @@ router.post('/', function (req, res, next) {
       if(match === true) {
         sessUser.logged = true;
         sessUser.username = username;
-        console.log(userData);
+        //console.log(userData);
         sessUser.name = userData.name;
         sessUser.surname = userData.surname;
         sessUser.email = userData.email;
@@ -50,7 +50,7 @@ router.post('/', function (req, res, next) {
 
       req.session.messages.push('login successful. you\'re logged in as <a href="/user/' + sessUser.username + '">' + ((sessUser.name || sessUser.surname ? sessUser.name + ' ' + sessUser.surname : '') || sessUser.username) + '</a>');
       var redir = req.query.redirect || '/';
-      console.log(redir);
+      //console.log(redir);
       res.redirect(redir);
       return;
       //res.redirect(req.session.history.current);
