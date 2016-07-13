@@ -66,8 +66,9 @@ describe('joining a project', function () {
     });
   });
   context('logged', function () {
-    /*
+    //*
     context('POST', function () {
+      /*
       context('[no relation] new join request', function () {
         beforeEach(functions.logout(browserObj)); //logout
         beforeEach(functions.login(users.none, browserObj));
@@ -191,7 +192,11 @@ describe('joining a project', function () {
       context('all the other options', function () {
         it('should show error not authorized (or some other one?)');
       });
+      */
     });
+
+  //*/
+    /*
 
     context('user has no relation', function () {
       //login
@@ -335,10 +340,12 @@ describe('joining a project', function () {
       });
       context('/project/../join', function () {
         //counting how many users are joining project0
-        let joinerno = 0;
+        let joiners = [];
         for(let pm of dbData.projectMember) {
-          if(pm.status === 'joining' && pm.collection === 0) ++joinerno;
+          if(pm.status === 'joining' && pm.collection === 0) joiners.push(pm);
+          console.log(pm);
         }
+        let joinerno = joiners.length;
 
         beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
         it('say user is member and can edit the join info');
@@ -349,15 +356,25 @@ describe('joining a project', function () {
         it('should show the people who want to join', function () {
           browser.assert.elements('.joiner', joinerno);
         });
-        it('should show link to process joining of a user');
+        it('should show link to process joining of a user', function () {
+          browser.assert.input('.joiner input[type=hidden][name="user"]', dbData.users[joiners[0].user].username);
+          browser.assert.input('.joiner input[type=submit]', 'manage');
+        });
         it('offer link to managing joiners (invite, accept, reject)');
         it('offer link to leave the project');
-        // TODO how to manage member-accepting joiners and inviting?
-      });
-      context('/project/../join?user=username', function () {
-        context('user=username is joining', function () {
-          it('show the message user filled when joining');
-          it('offer accept, reject, link to discussing with the user=username');
+
+        context('click manage joiner', function () {
+          beforeEach(functions.fill(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, {submit: 'manage'}, browserObj));
+          context('user=username is joining', function () {
+            it('show the message which user filled when joining', function () {
+              browser.assert.text('.join-request', joiners[0].request);
+            });
+            it('offer accept, reject, link to discussing with the user=username', function () {
+              browser.assert.input('input[type=submit][name=accept]', 'accept');
+              browser.assert.input('input[type=submit][name=reject]', 'reject');
+              browser.assert.link('a', 'talk with joiner', '/messages/'+dbData.users[joiners[0].user].username);
+            });
+          });
         });
       });
     });

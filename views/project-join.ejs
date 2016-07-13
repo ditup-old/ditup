@@ -53,7 +53,12 @@ include ./partial/header.ejs %>
   %>
   <ul class="joiners-list">
     <% for (let joiner of joiners) { %>
-      <li class="joiner"><%= joiner.username %></li>
+    <li class="joiner"><%= joiner.username %>
+      <form method="get" action="" >
+        <input type="hidden" name="user" value="<%= joiner.username %>" />
+        <input type="submit" name="manage" value="manage" />
+      </form>
+    </li>
     <% } %>
   </ul>
   <% } %>

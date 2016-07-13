@@ -63,9 +63,9 @@ module.exports = function (dependencies) {
   router.get('/:id/:url/join', function (req, res, next) {
     let sessUser = req.session.user;
     let id = req.params.id;
-    
+
     //this is my first use of generator functions and co library to write synchronous-looking asynchronous code
-    co(function *() {
+    return co(function *() {
       let weHaveDataAlready = req.ditup && req.ditup.project && req.ditup.project.name && req.ditup.project.join_info && req.ditup.project.id === id;
       let project = yield weHaveDataAlready ? Promise.resolve(req.ditup.project) : db.project.read(id);
       
@@ -78,12 +78,21 @@ module.exports = function (dependencies) {
         }
 
         if(involvement.status === 'member') {
+          //processing joiner info
+          if(typeof(req.query.user) === 'string') {
+            let username = req.query.user;
+            let joiner = yield db.project.userInvolved(id, username);
+            joiner.username = username;
+            if(joiner.status !== 'joining') throw new Error('user is not joining'); 
+            return res.render('project-join-manage-joiner', {session: sessUser, project: project, joiner: joiner});
+          }
+          
           let joiners = yield db.project.involvedUsers(id, 'joining');
           project.joiners = joiners;
         }
       }
 
-      return res.render('project-join', {session: sessUser, project});
+      return res.render('project-join', {session: sessUser, project: project});
     })
     .catch(function (err) {
       next(err);

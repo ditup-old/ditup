@@ -1,0 +1,31 @@
+<%
+
+  //view needs project = {name: '', tags: []}
+
+  var css = [
+    '/css/header.css',
+    '/css/project-join-manage-joiner.css'
+  ];
+
+  var title = 'join ' + project.name;
+  var headScripts = [];
+  var scripts = [];
+  var session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+  var loggedUser = session.username || false;
+  var longUrl = '/project/' + project.id + '/' + project.url;
+  var shortUrl = '/p/' + project.id;
+
+  var joinInfo = project.join_info || 'default join info text';
+
+%><% include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <div class="join-request"><%= joiner.request %></div>
+  <form method="post" action="">
+    <input type="submit" name="accept" value="accept" />
+    <input type="submit" name="reject" value="reject" />
+    <a href="/messages/<%= joiner.username %>">talk with joiner</a>
+  </form>
+</section>
+<% include ./partial/page-bottom.ejs %>
