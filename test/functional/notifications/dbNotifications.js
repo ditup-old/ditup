@@ -44,6 +44,14 @@ module.exports = (function () {
     "ideas": [
     ],
     "projects": [
+      {
+        "name": "project0",
+        "description": "some description",
+        "join": true,
+        "join_info": "this is an info for the people who want to join. it will be shown after clicking the JOIN button (or the default will be shown if empty)",
+        "id": null,
+        "creator": 0
+      },
     ],
     "challengeCommentAuthor": [],
     "discussionCommentAuthor": [],
@@ -76,7 +84,10 @@ module.exports = (function () {
     ],
     "projectTag": [
     ],
-    "projectMember": [],
+    "projectMember": [
+      {"collection": 0, "user": 0, "status": "joining"},
+      {"collection": 0, "user": 1, "status": "member"}
+    ],
     "messages": [
     ],
     "notifications": [

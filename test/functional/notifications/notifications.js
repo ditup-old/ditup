@@ -93,13 +93,15 @@ describe('notifications', function () {
   });
 
   describe('system creates the notification', function () {
+    let project = dbData.projects[0];
     //we want to have a module notify(username, text, url);
     context('user is accepted to a project', function () {
       beforeEach(funcs.login(otherUser, browserObj));
       beforeEach(function (done) {
         //accept the other user to the project
         co(function *(){
-            done();
+          yield browser.visit('/project/'+project.id+'/'+project.url);
+          done();
         })
           .catch(done);
       });
@@ -109,8 +111,11 @@ describe('notifications', function () {
       it('should show a higher number of notifications', function () {
         browser.assert.text('.unviewed-notifications-count', 4);
       });
-      it('on the notifications page, there should be this notification present', function () {
-        
+      it('on the notifications page, there should be this notification present', function (done) {
+        return co(function *(){
+          yield browser.visit('/notifications');
+          browser.assert.elements('.notification', 4);
+        }).catch(done);
       });
     });
   });
