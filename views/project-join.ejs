@@ -48,5 +48,14 @@ include ./partial/header.ejs %>
     <a class="cancel-join" href="<%= longUrl %>">Cancel</a>
   </form>
   <% } %>
+  <% if(project.userStatus === 'member') { 
+    let joiners = project.joiners || [];  
+  %>
+  <ul class="joiners-list">
+    <% for (let joiner of joiners) { %>
+      <li class="joiner"><%= joiner.username %></li>
+    <% } %>
+  </ul>
+  <% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>

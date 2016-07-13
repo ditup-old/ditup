@@ -189,6 +189,33 @@ module.exports = function (db) {
         return mno;
       });
   };
+
+  project.involvedUsers = function (id, status) {
+    let allowedStates = ['joining', 'invited', 'member'];
+    if(allowedStates.indexOf(status)<0) return Promise.reject('400');
+
+    //console.log(id, status);
+
+    let query = `LET pr = (FOR p IN projects FILTER p._key == @id RETURN p)
+      LET involved = (FOR p IN pr
+        FOR pm IN projectMember FILTER pm._from == p._id && pm.status == @status
+          FOR u IN users FILTER u._id == pm._to
+            RETURN MERGE(pm, {username: u.username})
+      )
+
+      RETURN COUNT(pr) == 0 ? '404' : (COUNT(pr) > 1 ? 'duplicate' : involved)`;
+
+
+    let params = {id: id, status: status};
+
+    return co(function *(){
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+        if(output[0] === '404') throw new Error('404');
+        if(output[0] === 'duplicate') throw new Error('duplicate project id. this should never happen.');
+        return output[0];
+    });
+  };
   
   /** which projects is user member of? **/
   project.userProjects = function (username, status) {

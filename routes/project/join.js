@@ -76,6 +76,11 @@ module.exports = function (dependencies) {
         if(involvement.status === 'joining') {
           project.joinRequest = involvement.request;
         }
+
+        if(involvement.status === 'member') {
+          let joiners = yield db.project.involvedUsers(id, 'joining');
+          project.joiners = joiners;
+        }
       }
 
       return res.render('project-join', {session: sessUser, project});

@@ -66,6 +66,7 @@ describe('joining a project', function () {
     });
   });
   context('logged', function () {
+    /*
     context('POST', function () {
       context('[no relation] new join request', function () {
         beforeEach(functions.logout(browserObj)); //logout
@@ -168,6 +169,9 @@ describe('joining a project', function () {
         it('should say that info was updated');
       });
       context('[member] add joiner', function () {
+        //how shall we do it?
+        //there needs to be a list of people who are joining
+        //
         it('should make user>member in db');
         it('should display info that user ... is now member');
         it('should give the new member a notification');
@@ -317,6 +321,8 @@ describe('joining a project', function () {
         });
       });
     });
+  */
+
     context('member', function () {
       beforeEach(functions.logout(browserObj)); //logout
       beforeEach(functions.login(users.member, browserObj));
@@ -328,11 +334,31 @@ describe('joining a project', function () {
         });
       });
       context('/project/../join', function () {
+        //counting how many users are joining project0
+        let joinerno = 0;
+        for(let pm of dbData.projectMember) {
+          if(pm.status === 'joining' && pm.collection === 0) ++joinerno;
+        }
+
+        beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
         it('say user is member and can edit the join info');
         it('offer submit/cancel');
+        it('should show list of people who want to join', function () {
+          browser.assert.element('.joiners-list');
+        });
+        it('should show the people who want to join', function () {
+          browser.assert.elements('.joiner', joinerno);
+        });
+        it('should show link to process joining of a user');
         it('offer link to managing joiners (invite, accept, reject)');
         it('offer link to leave the project');
         // TODO how to manage member-accepting joiners and inviting?
+      });
+      context('/project/../join?user=username', function () {
+        context('user=username is joining', function () {
+          it('show the message user filled when joining');
+          it('offer accept, reject, link to discussing with the user=username');
+        });
       });
     });
   });
