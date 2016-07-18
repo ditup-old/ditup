@@ -97,14 +97,9 @@ describe('notifications', function () {
     //we want to have a module notify(username, text, url);
     context('user is accepted to a project', function () {
       beforeEach(funcs.login(otherUser, browserObj));
-      beforeEach(function (done) {
-        //accept the other user to the project
-        co(function *(){
-          yield browser.visit('/project/'+project.id+'/'+project.url);
-          done();
-        })
-          .catch(done);
-      });
+      beforeEach(funcs.fill(() => { 
+        return `/project/${project.id}/${project.url}/join?user=${loggedUser.username}`;
+      },{submit: 'accept'} , browserObj));
       beforeEach(funcs.logout(browserObj));
       beforeEach(funcs.login(loggedUser, browserObj));
       afterEach(funcs.logout(browserObj));
@@ -115,6 +110,7 @@ describe('notifications', function () {
         return co(function *(){
           yield browser.visit('/notifications');
           browser.assert.elements('.notification', 4);
+          done();
         }).catch(done);
       });
     });

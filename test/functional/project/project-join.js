@@ -169,11 +169,20 @@ describe('joining a project', function () {
         it('should display the new join info');
         it('should say that info was updated');
       });
+      */
       context('[member] add joiner', function () {
         //how shall we do it?
         //there needs to be a list of people who are joining
         //
-        it('should make user>member in db');
+        beforeEach(functions.login(users.member, browserObj));
+        beforeEach(functions.fill(() => { 
+          console.log('%%%%%%%%%', `/project/${project0.id}/${project0.url}/join?user=${users.joining.username}`);
+          return `/project/${project0.id}/${project0.url}/join?user=${users.joining.username}`;
+        },{submit: 'accept'} , browserObj));
+        afterEach(functions.logout(browserObj));
+        it('should make user>member in db', function () {
+          throw new Error('TODO');
+        });
         it('should display info that user ... is now member');
         it('should give the new member a notification');
       });
@@ -192,10 +201,10 @@ describe('joining a project', function () {
       context('all the other options', function () {
         it('should show error not authorized (or some other one?)');
       });
-      */
+      // */
     });
 
-  //*/
+  // */
     /*
 
     context('user has no relation', function () {

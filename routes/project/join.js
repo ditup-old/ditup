@@ -17,11 +17,11 @@ module.exports = function (dependencies) {
 
   router.post('/:id/:url/:join', function (req, res, next) {
     let sessUser = req.session.user;
-    let id = req.params.id;
-    let url = req.params.url;
+    let id = req.params.id; //project id
+    let url = req.params.url; //project url
 
+    //where is this from? some irregurality in design?
     let submit;
-
     if(req.body.join) submit = 'join';
     else submit = req.body.submit;
 
@@ -48,6 +48,12 @@ module.exports = function (dependencies) {
       else if(involvement === 'invited' && submit === 'Reject invitation') {
         yield db.project.removeInvolvement(id, sessUser.username, 'invited');
         req.session.messages.push('The invitation was successfully removed.'); //show message after redirect
+      }
+      //here we process the accepting user. from project/id/url/join?user=username POST accept
+      else if(involvement === 'member' && req.query.user && req.body.accept && req.body.accept === 'accept') {
+        yield db.project.updateInvolvement(id, req.query.user, 'joining', 'member');
+        yield db.notifications.create({to: req.query.user, text: 'this is a notification', url: `/project/${id}/${url}`});
+        req.session.messages.push('The accepted user is now member.'); //show message after redirect
       }
       else {
         throw new Error('post not recognized');
