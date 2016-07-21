@@ -52,7 +52,7 @@ module.exports = function (dependencies) {
       //here we process the accepting user. from project/id/url/join?user=username POST accept
       else if(involvement === 'member' && req.query.user && req.body.accept && req.body.accept === 'accept') {
         yield db.project.updateInvolvement(id, req.query.user, 'joining', 'member');
-        yield db.notifications.create({to: req.query.user, text: 'this is a notification', url: `/project/${id}/${url}`});
+        yield db.notifications.create({to: req.query.user, text: 'you were accepted to project', url: `/project/${id}/${url}`});
         req.session.messages.push('The accepted user is now member.'); //show message after redirect
       }
       else {
