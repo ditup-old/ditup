@@ -7,7 +7,11 @@ var accountModule = require('../modules/account');
 var validate = require('../services/validation');
 var database = require('../services/data');
 
-
+/**
+ * when email is changed, a code is generated and saved to the database & 'verified' is set to false in database
+ * an email with a verify link is sent to the user
+ * here if :code matches the generated code for user :username, verified will be updated to true in database
+ */
 router.get('/verify-email/:username/:code', function (req, res, next) {
   var sessUser = req.session.user;
   var username = req.params.username;
