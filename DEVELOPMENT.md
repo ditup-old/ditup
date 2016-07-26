@@ -12,9 +12,21 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] add people page to search people
 - [ ] make a single info site /about
 - [ ] fix project, idea, challenge, discussion pages
+    - [ ] edit
+    - [ ] follow
+    - [ ] unfollow
+    - [ ] comment/discuss
+    - [ ] add tag
+    - [ ] vote tags
 - [ ] comment the code
 - [ ] write styles
 - [ ] clean the code
 
 ### Future goals and ideas
+
+- API (not necessarily REST)
+- version control of crowdsourced stuff
+- voting often - for crowdsourcing
+- dit bases
+- search
 
