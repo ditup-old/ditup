@@ -7,6 +7,7 @@ public/libs
 public/fonts
 config/*
 npm-debug.log
+npm-debug.log.*
 out
 
 
