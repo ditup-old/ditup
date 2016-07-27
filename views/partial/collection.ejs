@@ -12,6 +12,7 @@
   var scripts = [];
   session = session || {logged:false, username: null};
   var logged = session.logged || false;
+  var creator = !!(collection.creator.username === session.username) || false;
   var loggedUser = session.username || false;
 %><%include ./page-top.ejs %><%
 include ./header.ejs %>
@@ -44,7 +45,10 @@ include ./header.ejs %>
           collection: collectionName
         };
 
-      %><% include ./hide-follow.ejs %>
+        %><% include ./hide-follow.ejs %>
+      <%if(creator === true) { %>
+      <a class="edit-<%= collectionName %>" href="edit">edit</a>
+      <% } %>
     </nav>
     <h1 class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" ><%= collection.name %></h1>
   </header>
@@ -67,7 +71,7 @@ include ./header.ejs %>
       }
     %><% include ./tags.ejs %>
   </div>
-  <div id="<%= collectionName %>-description" ><%= collection.description %></div>
+  <div class="<%= collectionName %>-description" id="<%= collectionName %>-description" ><%= collection.description %></div>
   <div id="new-comment">
   <% if (logged === true) { %>
     <form id="comment-form" method="post" action="" >

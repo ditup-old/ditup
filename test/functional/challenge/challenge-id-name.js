@@ -1,161 +1,65 @@
 'use strict';
 
-// force the test environment to 'test'
-process.env.NODE_ENV = 'development';
-// get the application server module
-var app = require('../../../app');
-var session = require('../../../session');
+let config = require('../partial/config');
+let dbConfig = require('../../../services/db-config');
+let dbData = require('./dbDataChallenges');
 
-var Database = require('arangojs');
-var config = require('../../../services/db-config');
-var db = new Database({url: config.url, databaseName: config.dbname});
-var dbChallenge = require('../../../services/data/challenge')(db);
-var generateUrl = require('../../../routes/discussion/functions').generateUrl;
+let deps = config.init({db: dbConfig}, dbData);
+let funcs = config.funcs;
+let co = require('co');
 
-var shared = require('../shared');
-
-// use zombie.js as headless browser
-var Browser = require('zombie');
 describe('visit /challenge/:id/:name', function () {
-  var server, browser;
-  var browserObj = {};
-  var serverObj = {};
-  
-  before(function () {
-    server = app(session).listen(3000);
-    serverObj.Value = server;
-    browser = new Browser({ site: 'http://localhost:3000' });
-    browserObj.Value = browser;
+  let browserObj = {};
+  let browser;
+
+  let loggedUser = dbData.users[0];
+  let otherUser = dbData.users[1];
+  let creator = dbData.users[2];
+
+  config.beforeTest(browserObj, deps);
+
+  beforeEach(function () {
+    browser = browserObj.Value;
   });
 
-  after(function (done) {
-    server.close(done);
-  });
-
-  var loggedUser = {username: 'test1', password: 'asdfasdf'};
-
-  function login (done) {
-    browser.visit('/login')
-      .then(() => {
-        return browser.fill('username', loggedUser.username)
-          .fill('password', loggedUser.password)
-          .pressButton('log in');
-      })
-      .then(done, done);
-  }
-
-  function logout (done) {
-    browser.visit('/logout')
-      .then(done, done);
-  }
-  
-  var existentChallenge = {name: 'new test challenge', description: 'some description', id: undefined, tags: ['test-tag-3', 'test-tag-1'], creator: 'test1'};
-  existentChallenge.comments = [
-    {text: 'this is a comment added by test1', author: 'test1'},
-    {text: 'this is a comment added by test11', author: 'test11'},
-    {text: 'this is a comment added by test5', author: 'test5'},
-    {text: 'this is a comment added by test4', author: 'test4'}
-  ]
-  var nonexistentChallenge = {name: 'nonexistent challenge', description: 'some description', id: '1234567890'};
-  existentChallenge.url = generateUrl(existentChallenge.name);
-  nonexistentChallenge.url = generateUrl(nonexistentChallenge.name);
-
-  shared.tags('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge}, {});
-  shared.share('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge}, {});
-  shared.comment('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge, db: db}, {});
-  shared.follow('challenge', { existentCollections: [existentChallenge], loggedUser: loggedUser }, {browser: browserObj, server: serverObj, data: dbChallenge, db: db}, {});
-  //create an existent challenge for tests
-  beforeEach(function (done) {
-    return dbChallenge.create({name: existentChallenge.name, description: existentChallenge.description, creator: existentChallenge.creator})
-      .then(function (_id) {
-        existentChallenge.id = _id.id;
-
-        //add some tags to the existentChallenge
-        let tagPromises = [];
-        for(let tag of existentChallenge.tags){
-          tagPromises.push(dbChallenge.addTag(existentChallenge.id, tag, 'test1'));
-        }
-        return Promise.all(tagPromises);
-      })
-      .then(function () {
-        let commentPromises = [];
-        for(let co of existentChallenge.comments) {
-          commentPromises.push(dbChallenge.addComment(existentChallenge.id, {text: co.text}, co.author));
-        }
-        return Promise.all(commentPromises)
-          .then(function (commentIds) {
-            for(let i=0, len=commentIds.length; i<len; ++i) {
-              existentChallenge.comments[i].id = commentIds[i].id;
-            }
-          });
-      })
-      .then(function () {
-        done();
-      })
-      .then(null, done);
-    //create the challenge
-    //add some posts
-
-  });
-  
-  //delete the existent challenge
-  afterEach(function (done) {
-    //remove tags from the existentChallenge
-    let tagPromises = [];
-    for(let tag of existentChallenge.tags){
-      tagPromises.push(dbChallenge.removeTag(existentChallenge.id, tag));
-    }
-    return Promise.all(tagPromises)
-      .then(function () {}, function (err) {})
-      //delete the new challenge from database
-      .then(function () {
-        dbChallenge.delete(existentChallenge.id);
-      })
-      .then(function () {done();}, done);
-  });
+  var existentChallenge = dbData.challenges[0];
 
   context('challenge with :id exists', function () {
     context(':id not fitting to :name', function () {
-      it('should permanent redirect to the correct name', function (done) {
-        browser.visit('/challenge/' + existentChallenge.id + '/' + 'random-url')
-          .then(function () {
-            browser.assert.success();
-            browser.assert.redirected();
-            browser.assert.url(new RegExp('^.*/challenge/'+ existentChallenge.id + '/' + existentChallenge.url + '/?$'));
-          })
-          .then(done, done);
+      beforeEach(funcs.visit(()=>`/challenge/${existentChallenge.id}/random-url`, browserObj));
+
+      it('should permanent redirect to the correct name', function () {
+        browser.assert.success();
+        browser.assert.redirected();
+        browser.assert.url(`/challenge/${existentChallenge.id}/${existentChallenge.url}`);
       });
     });
 
     context(':id without :name', function () {
-      it('should permanent redirect to the correct name', function (done) {
-        browser.visit('/challenge/' + existentChallenge.id)
-          .then(function () {
-            browser.assert.success();
-            browser.assert.redirected();
-            browser.assert.url(new RegExp('^.*/challenge/'+ existentChallenge.id + '/' + existentChallenge.url + '/?$'));
-          })
-          .then(done, done);
+      beforeEach(funcs.visit(()=>`/challenge/${existentChallenge.id}`, browserObj));
+
+      it('should permanent redirect to the correct name', function () {
+        browser.assert.success();
+        browser.assert.redirected();
+        browser.assert.url(`/challenge/${existentChallenge.id}/${existentChallenge.url}`);
       });
     });
 
     context(':id and :name are valid', function () {
-      beforeEach(function (done) {
-        browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
-          .then(done, done);
-      });
+      beforeEach(funcs.visit(()=>`/challenge/${existentChallenge.id}/${existentChallenge.url}`, browserObj));
 
       it('should show the challenge name and description', function () {
-        browser.assert.text('#challenge-name', existentChallenge.name);
-        browser.assert.text('#challenge-description', existentChallenge.description);
+        browser.assert.text('.challenge-name', existentChallenge.name);
+        browser.assert.text('.challenge-description', existentChallenge.description);
       });
+
       it('should show activity log');
 
       it('should show stars')
       it('should show the challenges, tags, followers, stars, etc.');
       context('not logged in', function () {
 
-        beforeEach(logout);
+        beforeEach(funcs.logout(browserObj));
 
         beforeEach(function (done) {
           return browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
@@ -173,14 +77,9 @@ describe('visit /challenge/:id/:name', function () {
       });
 
       context('logged in', function () {
-        beforeEach(login);
-
-        beforeEach(function (done) {
-          browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
-            .then(done, done);
-        });
-
-        afterEach(logout);
+        beforeEach(funcs.login(loggedUser, browserObj));
+        beforeEach(funcs.visit(()=>`/challenge/${existentChallenge.id}/${existentChallenge.url}`, browserObj));
+        afterEach(funcs.logout(browserObj));
 
         //challenge/id/name/add-tag
 
@@ -189,8 +88,22 @@ describe('visit /challenge/:id/:name', function () {
         it('may be possible to edit the challenge name and description in wikipedia or etherpad style');
 
         context('user is creator', function () {
+          beforeEach(funcs.logout(browserObj));
+          beforeEach(funcs.login(creator, browserObj));
+          beforeEach(funcs.visit(()=>`/challenge/${existentChallenge.id}/${existentChallenge.url}`, browserObj));
+          afterEach(funcs.logout(browserObj));
           it('may be possible to delete the challenge if not embraced'); //challenge/id/name/delete //discourage!
           it('may be possible for the creator to remove their name (anonymization)');
+          context('editing', function () {
+            it('should show an edit button', function () {
+              browser.assert.element('.edit-challenge');
+              browser.assert.link('a.edit-challenge', 'edit', 'edit');
+            });
+
+            context('challenge editing page', function () {
+            
+            });
+          });
           it('may edit the challenge name');
           it('may edit the challenge description');
         });
@@ -202,14 +115,14 @@ describe('visit /challenge/:id/:name', function () {
     context('POST', function () {
       context('logged in', function () {
 
-        beforeEach(login);
+        beforeEach(funcs.login(loggedUser, browserObj));
 
         beforeEach(function (done) {
           browser.visit('/challenge/' + existentChallenge.id + '/' + existentChallenge.url)
             .then(done, done);
         });
 
-        afterEach(logout);
+        afterEach(funcs.logout(loggedUser, browserObj));
 
         function pressJustAButton(buttonName) {
           return function (done) {

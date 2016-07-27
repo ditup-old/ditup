@@ -1,6 +1,7 @@
 'use strict';
 
 var express = require('express');
+var co = require('co');
 //var entities = require('entities');
 var router = express.Router();
 //var validate = require('../services/validation');
@@ -40,7 +41,6 @@ router.post(['/:id/:url'], function (req, res, next) {
         .then(null, next);
     }
     else if(req.body.submit === 'hide') {
-      //return next();
       return db.challenge.hide(id, sessUser.username)
         .then(function () {
           sessUser.messages.push('The challenge won\'t be shown in your search results anymore.');
@@ -93,83 +93,51 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
   var id = req.params.id;
   var url = req.params.url;
   req.ditup.challenge = req.ditup.challenge || {};
-  var challenge, expectedUrl;
 
-//first reading the challenge
-  return db.challenge.read(id)
-    .then(function (_challenge) {
-      challenge = _challenge;
-      expectedUrl = generateUrl(challenge.name);
-      challenge.url = expectedUrl;
-      challenge.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
-      challenge.id = id;
-      //copying params from previous routes
-      for(var param in req.ditup.challenge) {
-        challenge[param] = req.ditup.challenge[param];
-      }
-      return;
-    })
+  return co(function *() {
+    //read the challenge
+    var challenge = yield db.challenge.read(id);
+    var expectedUrl = generateUrl(challenge.name);
+    challenge.url = expectedUrl;
+    challenge.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
+    challenge.id = id;
+
+    //copying params from previous routes
+    for(var param in req.ditup.challenge) {
+      challenge[param] = req.ditup.challenge[param];
+    }
+
     //read tags of challenge
-    .then(function () {
-      return db.challenge.tags(id)
-        .then(function (_tags) {
-          challenge.tags = [];
-          for(let _tag of _tags) {
-            challenge.tags.push(_tag.name);
-          }
-          return;
-        });
-    })
+    let tags = yield db.challenge.tags(id);
+    challenge.tags = [];
+    for(let tag of tags) {
+      challenge.tags.push(tag.name);
+    }
+
     //read comments of challenge
-    .then(function () {
-      return db.challenge.readComments(id)
-        .then(function (_coms) {
-          challenge.comments = [];
-          for(let co of _coms) {
-            challenge.comments.push(co);
-          }
-          return;
-        });
-    })
+    challenge.comments = yield db.challenge.readComments(id);
+
     //if user is logged in, find out whether she follows the challenge
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.challenge.followingUser(id, sessUser.username)
-          .then(function(_flwng) {
-            challenge.following = _flwng;
-            return;
-          });
-      }
-      else {
-        return;
-      }
-    })
-    //if user is logged in, find out whether she hides the challenge
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.challenge.followingUser(id, sessUser.username, true)
-          .then(function(_hdng) {
-            challenge.hiding = _hdng;
-            return;
-          });
-      }
-      else {
-        return;
-      }
-    })
+    if(sessUser.logged === true) {
+      challenge.following = yield db.challenge.followingUser(id, sessUser.username);
+      
+      //find out whether she hides the challenge
+      challenge.hiding = db.challenge.followingUser(id, sessUser.username, true);
+    }
+
     //sending the response
-    .then(function () {
-      if(expectedUrl === url) {
-        if(sessUser.logged !== true) {
-          sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
-        }
-        return res.render('challenge', {session: sessUser, challenge: challenge});
+    if(expectedUrl === url) {
+      if(sessUser.logged !== true) {
+        sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
       }
-      else {
-        return res.redirect('/challenge/' + id + '/' + expectedUrl );
-      }
-    })
-    .then(null, next);
+      return res.render('challenge', {session: sessUser, challenge: challenge});
+    }
+    else {
+      return res.redirect('/challenge/' + id + '/' + expectedUrl );
+    }
+  })
+    .catch(next);
+
 });
 
 module.exports = router;
