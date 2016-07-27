@@ -25,5 +25,3 @@ var dependencies = {
 
 //independent as in dependencies are added
 var exports = module.exports = independentAccount(dependencies);
-
-
