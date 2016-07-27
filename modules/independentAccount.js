@@ -1,5 +1,7 @@
 'use strict';
 
+var co = require('co');
+
 module.exports = function independentAccount(dependencies) {
   var validate = dependencies.validate;
   var database = dependencies.database;
@@ -29,44 +31,37 @@ module.exports = function independentAccount(dependencies) {
   ret.initEmailVerification = function (data) {
     var username = data.username;
     var email = data.email;
-    //create verification code, salt & hash
 
-    var code;
-    var salt;
-    var hash;
+    return co(function *() {
+      //create verification code, salt & hash
+      //the code will be sent to the to-be-verified email as part of verification url
+      var code = yield accountService.generateHexCode(16);
+      //the salt is used to hash the code
+      var salt = yield accountService.generateSalt();
+      //generating the hash (this will be saved in database. not the code itself)
+      var hash = yield accountService.hashPassword(code, salt, ITERATIONS);
 
-    return accountService.generateHexCode(16)
-      .then(function (_code){
-        code = _code;
-        return accountService.generateSalt();
-      })
-      .then(function (_salt) {
-        salt = _salt;
-        return accountService.hashPassword(code, salt, ITERATIONS);
-      })
-      .then(function (_hash) {
-        hash = _hash;
-
-        var data = {
-          create_date: Date.now(),
-          hash: hash,
-          salt: salt,
-          iterations: ITERATIONS
-        };
-        var user = {
-          username: username,
-          email: email
-        };
-        return database.updateUserEmailVerifyCode(user, data);
-      })
-      .then(function sendEmail() {
-        var mailerData = {
-          username: username,
-          email: email,
-          url: 'https://ditup.org/account/verify-email/'+username+'/'+code
-        };
-        return mailer.send.verifyEmail(mailerData);
-      });
+      // updating verification code in database
+      var data = {
+        create_date: Date.now(),
+        hash: hash,
+        salt: salt,
+        iterations: ITERATIONS
+      };
+      var user = {
+        username: username,
+        email: email
+      };
+      yield database.user.updateEmailVerifyCode(user, data);
+      
+      //sending a verification email to the user
+      var mailerData = {
+        username: username,
+        email: email,
+        url: 'https://ditup.org/account/verify-email/'+username+'/'+code
+      };
+      return yield mailer.send.verifyEmail(mailerData);
+    });
   };
 
   /**
@@ -85,33 +80,33 @@ module.exports = function independentAccount(dependencies) {
     var username = data.username;
     var code = data.code;
 
-    var hash, salt, iterations, createDate;
-    
-    //first read user from database (async)
-    return database.readUser({username: username})
-      .then(function (user) {
-        //if user is already verified, don't continue
-        if(user.account.email.verified === true) throw new Error('user ' + username + ' has already verified email');
+    return co(function *() {
+      //read user from database (async)
+      var user = yield database.user.read({username: username});
 
-        hash = user.account.email.hash;
-        salt = user.account.email.salt;
-        iterations = user.account.email.iterations;
-        createDate = user.account.email.create_date;
-        
-        //check that create_date of code is not older than 2 hours
-        var isExpired = Date.now() - createDate > 2*3600*1000;
-        if(isExpired) throw new Error('code is expired');
+      //if user is already verified, don't continue
+      if(user.account.email.verified === true) throw new Error('user ' + username + ' has already verified email');
 
-        //hash verification code (async)
-        return accountService.hashPassword(code, salt, iterations);
-      })
-      .then(function (hash2) {
-        //compare hash codes
-        var areHashesEqual = accountService.compareHashes(hash, hash2);
-        if(areHashesEqual !== true) throw new Error('code is wrong');
-        //
-        return database.updateUserEmailVerified({username: username}, {verified: true, verifyDate: Date.now()});
-      });
+      var hash = user.account.email.hash;
+      var salt = user.account.email.salt;
+      var iterations = user.account.email.iterations;
+      // date of creation
+      var createDate = user.account.email.create_date;
+          
+      //check that create_date of code is not older than 2 hours
+      var isExpired = Date.now() - createDate > 2*3600*1000;
+      if(isExpired) throw new Error('code is expired');
+
+      //hash verification code (async)
+      var hash2 = yield accountService.hashPassword(code, salt, iterations);
+
+      //compare the hash code (from database) vs. (generated from (code sent to user))
+      var areHashesEqual = accountService.compareHashes(hash, hash2);
+      if(areHashesEqual !== true) throw new Error('code is wrong');
+
+      //update email.verified to true in database
+      return yield database.user.updateEmailVerified({username: username}, {verified: true, verifyDate: Date.now()});
+    });
   };
 
   /**
@@ -127,40 +122,33 @@ module.exports = function independentAccount(dependencies) {
   ret.initResetPassword = function (user) {
     var username = user.username;
     var email = user.email;
-    //create verification code, salt & hash
+    
+    return co(function *() {
+      //create verification code, salt & hash
+      var code = yield accountService.generateHexCode(16);
+      var salt = yield accountService.generateSalt();
+      var hash = yield accountService.hashPassword(code, salt, ITERATIONS);
 
-    var code;
-    var salt;
-    var hash;
+      //saving password-resetting hash, salt & iterations to database
+      var data = {
+        create_date: Date.now(),
+        hash: hash,
+        salt: salt,
+        iterations: ITERATIONS
+      };
+      var user = {
+        username: username,
+      };
+      yield database.updateUserResetPasswordCode(user, data);
 
-    return Promise.all([accountService.generateHexCode(16), accountService.generateSalt()])
-      .then(function (_ret){
-        code = _ret[0];
-        salt = _ret[1];
-        return accountService.hashPassword(code, salt, ITERATIONS);
-      })
-      .then(function (_hash) {
-        hash = _hash;
-
-        var data = {
-          create_date: Date.now(),
-          hash: hash,
-          salt: salt,
-          iterations: ITERATIONS
-        };
-        var user = {
-          username: username,
-        };
-        return database.updateUserResetPasswordCode(user, data);
-      })
-      .then(function sendEmail() {
-        var mailerData = {
-          username: username,
-          email: email,
-          url: 'https://ditup.org/account/reset-password/'+username+'/'+code
-        };
-        return mailer.send.resetPassword(mailerData);
-      });
+      //sending resetting email
+      var mailerData = {
+        username: username,
+        email: email,
+        url: 'https://ditup.org/account/reset-password/'+username+'/'+code
+      };
+      return yield mailer.send.resetPassword(mailerData);
+    });
   };
 
   ret.isResetPasswordCodeValid = function (data) {
