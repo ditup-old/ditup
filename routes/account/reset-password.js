@@ -3,6 +3,8 @@
 var express = require('express');
 var router = express.Router();
 var co = require('co');
+var validate = require('../../services/validation');
+var accountModule = require('../../modules/account');
 
 /**
  * display form to provide username or email of account to reset password
