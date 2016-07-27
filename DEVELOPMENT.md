@@ -18,6 +18,7 @@ The first release should be a proof of the concept. It should be simple and show
     - [ ] comment/discuss
     - [ ] add tag
     - [ ] vote tags
+- [ ] merge projects of user with project general: if logged in, both will be shown.
 - [ ] comment the code
 - [ ] write styles
 - [ ] clean the code
