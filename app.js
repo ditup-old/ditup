@@ -12,6 +12,8 @@ module.exports = function (session) {
   var bodyParser = require('body-parser');
   var sanitizer = require('./services/sanitizer');
 
+  var database = require('./services/data');
+
   //var home = require('./routes/home');
   //var signup = require('./routes/signup');
 
@@ -21,8 +23,12 @@ module.exports = function (session) {
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
 
+  //setting database globally
+  app.set('database', database);
+
   // uncomment after placing your favicon in /public
   //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+  //
   //app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -59,8 +65,8 @@ module.exports = function (session) {
   app.use(function (req, res, next) {
     //push message into req.session.user.messages to show it in the nearest view
     //push message into req.session.messages to show it in next view (i.e. useful for redirects)
-    req.app = req.app || {};
-    req.app.messages = req.session.messages;
+    //req.app = req.app || {};
+    //req.app.messages = req.session.messages;
     req.session.messages = req.session.messages || [];
     req.session.user.messages = req.session.messages;
     req.session.messages = [];
