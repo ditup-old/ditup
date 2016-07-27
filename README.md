@@ -21,12 +21,14 @@ this will not work, yet, because
   * optionally run `npm run populate-database` to put some testing data to the database
 3. run the server
   * `npm start`
-4. browse the application on `http://localhost:3000`
+4. browse the application on [http://localhost:3000](http://localhost:3000)
 
 ## testing
 
 
 ## development
+
+[read about development](DEVELOPMENT.md)
 
 [old (unfinished & abandoned) version written in php](https://github.com/ditup/ditup-php)
 
