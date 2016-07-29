@@ -28,6 +28,14 @@ The first release should be a proof of the concept. It should be simple and show
 - API (not necessarily REST)
 - version control of crowdsourced stuff
 - voting often - for crowdsourcing
-- dit bases
+- dit bases - places for collaboration
 - search
+- graph search: search visually in the graph of relations with basic objects
+- map with people & projects & bases
+- show pictures of contributors
+- copy good ideas from github & workflow of commenting etc.
+- it has to be nice and easy to use
 
+### Things that are a mess and need to be rebuilt
+
+- `NODE_ENV` environment (it's all mixed - test should be for tests, development for developing and production for production)
