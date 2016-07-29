@@ -85,7 +85,7 @@ function fill(url, data, browserObj) {
 
 function init (config, dbData) {
   // force the test environmentV to 'test'
-  process.env.NODE_ENV = 'development';
+  process.env.NODE_ENV = 'test';
   // get the application server module
   var app = require('../../../app');
   var session = require('../../../session');
