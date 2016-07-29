@@ -12,7 +12,8 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] add people page to search people
 - [ ] make a single info site /about
 - [ ] fix project, idea, challenge, discussion pages
-    - [.] edit
+    - [ ] edit
+        - [ ] edit not only challenge, but others, too.
     - [ ] follow
     - [ ] unfollow
     - [ ] comment/discuss
