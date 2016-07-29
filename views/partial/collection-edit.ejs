@@ -18,7 +18,7 @@
 %><%include ./page-top.ejs %><%
 include ./header.ejs %>
 <style>
-  form#add-tag-form, form.edit-comment-form, form.remove-comment-form {
+  form {
     display: inline;
   }
 </style>
@@ -31,6 +31,7 @@ include ./header.ejs %>
       <form method="post" class="edit-collection-name">
         <input type="text" name="name" value="<%= collection.name %>" />
         <input type="submit" name="submit" value="update name"/>
+        <a href=".." >cancel</a>
       </form>
       <% }
       else { %><%= collection.name %><% } %>
@@ -62,11 +63,7 @@ include ./header.ejs %>
       <input type="submit" name="submit" value="update description"/>
     </form>
     <% }
-    else { %><%= collection.name %><% } %>
-    <%= collection.description %>
-    <%if(creator === true) { %>
-    <a class="edit-<%= collectionName %>-description" href="<%= selfLink %>/edit?field=description">edit</a>
-    <% } %>
+    else { %><%= collection.description %><% } %>
   </div>
 </section>
 <% include ./page-bottom.ejs %>
