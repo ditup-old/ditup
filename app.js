@@ -103,7 +103,7 @@ module.exports = function (session) {
 
   // development error handler
   // will print stacktrace
-  if (app.get('env') === 'development') {
+  if (app.get('env') === 'development' || app.get('env') === 'test') {
     app.use(function(err, req, res, next) {
       res.status(err.status || 500);
       console.error(err, err.stack);
