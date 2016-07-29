@@ -41,6 +41,7 @@
     "watch-messages": "mocha ./test/functional/messages/messages --watch",
     "watch-messages-user": "mocha ./test/functional/messages/messages-user --watch",
     "watch-notifications": "mocha ./test/functional/notifications/notifications --watch",
+    "watch-challenge-edit": "mocha ./test/functional/challenge/edit --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

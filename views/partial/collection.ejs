@@ -14,6 +14,7 @@
   var logged = session.logged || false;
   var creator = !!(collection.creator.username === session.username) || false;
   var loggedUser = session.username || false;
+  var selfLink = `/${collectionName}/${collection.id}/${collection.url}`;
 %><%include ./page-top.ejs %><%
 include ./header.ejs %>
 <style>
@@ -46,11 +47,15 @@ include ./header.ejs %>
         };
 
         %><% include ./hide-follow.ejs %>
-      <%if(creator === true) { %>
-      <a class="edit-<%= collectionName %>" href="edit">edit</a>
-      <% } %>
     </nav>
-    <h1 class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" ><%= collection.name %></h1>
+    <h1>
+      <span class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" >
+        <%= collection.name %>
+      </span>
+      <%if(creator === true) { %>
+      <a class="edit-<%= collectionName %>-name" href="<%= selfLink %>/edit?field=name">edit</a>
+      <% } %>
+    </h1>
   </header>
   <div class="tag-container">
     <%
@@ -71,7 +76,14 @@ include ./header.ejs %>
       }
     %><% include ./tags.ejs %>
   </div>
-  <div class="<%= collectionName %>-description" id="<%= collectionName %>-description" ><%= collection.description %></div>
+  <section>
+    <span class="collection-description <%= collectionName %>-description" id="<%= collectionName %>-description" >
+      <%= collection.description %>
+    </span>
+    <%if(creator === true) { %>
+    <a class="edit-<%= collectionName %>-description" href="<%= selfLink %>/edit?field=description">edit</a>
+    <% } %>
+  </section>
   <div id="new-comment">
   <% if (logged === true) { %>
     <form id="comment-form" method="post" action="" >

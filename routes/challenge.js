@@ -6,8 +6,11 @@ var co = require('co');
 var router = express.Router();
 //var validate = require('../services/validation');
 var db = require('../services/data');
-var functions = require('./discussion/functions');
+var functions = require('./collection/functions');
 var generateUrl = functions.generateUrl;
+var editRoute = require('./challenge/edit');
+
+router.use(editRoute);
 
 router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;

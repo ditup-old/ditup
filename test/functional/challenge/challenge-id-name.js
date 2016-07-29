@@ -94,18 +94,6 @@ describe('visit /challenge/:id/:name', function () {
           afterEach(funcs.logout(browserObj));
           it('may be possible to delete the challenge if not embraced'); //challenge/id/name/delete //discourage!
           it('may be possible for the creator to remove their name (anonymization)');
-          context('editing', function () {
-            it('should show an edit button', function () {
-              browser.assert.element('.edit-challenge');
-              browser.assert.link('a.edit-challenge', 'edit', 'edit');
-            });
-
-            context('challenge editing page', function () {
-            
-            });
-          });
-          it('may edit the challenge name');
-          it('may edit the challenge description');
         });
         
         context('user is not a creator', function () {});

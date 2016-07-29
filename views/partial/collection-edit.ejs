@@ -1,0 +1,72 @@
+<%
+
+  //view needs collection = {name: '', tags: []}
+
+  var css = [
+    '/css/header.css',
+    '/css/'+collectionName+'.css'
+  ];
+
+  var title = collection.name;
+  var headScripts = [];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged || false;
+  var creator = !!(collection.creator.username === session.username) || false;
+  var loggedUser = session.username || false;
+  var selfLink = `/${collectionName}/${collection.id}/${collection.url}`;
+%><%include ./page-top.ejs %><%
+include ./header.ejs %>
+<style>
+  form#add-tag-form, form.edit-comment-form, form.remove-comment-form {
+    display: inline;
+  }
+</style>
+<section class="page">
+  <header class="collection-header">
+    <nav class="action-container">
+    </nav>
+    <h1 class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" >
+      <% if(edit.indexOf('name') > -1) { %>
+      <form method="post" class="edit-collection-name">
+        <input type="text" name="name" value="<%= collection.name %>" />
+        <input type="submit" name="submit" value="update name"/>
+      </form>
+      <% }
+      else { %><%= collection.name %><% } %>
+    </h1>
+  </header>
+  <div class="tag-container">
+    <%
+      /**
+       * ********************** *
+       *         tags           *
+       * ********************** *
+       */
+
+      var tags = {
+        add: !!logged,
+        list: [],
+        collection: collectionName
+      };
+      //populating the tag list
+      for(var i=0, len=collection.tags.length; i<len; ++i) {
+        tags.list.push({name: collection.tags[i]});
+      }
+    %><% include ./tags.ejs %>
+  </div>
+  <div class="<%= collectionName %>-description" id="<%= collectionName %>-description" >
+    <% if(edit.indexOf('description') > -1) { %>
+    <form method="post" class="edit-collection-description">
+      <textarea name="description"><%= collection.description %></textarea>
+      <input type="submit" name="submit" value="update description"/>
+    </form>
+    <% }
+    else { %><%= collection.name %><% } %>
+    <%= collection.description %>
+    <%if(creator === true) { %>
+    <a class="edit-<%= collectionName %>-description" href="<%= selfLink %>/edit?field=description">edit</a>
+    <% } %>
+  </div>
+</section>
+<% include ./page-bottom.ejs %>

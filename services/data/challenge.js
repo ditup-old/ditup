@@ -36,6 +36,14 @@ module.exports = function (db) {
     throw new Error('TODO!');
   }; //TODO
 
+  challenge.updateName = function (id, name) {
+    return db.query('FOR c IN challenges FILTER c._key == @id UPDATE c WITH {name: @name} IN challenges', {id: id, name: name});
+  };
+
+  challenge.updateDescription = function (id, description) {
+    return db.query('FOR c IN challenges FILTER c._key == @id UPDATE c WITH {description: @description} IN challenges', {id: id, description: description});
+  };
+  
   challenge.delete = proto.delete('challenges', db);
 
   challenge.addTag = proto.addTag('challenges', db);
