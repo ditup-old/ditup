@@ -60,6 +60,12 @@ proto.create = function (expectedParams, collectionName, db, otherParams) {
 proto.read = function () {
 };
 
+proto.updateField = function (collectionName, db) {
+  return function (id, data, field) {
+    return db.query(`FOR c IN ${collectionName} FILTER c._key == @id UPDATE c WITH {${field}: @data} IN ${collectionName}`, {id: id, data: data});
+  } //TODO
+};
+
 proto.delete = function (collectionName, db) {
   return function (id) {
     var query = 'FOR d IN '+collectionName+' FILTER d._key == @id REMOVE d IN '+collectionName;

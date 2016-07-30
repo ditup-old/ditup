@@ -36,9 +36,7 @@ module.exports = function (db) {
     throw new Error('TODO');
   };
 
-  challenge.updateField = function (id, data, field) {
-    return db.query(`FOR c IN challenges FILTER c._key == @id UPDATE c WITH {${field}: @data} IN challenges`, {id: id, data: data});
-  }; //TODO
+  challenge.updateField = proto.updateField('challenges', db);
 
   challenge.delete = proto.delete('challenges', db);
 
