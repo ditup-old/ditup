@@ -31,44 +31,44 @@
   "ideas": [],
   "discussions": [
     {
-      "topic": "discussion0",
+      "name": "discussion0",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion1",
+      "name": "discussion1",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion2",
+      "name": "discussion2",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion3",
+      "name": "discussion3",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion4",
+      "name": "discussion4",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion5",
+      "name": "discussion5",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion6",
+      "name": "discussion6",
       "id": null,
       "creator": 2
     },
     {
-      "topic": "discussion7",
+      "name": "discussion7",
       "id": null,
       "creator": 2
     }

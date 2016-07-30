@@ -55,7 +55,7 @@ router.post('/new', function (req, res, next) {
   }
 
 
-  if(!values.topic) {
+  if(!values.name) {
     sessUser.messages.push('you need to write a topic');
     valid = false;
   }
@@ -75,13 +75,13 @@ router.post('/new', function (req, res, next) {
   }
 
   var id;
-  return db.discussion.create({topic: values.topic, creator: sessUser.username})
+  return db.discussion.create({name: values.name, creator: sessUser.username})
     .then(function (_id) {
       id = _id;
       
       //TODO add tags to discussion (first check that they exist...)
 
-      var url = generateUrl(values.topic);
+      var url = generateUrl(values.name);
       
       req.session.messages.push('the new discussion was successfully started.');
       return res.redirect('/discussion/'+id.id+'/'+url);

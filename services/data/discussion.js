@@ -6,7 +6,7 @@ var proto = require('./proto');
 module.exports = function (db) {
   var discussion = {};
 
-  discussion.create = proto.create(['topic', 'name'], 'discussions', db);
+  discussion.create = proto.create(['name'], 'discussions', db);
   
   discussion.read = function (id) {
     var query = `FOR d IN discussions FILTER d._key == @id
@@ -35,6 +35,8 @@ module.exports = function (db) {
   };
 
   discussion.update; //TODO
+
+  discussion.updateField = proto.updateField('discussions', db);
 
   discussion.delete = function (id) {
     var query = 'FOR d IN discussions FILTER d._key == @id REMOVE d IN discussions';
@@ -90,7 +92,7 @@ module.exports = function (db) {
           COLLECT ditt = pt.discussion INTO tags = {name: pt.tag.name, description: pt.tag.description}
           LET tagno = LENGTH(tags)
           SORT tagno DESC
-          LET discussion = {topic: ditt.topic, id: ditt._key, posts: LENGTH(ditt.posts)}
+          LET discussion = {name: ditt.name, id: ditt._key, posts: LENGTH(ditt.posts)}
           RETURN {discussion: discussion, tags: tags, tagno: tagno}`;
     var params = {tags: tags};
 
@@ -102,7 +104,7 @@ module.exports = function (db) {
         LET collected = (FOR pt IN output
             COLLECT ditt = pt.discussion INTO tags = {name: pt.tag.name, description: pt.tag.description}
             LET tagno = LENGTH(tags)
-            LET discussion = {topic: ditt.topic, id: ditt._key, _id: ditt._id, posts: LENGTH(ditt.posts)}
+            LET discussion = {name: ditt.name, id: ditt._key, _id: ditt._id, posts: LENGTH(ditt.posts)}
             RETURN {discussion: discussion, tags: tags, tagno: tagno})
         LET hidden = (FOR u IN users FILTER u.username == @username
           FOR c IN collected

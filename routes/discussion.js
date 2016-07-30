@@ -7,8 +7,11 @@ var generateUrl = functions.generateUrl;
 
 var validate = require('../services/validation');
 var db = require('../services/data');
+var editRoute = require('./discussion/edit');
 
 const MAX_POST_LENGTH = 16384;
+
+router.use(editRoute);
 
 router.post('/:id/:url', function (req, res, next) {
   var sessUser = req.session.user;
@@ -66,7 +69,7 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
   return db.discussion.read(id)
     .then(function (_discussion) {
       discussion = _discussion;
-      expectedUrl = generateUrl(discussion.topic);
+      expectedUrl = generateUrl(discussion.name);
       discussion.url = expectedUrl;
       discussion.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
       discussion.id = id;

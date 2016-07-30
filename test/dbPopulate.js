@@ -109,7 +109,6 @@ module.exports = function (db) {
         let cp = data[collectionName].create({
           name: collections[i].name,
           description: collections[i].description,
-          topic: collections[i].topic,
           join: collections[i].join,
           join_info: collections[i].join_info,
           creator: creator
@@ -122,7 +121,7 @@ module.exports = function (db) {
           
           for(let i=0, len = _ids.length; i<len; ++i) {
             collections[i].id = _ids[i].id;
-            collections[i].url = generateUrl(collections[i].name || collections[i].topic);
+            collections[i].url = generateUrl(collections[i].name);
             collections[i].tags = collections[i].tags || [];
           }
           return;

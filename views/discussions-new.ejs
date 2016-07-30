@@ -15,7 +15,7 @@ include ./partial/header.ejs %>
 <div>
   <h1>Start a new discussion</h1>
   <form id="new-discussion" method="post" >
-    <label>topic<input type="text" name="topic" value="<%= values.topic %>" /></label>
+    <label>topic<input type="text" name="name" value="<%= values.name %>" /></label>
     <label>tags<input type="text" name="tags" value="<%= values.tags %>" /></label>
     <label>post<textarea type="text" name="post" ><%= values.post %></textarea></label>
     <input type="submit" value="start the discussion" />
