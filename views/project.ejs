@@ -67,9 +67,9 @@ include ./partial/header.ejs %>
 
       %><% include partial/hide-follow.ejs %>
     </nav>
-    <h1 class="project-name icon-project"><%= project.name %><%
+    <h1><span class="project-name collection-name icon-project"><%= project.name %></span><%
       if(member === true) {
-        %><a class="edit" href="<%= longUrl %>/edit?fields=name">[edit]</a><% 
+        %><a class="edit-project-name" href="<%= longUrl %>/edit?field=name">edit</a><% 
       }
       %></h1>
   </header>
@@ -96,12 +96,16 @@ include ./partial/header.ejs %>
     %><% include ./partial/tags.ejs %><a class="edit" href="<%= longUrl %>/edit?fields=tags">[edit]</a>
   </div>
   <span id="project-status" ><%= project.status %></span>
-  <div class="project-description" ><%
+  <section>
+    <span class="project-description collection-description" >
+      <%= project.description %>
+    </span>
+    <%
     if(member === true) {
-      %><a class="edit" href="<%= longUrl %>/edit?fields=description"></a><% 
+      %><a class="edit-project-description" href="<%= longUrl %>/edit?field=description">edit</a><% 
     }
-    %><%= project.description %>
-  </div>
+    %>
+  </section>
   <% if(logged === true) {} 
     else {
       var redirectUrl = encodeURIComponent(longUrl);

@@ -5,6 +5,7 @@
  *
  */
 
+
 let co = require('co');
 let express = require('express');
 var functions = require('../collection/functions');
@@ -41,6 +42,29 @@ exp.editRightsCreator = express.Router().all('/:id/:url/edit', function (req, re
     next(err);
   }
   next();
+});
+
+//test rights to edit (member)
+exp.editRightsMember = express.Router().all('/:id/:url/edit', function (req, res, next) {
+  return co(function * () {
+    let db = req.app.get('database');
+    let sessUser = req.session.user;
+    let id = req.params.id;
+    let authorized;
+
+    if(sessUser.logged) {
+      let involvement = yield db.project.userStatus(id, sessUser.username);
+      if(involvement === 'member') authorized = true;
+    }
+
+    if(authorized !== true) {
+      let err = new Error('Not Authorized');
+      err.status = 403;
+      throw err;
+    }
+    next();
+  })
+    .catch(next);
 });
 
 //GET: redirect if necessary TODO
