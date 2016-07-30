@@ -92,7 +92,6 @@ function init (config, dbData) {
 
   var arangojs = require('arangojs');
   var url = `http://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}`;
-  console.log(url);
   var db = arangojs({url: url, databaseName: config.db.database});
 
   var generateUrl = require('../../../routes/discussion/functions').generateUrl;
