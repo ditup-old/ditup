@@ -8,6 +8,10 @@ var db = require('../services/data');
 var functions = require('./discussion/functions');
 var generateUrl = functions.generateUrl;
 
+var editRoute = require('./idea/edit');
+
+router.use(editRoute);
+
 router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;
   let id = req.params.id;

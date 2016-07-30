@@ -36,6 +36,7 @@ module.exports = function (db) {
     throw new Error('TODO!');
   }; //TODO
 
+  idea.updateField = proto.updateField('ideas', db);
   idea.delete = proto.delete('ideas', db);
 
   idea.addTag = proto.addTag('ideas', db);
