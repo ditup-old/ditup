@@ -85,40 +85,41 @@ exp.displayEditView = function (fields) {
 
 exp.post = function (fields) {
   return express.Router().post('/:id/:url/edit', function (req, res, next) {
-    let db = req.app.get('database');
-    let sessUser = req.session.user;
-    let dittype = req.baseUrl.substring(1);
+    return co(function *() {
+      let db = req.app.get('database');
+      let sessUser = req.session.user;
+      let dittype = req.baseUrl.substring(1);
 
-    //find out which fields to edit
-    let editFields = [];
-    for(let field of fields) {
-      if(req.query.field === field) editFields.push(field);
-    }
+      //find out which fields to edit
+      let editFields = [];
+      for(let field of fields) {
+        if(req.query.field === field) editFields.push(field);
+      }
 
-    var id = req.params.id;
-    var url = req.params.url;
-    
-    let inside = false;
-    for(let field of fields) {
-      if(editFields.indexOf(field)>-1) {
+      var id = req.params.id;
+      var url = req.params.url;
+      
+      let inside = false;
+      for(let field of fields) {
+        if(editFields.indexOf(field)>-1) {
 
-        //checking that we had some correct field
-        inside = true;
+          //checking that we had some correct field
+          inside = true;
 
-        //we are editing
-        let data = req.body[field];
-        //TODO validate the data
-        return co(function *() {
+          //we are editing
+          let data = req.body[field];
+          //TODO validate the data
           yield db[dittype].updateField(id, data, field);
           req.session.messages.push(`the ${field} was updated`);
           let redirectUrl = field === 'name' ? generateUrl(data) : url;
           return res.redirect(`/${dittype}/${id}/${redirectUrl}`);
-        });
+        }
       }
-    }
-    if(inside !== true) {
-      throw new Error('no');
-    }
+      if(inside !== true) {
+        throw new Error('no');
+      }
+    })
+      .catch(next);
   });
 };
 
