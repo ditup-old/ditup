@@ -94,17 +94,7 @@ router.post('/new', function (req, res, next) {
   return db.challenge.create({name: values.name, description: values.description, creator: sessUser.username})
     .then(function (_id) {
       id = _id;
-/*      var pchain = Promise.resolve();
-      for(let tg of validTags) {
-        pchain.then(db.challenge.addTag(id.id, tg)).then(function () { addedTags.push(tg); console.log('success!', tg); }, function (err) { failedTags.push(tg); console.log('fail!!!', tg); });
-      }
 
-      return pchain;
-    })
-    .then(function () {
-      console.log(failedTags, addedTags);    
-      //TODO add tags to challenge (first check that they exist...)
-*/
       var url = generateUrl(values.name);
       
       req.session.messages.push('the new challenge was successfully created.');
@@ -115,78 +105,5 @@ router.post('/new', function (req, res, next) {
       return res.end(err);
     });
 });
-
-/*
-router.post('/new', function (req, res, next) {
-  var values = req.body;
-  var sessUser = req.session.user;
-  sessUser.messages = sessUser.messages || [];
-
-  //process tags
-  let tagInput = values.tags; 
-  let rawTags = tagInput ? tagInput.replace(/\s*,?\s*$/,'').split(/\s*,\s*\/) : [];
-  let tags = [];
-  let invalidTags = [];
-  let validTags = [];
-
-  var areTagsValid = true;
-  var valid = true;
-  for(let rawTag of rawTags){ 
-    let thisValid = validate.tag.name(rawTag); 
-    if(thisValid === true) validTags.push(rawTag);
-    else invalidTags.push(rawTag);
-    tags.push(rawTag);
-
-    areTagsValid = areTagsValid && thisValid;
-  }
-
-  if(areTagsValid !== true) {
-    valid = false;
-    let invalidTagString = '';
-    for(let i=0, len = invalidTags.length; i<len; i++) {
-      invalidTagString += entities.encodeHTML(invalidTags[i]);
-      if(i<len-1) invalidTagString += ', ';
-    }
-    sessUser.messages.push('the tags '+ invalidTagString +'  are badly formatted');
-  }
-
-
-  if(!values.topic) {
-    sessUser.messages.push('you need to write a topic');
-    valid = false;
-  }
-
-  if(!(tags.length > 0)) {
-    sessUser.messages.push('you need to choose 1 or more tags');
-    valid = false;
-  }
-
-  if(!values.post) {
-    sessUser.messages.push('you need to write a post');
-    valid = false;
-  }
-
-  if(valid !== true) {
-    return res.render('challenges-new', {session: sessUser, values: values});
-  }
-
-  var id;
-  return db.challenge.create({topic: values.topic, creator: sessUser.username})
-    .then(function (_id) {
-      id = _id;
-      
-      //TODO add tags to challenge (first check that they exist...)
-
-      var url = generateUrl(values.topic);
-      
-      req.session.messages.push('the new challenge was successfully started.');
-      return res.redirect('/challenge/'+id.id+'/'+url);
-    })
-    .then(null, function (err) {
-      return res.end(err);
-    });
-
-});
-*/
 
 module.exports = router;
