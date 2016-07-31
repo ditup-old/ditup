@@ -10,6 +10,21 @@ The first release should be a proof of the concept. It should be simple and show
 
 - [ ] better logged homepage
 - [ ] add people page to search people
+    - [ ] search people by similar tags to me
+        - filter by active for some time period
+    - [ ] new people
+    - [ ] random user
+    - [ ] last people online
+    - [ ] most followed people
+    - people i follow
+    - people who follow the same stuff as me
+    - most active people
+    - people around you (location)
+    - people who recently joined projects/discussions/ideas/challenges with you
+    - [ ] search
+        - [ ] by tags
+        - [ ] name
+        - [ ] username
 - [ ] make a single info site /about
 - [ ] fix project, idea, challenge, discussion pages
     - [x] edit
@@ -40,3 +55,4 @@ The first release should be a proof of the concept. It should be simple and show
 ### Things that are a mess and need to be rebuilt
 
 - `NODE_ENV` environment (it's all mixed - test should be for tests, development for developing and production for production)
+- mess with logged and not verified users
