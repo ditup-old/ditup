@@ -49,6 +49,7 @@ module.exports = function (db) {
         COLLECT usn = pt.user INTO tags = {name: pt.tag.name, description: pt.tag.description}
         LET tagno = LENGTH(tags)
         SORT tagno DESC, usn.account.last_login DESC
+        LIMIT 5
         LET user = {username: usn.username}
         RETURN {user: user, tags: tags, tagno: tagno}`;
 

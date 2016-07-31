@@ -1,5 +1,6 @@
 'use strict';
 
+let co = require('co');
 
 module.exports = function (db) {
   //functions:
@@ -210,18 +211,15 @@ module.exports = function (db) {
   };
 
   user.count = function (options) {
-    var query=`LET usr = (FOR u IN users FILTER true RETURN u)
+    var query=`LET usr = (FOR u IN users FILTER u.account.email.verified == true && u.account.active_account == true RETURN u)
     RETURN LENGTH(usr)`;
     var params = {};
 
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (result) {
-        return {count: result[0]};
-      });
-  
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let result = yield cursor.all();
+      return result[0];
+    });
   };
 
   user.addTag = function (user, tag) {

@@ -62,24 +62,22 @@ module.exports = function (db) {
     };
 
     function populateUsers(users) {
-      var userPromises = [];
-      
-      for(let i = 0, len = users.length; i<len; ++i) {
-        var userData = {
-          username: users[i].username,
-          password: users[i].password,
-          password2: users[i].password,
-          email: users[i].email
-        };
-        var cu = data.createUser(userData)
-          .then(function () {
-            return data.user.updateEmailVerified({username: userData.username}, {verifyDate: Date.now(), verified: true})
-          });
-        userPromises.push(cu);
-      }
+      return co(function * () {
+        for(let user of users) {
+          var userData = {
+            username: user.username,
+            password: user.password,
+            password2: user.password,
+            email: user.email
+          };
+          yield data.createUser(userData);
 
-      return Promise.all(userPromises)
-        .then(function () {});
+          //email is by default verified, but can be not verified if specified verified: false
+          if(user.verified !== false) {
+            yield data.user.updateEmailVerified({username: userData.username}, {verifyDate: Date.now(), verified: true})
+          }
+        }
+      });
     }
 
     function populateTags(tags, users) {

@@ -45,6 +45,7 @@
     "watch-idea-edit": "mocha ./test/functional/idea/edit --watch",
     "watch-discussion-edit": "mocha ./test/functional/discussion/edit --watch",
     "watch-project-edit": "mocha ./test/functional/project/edit --watch",
+    "watch-people": "mocha ./test/functional/user/people --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {
