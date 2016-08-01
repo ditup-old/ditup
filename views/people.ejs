@@ -38,8 +38,11 @@ include ./partial/header.ejs %>
     %></ul>
   </section><!--
   --><section class="random-users-list">
-    <header><h2>Random people</h2></header>
-    <ul></ul>
+    <header><h2>Random user</h2></header>
+    <ul><% for(let usr of lists.random) {
+      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a></li><%
+      } 
+    %></ul>
   </section><!--
   --><section class="last-online-users-list">
     <header><h2>Last people online</h2></header>

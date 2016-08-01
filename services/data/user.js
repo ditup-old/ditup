@@ -85,7 +85,8 @@ module.exports = function (db) {
     limit = limit || 5;
     return co(function * () {
       let query = `
-        FOR u IN users FILTER u.account.email.verified == true && u.account.active_account == true
+        FOR u IN users
+          FILTER u.account.email.verified == true && u.account.active_account == true
           SORT users.created DESC
           LIMIT @limit
           RETURN u
@@ -96,6 +97,32 @@ module.exports = function (db) {
       return yield cursor.all();
     });
   }
+
+  user.random = function (options) {
+
+    var options = options || {};
+    options.limit = options.limit || {};
+    options.limit.count = options.limit.count || 1;
+
+    return co(function * () {
+      var query=`
+        FOR u IN users
+          FILTER u.account.email.verified == true && u.account.active_account == true
+          ${options.username ? 'FILTER u.username != @username' : ''} //filter out username so we don't show the logged user in the list
+          SORT RAND()
+          LIMIT @count
+          RETURN u`;
+
+      var params = {
+        count: options.limit.count
+      };
+
+      if(options.username) params.username = options.username;
+
+      let cursor = yield db.query(query, params);
+      return yield cursor.all();
+    });
+  };
 
   user.usernameExists = function (username) {
     return db.query('FOR x IN users FILTER x.username == @username ' +
