@@ -54,22 +54,27 @@ describe('/people', function () {
       browser.assert.element('.common-tags-users-list');
       browser.assert.elements('.common-tags-users-list li', 5);
     });
+
     it('show list of new users', function () {
       browser.assert.element('.new-users-list');
       browser.assert.elements('.new-users-list li', 5);
     });
+
     it('random user', function () {
       browser.assert.element('.random-users-list');
       browser.assert.elements('.random-users-list li', 1);
     });
+
     it('last online people', function () {
       browser.assert.element('.last-online-users-list');
       browser.assert.elements('.last-online-users-list li', 5);
     });
+
     it('most followed people', function () {
       browser.assert.element('.popular-users-list');
       browser.assert.elements('.popular-users-list li', 5);
     });
+
     it('search people');
   });
 });

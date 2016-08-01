@@ -14,9 +14,10 @@ router.get('/', function(req, res, next) {
 
     let lists = {};
 
-
     if(sessUser.logged === true) {
       lists.commonTags = yield db.search.usersWithTagsOfUser(sessUser);
+      lists.newUsers = yield db.user.newUsers();
+      //TODO newUsers created time should be changed to ... time ago.
     }
     else {
       sessUser.messages.push('<a href="/login?redirect=">log in</a> to see more');

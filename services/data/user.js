@@ -81,6 +81,22 @@ module.exports = function (db) {
       });
   };
 
+  user.newUsers = function (limit) {
+    limit = limit || 5;
+    return co(function * () {
+      let query = `
+        FOR u IN users FILTER u.account.email.verified == true && u.account.active_account == true
+          SORT users.created DESC
+          LIMIT @limit
+          RETURN u
+        `;
+      let params = {limit: limit};
+
+      let cursor = yield db.query(query, params);
+      return yield cursor.all();
+    });
+  }
+
   user.usernameExists = function (username) {
     return db.query('FOR x IN users FILTER x.username == @username ' +
       'COLLECT WITH COUNT INTO number ' +

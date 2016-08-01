@@ -32,7 +32,10 @@ include ./partial/header.ejs %>
   </section><!--
   --><section class="new-users-list">
     <header><h2>New people</h2></header>
-    <ul></ul>
+    <ul><% for(let usr of lists.newUsers) {
+      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a><span class="info-detail created"><%= usr.created %></span></li><%
+      } 
+    %></ul>
   </section><!--
   --><section class="random-users-list">
     <header><h2>Random people</h2></header>
