@@ -10,14 +10,14 @@ The first release should be a proof of the concept. It should be simple and show
 
 - [ ] better logged homepage
 - [ ] add people page to search people
-    - [ ] search people by similar tags to me
-        - filter by active for some time period
-    - [ ] new people
-    - [ ] random user
-    - [ ] last people online
-    - [ ] most followed people
+    - [x] search people by similar tags to me
+        - [ ] filter by active for some time period (to filter inactive people out)
+    - [x] new people
+    - [x] random user
+    - [x] last people online
+    - [ ] most followed people (popular people)
     - people i follow
-    - people who follow the same stuff as me
+    - [ ] people who follow the same stuff as me
     - most active people
     - people around you (location)
     - people who recently joined projects/discussions/ideas/challenges with you
@@ -56,3 +56,5 @@ The first release should be a proof of the concept. It should be simple and show
 
 - `NODE_ENV` environment (it's all mixed - test should be for tests, development for developing and production for production)
 - mess with logged and not verified users
+
+### Things that can be improved
