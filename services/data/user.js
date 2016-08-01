@@ -99,7 +99,6 @@ module.exports = function (db) {
   }
 
   user.random = function (options) {
-
     var options = options || {};
     options.limit = options.limit || {};
     options.limit.count = options.limit.count || 1;
@@ -123,6 +122,46 @@ module.exports = function (db) {
       return yield cursor.all();
     });
   };
+
+  /*
+   * list of people last online
+   * TODO now it's only last login. last online or online now is other challenge.
+   *
+   *
+   */
+  user.lastOnline = function (options) {
+    var options = options || {};
+    options.limit = options.limit || {};
+    options.limit.count = options.limit.count || 5;
+
+    return co(function * () {
+      var query=`
+        FOR u IN users
+          FILTER u.account.email.verified == true && u.account.active_account == true
+          ${options.username ? 'FILTER u.username != @username' : ''} //filter out username so we don't show the logged user in the list
+          SORT u.account.last_login DESC
+          LIMIT @count
+          RETURN u`;
+
+      //TODO this is just last login. we can improve it by updating user's last_online with every request.
+      //we can even ping server with ajax to mark user as online.
+
+      var params = {
+        count: options.limit.count
+      };
+
+      if(options.username) params.username = options.username;
+
+      let cursor = yield db.query(query, params);
+      return yield cursor.all();
+    });
+  };
+  
+  /**
+   * find often followed people
+   *
+   */
+  user.popular = function () {}
 
   user.usernameExists = function (username) {
     return db.query('FOR x IN users FILTER x.username == @username ' +

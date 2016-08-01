@@ -18,6 +18,7 @@ router.get('/', function(req, res, next) {
       lists.commonTags = yield db.search.usersWithTagsOfUser(sessUser);
       lists.newUsers = yield db.user.newUsers();
       lists.random = yield db.user.random({username: sessUser.username});
+      lists.lastOnline = yield db.user.lastOnline({username: sessUser.username});
       //TODO newUsers created time should be changed to ... time ago.
     }
     else {

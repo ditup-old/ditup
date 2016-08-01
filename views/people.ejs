@@ -46,7 +46,10 @@ include ./partial/header.ejs %>
   </section><!--
   --><section class="last-online-users-list">
     <header><h2>Last people online</h2></header>
-    <ul></ul>
+    <ul><% for(let usr of lists.lastOnline) {
+      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a><span class="info-detail last-login"><%= usr.account.last_login %></span></li><%
+      } 
+    %></ul>
   </section><!--
   --><section class="popular-users-list">
     <header><h2>People often followed</h2></header>
