@@ -87,7 +87,7 @@ module.exports = function (db) {
       let query = `
         FOR u IN users
           FILTER u.account.email.verified == true && u.account.active_account == true
-          SORT users.created DESC
+          SORT u.account.join_date DESC
           LIMIT @limit
           RETURN u
         `;
