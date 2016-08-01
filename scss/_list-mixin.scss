@@ -3,6 +3,9 @@
 @import 'fa-icon-mixin';
 
 @mixin list($collection) {
+  $singular-collection: if($collection == people, user, $collection);
+  $plural-collection: if($collection != people, $collection+s, $collection);
+
   .non-list {
     margin-left:$list-margin; /* fix the parts which are out of list */
     margin-right: $list-margin;
@@ -17,12 +20,12 @@
     vertical-align: top;
 
     ul:empty:after {
-      content:"no #{$collection}s found";
+      content:"no #{$plural-collection} found";
       color:red;
     }
   }
 
-  .#{$collection} {
+  .#{$singular-collection} {
     padding-top: 5px;
 
     .info-detail {

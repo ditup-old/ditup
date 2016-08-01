@@ -21,37 +21,37 @@ include ./partial/header.ejs %>
   </header>
   <section class="non-list number-of-people">There are <span class="count"><%= count %></span> active people registered</section>
   <% if(logged === true) {%>
-  <section class="common-tags-users-list">
+  <section class="people-list common-tags-users-list">
     <header>
       <h2>People with similar tags to me</h2>
     </header>
     <ul><% for(let usr of lists.commonTags) {
-      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.user.username %>"><span class="username"><%= usr.user.username %></span></a><span class="info-detail tagno"><%= usr.user.tagno %> tags</span></li><%
+      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.user.username %>"><span class="username"><%= usr.user.username %></span></a><span class="info-detail tagno"><%= usr.tagno %> <%= usr.tagno === 1 ? 'tag' : 'tags' %></span></li><%
       } 
     %></ul>
   </section><!--
-  --><section class="new-users-list">
+  --><section class="people-list new-users-list">
     <header><h2>New people</h2></header>
     <ul><% for(let usr of lists.newUsers) {
-      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a><span class="info-detail created"><%= usr.created %></span></li><%
+      %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a><span class="info-detail created"><%= usr.account.join_date %></span></li><%
       } 
     %></ul>
   </section><!--
-  --><section class="random-users-list">
+  --><section class="people-list random-users-list">
     <header><h2>Random user</h2></header>
     <ul><% for(let usr of lists.random) {
       %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a></li><%
       } 
     %></ul>
   </section><!--
-  --><section class="last-online-users-list">
+  --><section class="people-list last-online-users-list">
     <header><h2>Last people online</h2></header>
     <ul><% for(let usr of lists.lastOnline) {
       %><li class="user"><a class="icon-user user-link" href="/user/<%= usr.username %>"><span class="username"><%= usr.username %></span></a><span class="info-detail last-login"><%= usr.account.last_login %></span></li><%
       } 
     %></ul>
   </section><!--
-  --><section class="popular-users-list">
+  --><section class="people-list popular-users-list">
     <header><h2>People often followed</h2></header>
     <ul></ul>
   </section>

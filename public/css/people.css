@@ -1,0 +1,63 @@
+.non-list {
+  margin-left: 20px;
+  /* fix the parts which are out of list */
+  margin-right: 20px;
+}
+
+.people-list {
+  display: inline-block;
+  width: 360px;
+  margin: 20px;
+  padding: 10px;
+  border: 10px solid #6ca6ca;
+  vertical-align: top;
+}
+
+.people-list ul:empty:after {
+  content: "no people found";
+  color: red;
+}
+
+.user {
+  padding-top: 5px;
+}
+
+.user .info-detail {
+  float: right;
+}
+
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.people-header h1 {
+  float: left;
+}
+
+.people-header nav {
+  float: right;
+}
+
+.people-header:after {
+  content: "";
+  clear: both;
+  display: block;
+}
