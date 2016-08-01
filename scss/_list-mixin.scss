@@ -5,6 +5,7 @@
 @mixin list($collection) {
   $singular-collection: if($collection == people, user, $collection);
   $plural-collection: if($collection != people, $collection+s, $collection);
+  $singular-collection-tag-fixed: if($singular-collection == tag, tag-list, $singular-collection); //fixing for tags because .tag already has some unwanted styling
 
   .non-list {
     margin-left:$list-margin; /* fix the parts which are out of list */
@@ -25,7 +26,7 @@
     }
   }
 
-  .#{$singular-collection} {
+  .#{$singular-collection-tag-fixed} {
     padding-top: 5px;
 
     .info-detail {

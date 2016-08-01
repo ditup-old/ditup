@@ -2,53 +2,57 @@
 var css = [
   '/css/header.css',
   '/css/tags.css'
-];
-var title = 'tags';
+  ];
 
-var headScripts = [
-/*  {
-    src: '/libs/js/require.js',
-    properties: {
-      'data-main': '/js/tags/main'
-    }
-  }*/
-];
-var scripts = [];
+  var title = 'tags';
+  var headScripts = [
+  /*  {
+      src: '/libs/js/require.js',
+      properties: {
+        'data-main': '/js/tags/main'
+      }
+    }*/
+  ];
+  var scripts = [];
+  session = session || {logged:false, username: null};
+  var logged = session.logged === true ? true : false;
+  var loggedUser = session.username || null;
+
+  var scripts = [];
 
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
+<section class="page">
+  <header class="non-list tags-header">
+    <h1>Tags</h1>
+    <% if(logged === true) { %><nav>
+      <a class="create-new-tag button" href="/tags/create" >Create a new tag</a>
+    </nav><% } %>
+  </header>
+  <section class="tag-list popular-list">
+    <header><h2>Popular tags (often used)</h2></header>
+    <ul><% for(let tag of data.popular) {
+      %><li class="tag-item"><a title="<%= tag.description %>" class="icon-tag tag-link" href="/tag/<%= tag.name %>"><span class="tag-name"><%= tag.name %></span></a><span class="info-detail tagno"><%= tag.no %> <%= tag.no === 1 ? 'use' : 'uses' %></span></li><%
+      } 
+    %></ul>
+  </section><!--
+  --><section class="tag-list new-list">
+    <header><h2>Newest tags</h2></header>
+    <ul><% for(let tag of data.newest) {
+      %><li class="tag-item"><a class="icon-tag tag-link" href="/tag/<%= tag.name %>"><span class="tag-name"><%= tag.name %></span></a><span class="info-detail created">created <%= tag.created %></span></li><%
+    } 
+    %></ul>
+  </section><!--
+  --><section class="tag-list random-list">
+    <header><h2>Random tag</h2></header>
+    <ul><% for(let tag of data.random) {
+      %><li class="tag-item"><a class="icon-tag tag-link" href="/tag/<%= tag.name %>"><span class="tag-name"><%= tag.name %></span></a></li><%
+    } 
+    %></ul>
+  </section>
+</section>
 
-<style>
-  h1 {
-    font-size: 2em;
-  }
-
-  h2 {
-    font-size: 1.5em;
-  }
-
-  div.main {
-    border: 10px solid #5b95b9;
-    padding: 20px;
-  }
-</style>
-<!--<%= JSON.stringify(data) %>-->
-
-<div class="main" >
-<h1>Tags</h1>
-  <div><a href="/tags/create">create new tag</a></div>
-  <div>
-    <h2>popular</h2>
-    <ul><% 
-    for (var i = 0, len = data.popular.length; i < len; i++) {
-      var tag = data.popular[i];
-    %><li>
-        <a title="<%= tag.description %>" href="/tag/<%= tag.name %>" >#<%= tag.name %></a> (<%= tag.no %> uses)
-      </li><%
-    } %>
-    </ul>
-  </div>
-  <div>
+  <!--div>
     <h2>new</h2>
     <ul><% 
     for (var i = 0, len = data.newest.length; i < len; i++) {
@@ -70,7 +74,7 @@ var scripts = [];
     } %>
     </ul>
   </div>
-</div>
+</div-->
 
 
 
