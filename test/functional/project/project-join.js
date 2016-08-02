@@ -68,7 +68,7 @@ describe('joining a project', function () {
   context('logged', function () {
     //*
     context('POST', function () {
-      /*
+      //*
       context('[no relation] new join request', function () {
         beforeEach(functions.logout(browserObj)); //logout
         beforeEach(functions.login(users.none, browserObj));
@@ -169,19 +169,26 @@ describe('joining a project', function () {
         it('should display the new join info');
         it('should say that info was updated');
       });
-      */
+      // */
       context('[member] add joiner', function () {
         //how shall we do it?
         //there needs to be a list of people who are joining
-        //
+        //login
         beforeEach(functions.login(users.member, browserObj));
+        //add joiner
         beforeEach(functions.fill(() => { 
-          console.log('%%%%%%%%%', `/project/${project0.id}/${project0.url}/join?user=${users.joining.username}`);
           return `/project/${project0.id}/${project0.url}/join?user=${users.joining.username}`;
         },{submit: 'accept'} , browserObj));
+        //logout
+        beforeEach(functions.logout(browserObj));
+        //login as the joiner
+        beforeEach(functions.login(users.joining, browserObj));
+        //go to project page
+        beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
+        //run the test
         afterEach(functions.logout(browserObj));
         it('should make user>member in db', function () {
-          throw new Error('TODO');
+          assertMemberLink();
         });
         it('should display info that user ... is now member');
         it('should give the new member a notification');
@@ -205,7 +212,7 @@ describe('joining a project', function () {
     });
 
   // */
-    /*
+    //*
 
     context('user has no relation', function () {
       //login
@@ -335,7 +342,7 @@ describe('joining a project', function () {
         });
       });
     });
-  */
+  //*/
 
     context('member', function () {
       beforeEach(functions.logout(browserObj)); //logout
@@ -352,7 +359,6 @@ describe('joining a project', function () {
         let joiners = [];
         for(let pm of dbData.projectMember) {
           if(pm.status === 'joining' && pm.collection === 0) joiners.push(pm);
-          console.log(pm);
         }
         let joinerno = joiners.length;
 
