@@ -9,6 +9,12 @@
 The first release should be a proof of the concept. It should be simple and showing the plans
 
 - [ ] better logged homepage
+    - __Brainstorming__
+    - new things, new activities, notifications, activities of people, new projects
+    - the most connective & involving things
+    - maybe some notifications
+    - new stuff connected to my interests (tags
+    - (new features)
 - [ ] add people page to search people
     - [x] search people by similar tags to me
         - [ ] filter by active for some time period (to filter inactive people out)
@@ -34,12 +40,15 @@ The first release should be a proof of the concept. It should be simple and show
     - [ ] comment/discuss
     - [ ] add tag
     - [ ] vote tags
+- [ ] follow people
 - [ ] merge projects of user with project general: if logged in, both will be shown.
 - [ ] after login redirect always to the page which was currently on
 - [ ] better /tags page
 - [ ] comment the code
 - [ ] write styles
 - [ ] clean the code
+- [ ] unviewed notifications are not bold
+- [ ] inviting people to projects? is it there?
 
 ### Future goals and ideas
 
@@ -53,6 +62,7 @@ The first release should be a proof of the concept. It should be simple and show
 - show pictures of contributors
 - copy good ideas from github & workflow of commenting etc.
 - it has to be nice and easy to use
+- teams
 
 ### Things that are a mess and need to be rebuilt
 
