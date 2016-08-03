@@ -202,10 +202,44 @@ describe('joining a project', function () {
         it('should give the new member a notification');
       });
       context('[member] reject joiner', function () {
-        it('should remove joining from database');
-        it('should display that user ... was rejected');
-        it('should give the rejected user a notification');
+        //login
+        beforeEach(functions.login(users.member, browserObj));
+        //add joiner
+        beforeEach(functions.fill(() => { 
+          return `/project/${project0.id}/${project0.url}/join?user=${users.joining.username}`;
+        },{submit: 'reject'} , browserObj));
+        //run the test
+        afterEach(functions.logout(browserObj));
+        context('.', function () {
+          //logout
+          beforeEach(functions.logout(browserObj));
+          //login as the joiner
+          beforeEach(functions.login(users.joining, browserObj));
+          //go to project page
+          beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
+
+          it('should remove joining from database', function () {
+            assertNoneLink();
+          });
+        }) 
+        it('should display info that user ... was rejected', function () {
+          browser.assert.text('.popup-message', `user ${users.joining.username} was rejected`);
+        });
+
+        context('.', function () {
+          //logout
+          beforeEach(functions.logout(browserObj));
+          //login as the joiner
+          beforeEach(functions.login(users.joining, browserObj));
+          //go to project page
+          beforeEach(functions.visit('/notifications', browserObj));
+        
+          it('should give the rejected user a notification', function () {
+            browser.assert.text('.notification', 'you were not accepted to a project');
+          });
+        });
       });
+      /*
       context('[member] invite user [no relation]', function () {
         beforeEach(functions.login(users.member, browserObj));
         //add joiner
@@ -277,8 +311,9 @@ describe('joining a project', function () {
         it('should say invitation was removed', function () {
           browser.assert.text('.popup-message', 'the invitation was removed');
         });
-
       });
+      // */
+
       context('all the other options', function () {
         it('should show error not authorized (or some other one?)');
       });

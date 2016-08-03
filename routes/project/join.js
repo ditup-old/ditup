@@ -55,6 +55,13 @@ module.exports = function (dependencies) {
         yield db.notifications.create({to: req.query.user, text: 'you were accepted to project', url: `/project/${id}/${url}`});
         req.session.messages.push(`user ${req.query.user} is member now`); //show message after redirect
       }
+      //here we reject the joining user. from project/id/url/join?user=username POST reject
+      else if(involvement === 'member' && req.query.user && req.body.reject && req.body.reject === 'reject') {
+        yield db.project.removeInvolvement(id, req.query.user, 'joining');
+        yield db.notifications.create({to: req.query.user, text: 'you were not accepted to a project', url: `/project/${id}/${url}`});
+        req.session.messages.push(`user ${req.query.user} was rejected`); //show message after redirect
+      }
+
       //here we send invitation for a user
       else if(involvement === 'member' && req.query.user && req.body.submit && req.body.submit === 'invite') {
         yield db.project.addMember(id, req.query.user, 'invited', {invitation: req.body.invitation || ''});
