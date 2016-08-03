@@ -108,6 +108,10 @@ module.exports = function (dependencies) {
           project.joinRequest = involvement.request;
         }
 
+        if(involvement.status === 'invited') {
+          project.invitation = involvement.invitation;
+        }
+
         //when logged user is member
         if(involvement.status === 'member') {
           //processing joiner info

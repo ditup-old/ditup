@@ -42,6 +42,7 @@ include ./partial/header.ejs %>
   <% } %>
   <% if(project.userStatus === 'invited') { %>
   <div class="join-info" >You were invited to become a member of this project. You can accept or reject the invitation below. </div>
+  <div class="invitation"><%= project.invitation %></div>
   <form method="post" class="process-invitation">
     <input type="submit" name="submit" value="Accept invitation" />
     <input type="submit" name="submit" value="Reject invitation" />

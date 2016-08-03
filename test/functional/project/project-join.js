@@ -168,11 +168,14 @@ describe('joining a project', function () {
         });
       });
       // */
+      /*
       context('[member] edit join info', function () {
         it('should update the join info');
         it('should display the new join info');
         it('should say that info was updated');
       });
+      // */
+      /*
       context('[member] add joiner', function () {
         //how shall we do it?
         //there needs to be a list of people who are joining
@@ -201,6 +204,8 @@ describe('joining a project', function () {
         });
         it('should give the new member a notification');
       });
+      // */
+      /*
       context('[member] reject joiner', function () {
         //login
         beforeEach(functions.login(users.member, browserObj));
@@ -239,6 +244,7 @@ describe('joining a project', function () {
           });
         });
       });
+      // */
       /*
       context('[member] invite user [no relation]', function () {
         beforeEach(functions.login(users.member, browserObj));
@@ -370,6 +376,8 @@ describe('joining a project', function () {
         });
       });
     });
+  // */
+    /*
 
     context('joining', function () {
       beforeEach(functions.login(users.joining, browserObj));
@@ -416,7 +424,8 @@ describe('joining a project', function () {
         });
       });
     });
-
+  // */
+    //*
     context('invited', function () {
       beforeEach(functions.login(users.invited, browserObj));
       afterEach(functions.logout(browserObj));
@@ -429,7 +438,7 @@ describe('joining a project', function () {
           assertInvitedLink();
         });
 
-        it('should show \'~you were invited to join the project\' message', function () {
+        it('should show \'you were invited to join the project\' message', function () {
           browser.assert.text('.popup-message.info', new RegExp('.*you were invited to join the project.*'));
         });
       });
@@ -438,6 +447,9 @@ describe('joining a project', function () {
 
         it('should say that user is invited and can just accept or reject the invite', function () {
           browser.assert.text('.join-info', 'You were invited to become a member of this project. You can accept or reject the invitation below.');
+        });
+        it('should show the invitation message', function () {
+          browser.assert.text('.invitation', dbData.projectMember[1].invitation);
         });
         it('should offer accept button', function () {
           browser.assert.element('.process-invitation input[type=submit][name=submit][value="Accept invitation"]');
