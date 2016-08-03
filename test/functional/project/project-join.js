@@ -54,7 +54,8 @@ describe('joining a project', function () {
   function assertInvitedLink() {
     browser.assert.link('a', 'invited', new RegExp('/project/' + project0.id + '/' + project0.url + '/join'));
   }
-
+  
+  /*
   context('not logged', function () {
     beforeEach(functions.logout(browserObj));
     beforeEach(functions.visit(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, browserObj));
@@ -66,10 +67,11 @@ describe('joining a project', function () {
       browser.assert.attribute('.popup-message.info a', 'href', /\/login\?redirect=%2Fproject%2F.*%2Fjoin/);
     });
   });
+  */
   context('logged', function () {
-    /*
+    //*
     context('POST', function () {
-      //*
+      /*
       context('[no relation] new join request', function () {
         beforeEach(functions.logout(browserObj)); //logout
         beforeEach(functions.login(users.none, browserObj));
@@ -165,6 +167,7 @@ describe('joining a project', function () {
           browser.assert.text('.popup-message.info', 'The invitation was successfully removed.');
         });
       });
+      // */
       context('[member] edit join info', function () {
         it('should update the join info');
         it('should display the new join info');
@@ -179,18 +182,23 @@ describe('joining a project', function () {
         beforeEach(functions.fill(() => { 
           return `/project/${project0.id}/${project0.url}/join?user=${users.joining.username}`;
         },{submit: 'accept'} , browserObj));
-        //logout
-        beforeEach(functions.logout(browserObj));
-        //login as the joiner
-        beforeEach(functions.login(users.joining, browserObj));
-        //go to project page
-        beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
         //run the test
         afterEach(functions.logout(browserObj));
-        it('should make user>member in db', function () {
-          assertMemberLink();
+        context('.', function () {
+          //logout
+          beforeEach(functions.logout(browserObj));
+          //login as the joiner
+          beforeEach(functions.login(users.joining, browserObj));
+          //go to project page
+          beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
+
+          it('should make user>member in db', function () {
+            assertMemberLink();
+          });
+        }) 
+        it('should display info that user ... is member now', function () {
+          browser.assert.text('.popup-message', `user ${users.joining.username} is member now`);
         });
-        it('should display info that user ... is now member');
         it('should give the new member a notification');
       });
       context('[member] reject joiner', function () {
@@ -199,11 +207,77 @@ describe('joining a project', function () {
         it('should give the rejected user a notification');
       });
       context('[member] invite user [no relation]', function () {
-        it('should add invite for user to db');
-        it('TODO');
+        beforeEach(functions.login(users.member, browserObj));
+        //add joiner
+        beforeEach(functions.fill(() => { 
+          return `/project/${project0.id}/${project0.url}/join?user=${users.none.username}`;
+        },{submit: 'invite'} , browserObj));
+        //run the test
+        afterEach(functions.logout(browserObj));
+        context('.', function () {
+          //logout
+          beforeEach(functions.logout(browserObj));
+          //login as the joiner
+          beforeEach(functions.login(users.none, browserObj));
+          //go to project page
+          beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
+          it('should add invitation for user to db', function () {
+            assertInvitedLink();
+          });
+        });
+
+        it('should say that invitation was sent', function () {
+          browser.assert.text('.popup-message', 'the invitation was sent');
+        });
       });
+
+      context('[member] update invitation [invited]', function () {
+        let updatedInvitation = 'your invitation is updated, this is the new text';
+
+        beforeEach(functions.login(users.member, browserObj));
+        beforeEach(functions.fill(() => { 
+          return `/project/${project0.id}/${project0.url}/join?user=${users.invited.username}`;
+        }, {invitation: updatedInvitation, submit: 'update invitation'} , browserObj));
+        afterEach(functions.logout(browserObj));
+
+        context('.', function () {
+          //logout
+          beforeEach(functions.logout(browserObj));
+          //login as the joiner
+          beforeEach(functions.login(users.invited, browserObj));
+          //go to project page
+          beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
+          it('TODO! should update invitation for user in db');
+        });
+
+        it('should say invitation was updated', function () {
+          browser.assert.text('.popup-message', 'the invitation was updated');
+        });
+      });
+
       context('[member] cancel invitation [invited]', function () {
-        it('TODO');
+        beforeEach(functions.login(users.member, browserObj));
+        beforeEach(functions.fill(() => { 
+          return `/project/${project0.id}/${project0.url}/join?user=${users.invited.username}`;
+        }, {submit: 'remove invitation'} , browserObj));
+        afterEach(functions.logout(browserObj));
+
+        context('.', function () {
+          //logout
+          beforeEach(functions.logout(browserObj));
+          //login as the joiner
+          beforeEach(functions.login(users.invited, browserObj));
+          //go to project page
+          beforeEach(functions.visit(() => `/project/${project0.id}/${project0.url}`, browserObj));
+          it('should remove invitation for user from db', function () {
+            assertNoneLink();
+          });
+        });
+
+        it('should say invitation was removed', function () {
+          browser.assert.text('.popup-message', 'the invitation was removed');
+        });
+
       });
       context('all the other options', function () {
         it('should show error not authorized (or some other one?)');
@@ -341,8 +415,9 @@ describe('joining a project', function () {
         });
       });
     });
-  //*/
-
+  // */
+  
+  /*
     context('member', function () {
       beforeEach(functions.logout(browserObj)); //logout
       beforeEach(functions.login(users.member, browserObj));
@@ -453,6 +528,7 @@ describe('joining a project', function () {
         }
       });
     });
+    // */
   });
 });
 

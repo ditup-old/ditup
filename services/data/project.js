@@ -129,7 +129,7 @@ module.exports = function (db) {
                   } IN projectMember
             RETURN NEW
           `;
-        params = {id: id, username: username, involvement: involvement, invitation: specificParams.invitation, request: specificParams.request, now: Date.now()};
+        params = {id: id, username: username, involvement: involvement, invitation: specificParams.invitation || null, request: specificParams.request || null, now: Date.now()};
       }
 
       else{

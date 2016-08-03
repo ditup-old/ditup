@@ -53,7 +53,25 @@ module.exports = function (dependencies) {
       else if(involvement === 'member' && req.query.user && req.body.accept && req.body.accept === 'accept') {
         yield db.project.updateInvolvement(id, req.query.user, 'joining', 'member');
         yield db.notifications.create({to: req.query.user, text: 'you were accepted to project', url: `/project/${id}/${url}`});
-        req.session.messages.push('The accepted user is now member.'); //show message after redirect
+        req.session.messages.push(`user ${req.query.user} is member now`); //show message after redirect
+      }
+      //here we send invitation for a user
+      else if(involvement === 'member' && req.query.user && req.body.submit && req.body.submit === 'invite') {
+        yield db.project.addMember(id, req.query.user, 'invited', {invitation: req.body.invitation || ''});
+        yield db.notifications.create({to: req.query.user, text: 'you were invited to a project', url: `/project/${id}/${url}`});
+        req.session.messages.push('the invitation was sent'); //show message after redirect
+      }
+      //here we update invitation (change invitation message)
+      else if(involvement === 'member' && req.query.user && req.body.submit && req.body.submit === 'update invitation') {
+        yield db.project.updateInvolvement(id, req.query.user, 'invited', 'invited', {invitation: req.body.invitation});
+        yield db.notifications.create({to: req.query.user, text: 'your invitation for a project changed', url: `/project/${id}/${url}/join`});
+        req.session.messages.push('the invitation was updated'); //show message after redirect
+      }
+      //here we remove invitation from an invited user
+      else if(involvement === 'member' && req.query.user && req.body.submit && req.body.submit === 'remove invitation') {
+        yield db.project.removeInvolvement(id, req.query.user, 'invited');
+        yield db.notifications.create({to: req.query.user, text: 'you were uninvited from a project', url: `/project/${id}/${url}`});
+        req.session.messages.push('the invitation was removed'); //show message after redirect
       }
       else {
         throw new Error('post not recognized');
