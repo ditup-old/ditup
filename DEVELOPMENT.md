@@ -40,6 +40,7 @@ The first release should be a proof of the concept. It should be simple and show
     - [ ] comment/discuss
     - [ ] add tag
     - [ ] vote tags
+    - [x] inviting people to projects? is it there?
 - [ ] follow people
 - [ ] merge projects of user with project general: if logged in, both will be shown.
 - [ ] after login redirect always to the page which was currently on
@@ -48,7 +49,7 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] write styles
 - [ ] clean the code
 - [ ] unviewed notifications are not bold
-- [ ] inviting people to projects? is it there?
+- [ ] nice error pages
 
 ### Future goals and ideas
 
