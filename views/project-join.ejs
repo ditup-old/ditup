@@ -51,6 +51,10 @@ include ./partial/header.ejs %>
   <% if(project.userStatus === 'member') { 
     let joiners = project.joiners || [];  
   %>
+  <form method="get" class="invite-form">
+    <input type="text" name="user" />
+    <input type="submit" value="invite" name="action" />
+  </form>
   <ul class="joiners-list">
     <% for (let joiner of joiners) { %>
     <li class="joiner"><%= joiner.username %>

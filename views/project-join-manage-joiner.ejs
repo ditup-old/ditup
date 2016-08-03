@@ -21,11 +21,35 @@
 %><% include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <section class="page">
+  <% if(joiner.status === '') { %>
+  <form class="create-invitation-form" method="post" action="">
+    <textarea name="invitation"></textarea>
+    <input type="submit" name="submit" value="invite" />
+    <a href="<%= `${longUrl}/join` %>">cancel</a>
+  </form>
+  <% } %>
+  <% if(joiner.status === 'joining') { %>
   <div class="join-request"><%= joiner.request %></div>
   <form method="post" action="">
     <input type="submit" name="accept" value="accept" />
     <input type="submit" name="reject" value="reject" />
     <a href="/messages/<%= joiner.username %>">talk with joiner</a>
+    <a href="<%= `${longUrl}/join` %>">cancel</a>
   </form>
+  <% } %>
+  <% if(joiner.status === 'invited') {
+  %>
+  <form class="update-invitation-form" method="post" action="">
+    <textarea name="invitation"><%= joiner.invitation %></textarea>
+    <input type="submit" name="submit" value="update invitation" />
+    <input type="submit" name="submit" value="remove invitation" />
+    <a href="<%= `${longUrl}/join` %>">cancel</a>
+  </form>
+  <% } %>
+  <% if(joiner.status === 'member') {
+  %>
+  <div class="info"><%= joiner.username %> is already a member. You don't need to invite her/him</div>
+  <a class="cancel" href="<%= `${longUrl}/join` %>">back</a>
+  <% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>

@@ -269,17 +269,16 @@ module.exports = function (db) {
         let collection = collections[pm.collection];
         let status = pm.status;
         let request = status === 'joining' ? (pm.request || '') : undefined;
+        let invitation = status === 'invited' ? (pm.invitation || '') : undefined;
 
         //creating a database.collection.follow() promise and adding it to the array for further Promise.all()
-        let pmp = data.project.addMember(collection.id, username, status, {request: request});
+        let pmp = data.project.addMember(collection.id, username, status, {request: request, invitation: invitation});
         pmPromises.push(pmp);
 
         //update the data object's collection Array of followers or hiders with the username
 
         collection.members[status].push({username: user.username, password: user.password});
         user.projects[status].push({id: collection.id});
-
-
       }
 
       return Promise.all(pmPromises)

@@ -83,13 +83,20 @@ module.exports = function (dependencies) {
           project.joinRequest = involvement.request;
         }
 
+        //when logged user is member
         if(involvement.status === 'member') {
           //processing joiner info
           if(typeof(req.query.user) === 'string') {
             let username = req.query.user;
+
+            //check that we're not processing the logged user herself
+            if(username === sessUser.username) {
+              throw new Error('it\'s you!');
+            }
+
             let joiner = yield db.project.userInvolved(id, username);
             joiner.username = username;
-            if(joiner.status !== 'joining') throw new Error('user is not joining'); 
+
             return res.render('project-join-manage-joiner', {session: sessUser, project: project, joiner: joiner});
           }
           

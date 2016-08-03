@@ -25,7 +25,8 @@ describe('joining a project', function () {
     none: dbData.users[0],
     joining: dbData.users[1],
     invited: dbData.users[2],
-    member: dbData.users[3]
+    member: dbData.users[3],
+    otherMember: dbData.users[4]
   }
 
   let project0 = dbData.projects[0];
@@ -66,7 +67,7 @@ describe('joining a project', function () {
     });
   });
   context('logged', function () {
-    //*
+    /*
     context('POST', function () {
       //*
       context('[no relation] new join request', function () {
@@ -169,7 +170,6 @@ describe('joining a project', function () {
         it('should display the new join info');
         it('should say that info was updated');
       });
-      // */
       context('[member] add joiner', function () {
         //how shall we do it?
         //there needs to be a list of people who are joining
@@ -208,11 +208,10 @@ describe('joining a project', function () {
       context('all the other options', function () {
         it('should show error not authorized (or some other one?)');
       });
-      // */
     });
 
   // */
-    //*
+    /*
 
     context('user has no relation', function () {
       //login
@@ -375,22 +374,83 @@ describe('joining a project', function () {
           browser.assert.input('.joiner input[type=hidden][name="user"]', dbData.users[joiners[0].user].username);
           browser.assert.input('.joiner input[type=submit]', 'manage');
         });
-        it('offer link to managing joiners (invite, accept, reject)');
+
+        context('inviting a user', function () {
+          it('should show inviting user form', function () {
+            browser.assert.attribute('.invite-form', 'method', 'get');
+            browser.assert.input('.invite-form input[type=text][name=user]', '');
+            browser.assert.input('.invite-form input[type=submit][name=action]', 'invite');
+          });
+
+          context('filling username and clicking invite', function () {
+            context('user has no involvement', function () {
+              beforeEach(functions.fill(() => `/project/${project0.id}/${project0.url}/join`, {user:users.none.username, submit: 'invite'}, browserObj));
+
+              it('show the invitation form', function () {
+                browser.assert.element('.create-invitation-form');
+                browser.assert.attribute('.create-invitation-form textarea', 'name', 'invitation');
+              });
+              it('show send invitation button', function () {
+                browser.assert.input('.create-invitation-form input[type=submit]', 'invite');
+              });
+              it('show cancel button', function () {
+                browser.assert.link('.create-invitation-form a', 'cancel', `/project/${project0.id}/${project0.url}/join`);
+              });
+            });
+
+            context('user is joining', function () {
+              beforeEach(functions.fill(() => `/project/${project0.id}/${project0.url}/join`, {user:users.joining.username, submit: 'invite'}, browserObj));
+              manageJoinerTests();
+            });
+            context('user is invited', function () {
+              let invitationText = dbData.projectMember[1].invitation;
+              beforeEach(functions.fill(() => `/project/${project0.id}/${project0.url}/join`, {user:users.invited.username, submit: 'invite'}, browserObj));
+
+              it('show the invitation form filled with invitation info', function () {
+                browser.assert.element('.update-invitation-form');
+                browser.assert.attribute('.update-invitation-form textarea', 'name', 'invitation');
+                browser.assert.input('.update-invitation-form textarea', invitationText);
+              });
+              it('show update invitation', function () {
+                browser.assert.element('.update-invitation-form input[type=submit][value="update invitation"]');
+              });
+              it('show remove invitation', function () {
+                browser.assert.element('.update-invitation-form input[type=submit][value="remove invitation"]');
+              });
+              it('show cancel button', function () {
+                browser.assert.link('.update-invitation-form a', 'cancel', `/project/${project0.id}/${project0.url}/join`);
+              });
+            });
+            context('user is member', function () {
+              beforeEach(functions.fill(() => `/project/${project0.id}/${project0.url}/join`, {user: users.otherMember.username, submit: 'invite'}, browserObj));
+              it('show the info that user is already a member => nothing to do', function () {
+                browser.assert.text('.info', `${users.otherMember.username} is already a member. You don't need to invite her/him`)              
+              });
+              it('show `back` button', function () {
+                browser.assert.link('a.cancel', 'back', `/project/${project0.id}/${project0.url}/join`);
+              });
+            });
+          });
+        });
         it('offer link to leave the project');
 
         context('click manage joiner', function () {
           beforeEach(functions.fill(() => { return '/project/' + project0.id + '/' + project0.url + '/join'; }, {submit: 'manage'}, browserObj));
           context('user=username is joining', function () {
-            it('show the message which user filled when joining', function () {
-              browser.assert.text('.join-request', joiners[0].request);
-            });
-            it('offer accept, reject, link to discussing with the user=username', function () {
-              browser.assert.input('input[type=submit][name=accept]', 'accept');
-              browser.assert.input('input[type=submit][name=reject]', 'reject');
-              browser.assert.link('a', 'talk with joiner', '/messages/'+dbData.users[joiners[0].user].username);
-            });
+            manageJoinerTests();
           });
         });
+
+        function manageJoinerTests() {
+          it('show the message which user filled when joining', function () {
+            browser.assert.text('.join-request', joiners[0].request);
+          });
+          it('offer accept, reject, link to discussing with the user=username', function () {
+            browser.assert.input('input[type=submit][name=accept]', 'accept');
+            browser.assert.input('input[type=submit][name=reject]', 'reject');
+            browser.assert.link('a', 'talk with joiner', '/messages/'+dbData.users[joiners[0].user].username);
+          });
+        }
       });
     });
   });

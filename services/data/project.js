@@ -73,8 +73,13 @@ module.exports = function (db) {
     specificParams = specificParams || {};
 
     let request = null;
+    let invitation = null;
     if(status === 'joining' && specificParams.hasOwnProperty('request')) {
       request = specificParams.request;
+    }
+
+    if(status === 'invited' && specificParams.hasOwnProperty('invitation')) {
+      invitation = specificParams.invitation;
     }
 
     let query = `FOR p IN projects FILTER p._key == @id
@@ -85,14 +90,16 @@ module.exports = function (db) {
           unique: CONCAT(p._id, '-', u._id),
           status: @status,
           created: @created,
-          request: @request
+          request: @request,
+          invitation: @invitation
         } IN projectMember`;
     let params = {
       id: id,
       username: username,
       status: status,
       created: Date.now(),
-      request: request
+      request: request,
+      invitation: invitation
     };
 
     return db.query(query, params)
@@ -117,11 +124,12 @@ module.exports = function (db) {
                 FOR pm IN projectMember FILTER pm._from == p._id && pm._to == u._id && pm.status == @involvement
                   UPDATE pm WITH {
                     request: @request,
+                    invitation: @invitation,
                     updated: @now
                   } IN projectMember
             RETURN NEW
           `;
-        params = {id: id, username: username, involvement: involvement, request: specificParams.request, now: Date.now()};
+        params = {id: id, username: username, involvement: involvement, invitation: specificParams.invitation, request: specificParams.request, now: Date.now()};
       }
 
       else{
@@ -168,8 +176,6 @@ module.exports = function (db) {
     let allowedStates = ['joining', 'invited', 'member'];
     if(allowedStates.indexOf(status)<0) return Promise.reject('400');
 
-    //console.log(id, status);
-
     let query = `LET pr = (FOR p IN projects FILTER p._key == @id RETURN p)
       LET pm = (FOR p IN pr
         FOR pm IN projectMember FILTER pm._from == p._id && pm.status == @status
@@ -195,8 +201,6 @@ module.exports = function (db) {
   project.involvedUsers = function (id, status) {
     let allowedStates = ['joining', 'invited', 'member'];
     if(allowedStates.indexOf(status)<0) return Promise.reject('400');
-
-    //console.log(id, status);
 
     let query = `LET pr = (FOR p IN projects FILTER p._key == @id RETURN p)
       LET involved = (FOR p IN pr
@@ -276,6 +280,9 @@ module.exports = function (db) {
           let returnObject = {status: output[0].status};
           if(output[0].status === 'joining') {
             returnObject.request = output[0].request || '';
+          }
+          if(output[0].status === 'invited') {
+            returnObject.invitation = output[0].invitation || '';
           }
           return Promise.resolve(returnObject);
         };
