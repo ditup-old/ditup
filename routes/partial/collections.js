@@ -1,49 +1,43 @@
 'use strict';
 
+let co = require('co');
+
 module.exports = function (collection, dependencies) {
-  let router = dependencies.router;
-  let db = dependencies.db;
+  let router = require('express').Router();
   let countPastTime = dependencies.countPastTime;
 
   return router.get('/', function (req, res, next) {
+    let db = req.app.get('database');
     var sessUser = req.session.user;
-
-    let popular, newest, random;
-    //read popular (by followers) collections
-    return db[collection].popular('followers')
-      .then(function (_pop) {
-        popular = _pop;
-      })
+    return co(function *() {
+      let lists = {};
+      //read popular collections
+      lists.popular = yield db[collection].popular('followers');
       //read newest collections
-      .then(() => {
-        return db[collection].newest();
-      })
-      .then(function (_new) {
-        newest = _new;
-
-        for(let n of newest) {
-          //if older than 2 days, show date. otherwise show days/hours/minutes/... passed.
-          //let msDay = 3600*1000*24;//miliseconds in a day
-          //let showDate = Date.now()-n.created > msDay*2;
-          //n.past = showDate ? 'on '+Date(n.created) : countPastTime(n.created);
-          n.past = countPastTime(n.created);
-        }
-      })
+      lists.newest = yield db[collection].newest();
+      for(let n of lists.newest) {
+        //if older than 2 days, show date. otherwise show days/hours/minutes/... passed.
+        //let msDay = 3600*1000*24;//miliseconds in a day
+        //let showDate = Date.now()-n.created > msDay*2;
+        //n.past = showDate ? 'on '+Date(n.created) : countPastTime(n.created);
+        n.past = countPastTime(n.created);
+      }
       //read random collection(s)
-      .then(() => {
-        return db[collection].random();
-      })
-      .then(function (_rand) {
-        random = _rand;
-      })
+      lists.random = yield db[collection].random();
+
+      if(sessUser.logged === true) {
+        lists.following = yield db[collection].following(sessUser.username);
+        lists.commonTags = yield db[collection][collection+'sByTagsOfUser'](sessUser.username);
+        if(collection === 'project') {
+          lists.involved = yield db.project.userProjects(sessUser.username);
+        }
+      }
+
       //render
-      .then(function () {
-        return res.render(collection+'s', {session: sessUser, popular: popular, newest: newest, random: random});
-      })
-      //catch errors
-      .then(null, function (err) {
-        next(err);
-      })
+      return res.render(`${collection}s`, {session: sessUser, lists: lists, popular: lists.popular, newest: lists.newest, random: lists.random});
+      //popular, newest & random are present for backwards compatibility. the new lists should be added to lists array.
+
+    }).catch(next);
   });
 };
 

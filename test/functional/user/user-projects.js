@@ -1,91 +1,40 @@
 'use strict';
 
-// force the test environment to 'test'
-process.env.NODE_ENV = 'development';
-// get the application server module
-var app = require('../../../app');
-var session = require('../../../session');
-
-var Database = require('arangojs');
-var config = require('../../../services/db-config');//but the app is running on different required db-config!!
-var db = new Database({url: config.url, databaseName: config.dbname});
-var dbProject = require('../../../services/data/project')(db);
-
+let config = require('../partial/config');
+let dbConfig = require('../../../services/db-config');
 var dbData = require('./dbUserProjects');
-var dbPopulate = require('../../dbPopulate')(db);
-var collections = require('../../../services/data/collections');
+let generateUrl = require('../../../routes/collection/functions').generateUrl;
+var testCollections = require('../partial/collections');
 
-var shared = require('../shared');
-
-// use zombie.js as headless browser
-var Browser = require('zombie');
+let deps = config.init({db: dbConfig}, dbData);
+let funcs = config.funcs;
+let co = require('co');
 
 describe('visit /user/:username/projects', function () {
-  var server, browser;
-  var browserObj = {};
-  var serverObj = {};
+  let browserObj = {};
+  let browser;
 
-//*********************setting server & browser
-  before(function () {
-    server = app(session).listen(3000);
-    serverObj.Value = server;
-    browser = new Browser({ site: 'http://localhost:3000' });
-    browserObj.Value = browser;
+  config.beforeTest(browserObj, deps);
+
+  beforeEach(function () {
+    browser = browserObj.Value;
   });
 
-  after(function (done) {
-    server.close(done);
-  });
-//*******************END*****************
+  let loggedUser = dbData.users[0];
 
-//**************populate database
-  before(function (done) {
-    dbPopulate.init(collections, config.dbname)
-      .then(done, done);
-  });
-
-  before(function (done) {
-    dbPopulate.clear()
-      .then(done, done);
-  });
-
-  beforeEach(function (done) {
-    dbPopulate.populate(dbData)
-      .then(done, done);
-  });
-
-  afterEach(function (done) {
-    dbPopulate.clear()
-      .then(done, done);
-  });
-//*******************END*****************
-  function loginUser(user) {
-    return function login (done) {
-      browser.visit('/login')
-        .then(() => {
-          return browser.fill('username', user.username)
-            .fill('password', user.password)
-            .pressButton('log in');
-        })
-        .then(done, done);
-    }
-  }
-
-  function logout (done) {
-    browser.visit('/logout')
-      .then(done, done);
-  }
+  //***********tests
+  let dependencies = {
+    browser: browserObj,
+    functions: funcs,
+  };
 
   context('logged in', function () {
     let loggedUser = dbData.users[1];
-    beforeEach(loginUser(loggedUser));
+    beforeEach(funcs.login(loggedUser, browserObj));
 
-    beforeEach(function (done) {
-      return browser.visit('/user/' + loggedUser.username + '/projects')
-        .then(done, done);
-    });
+    beforeEach(funcs.visit('/projects', browserObj));
 
-    afterEach(logout);
+    afterEach(funcs.logout(browserObj));
 
     context('the logged user is :username', function () {
       it('should be successful', function () {

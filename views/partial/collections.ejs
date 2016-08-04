@@ -29,26 +29,62 @@ include ./header.ejs %>
       <a class="create-new-<%= collection %> button" href="/<%= collection %>s/new" >Create a new <%= collection %></a>
     </nav><% } %>
   </header>
-  <section class="<%= collection %>-list popular-list-followers">
-    <header><h2>Popular <%= collection %>s (most followed)</h2></header>
-    <ul><% for(let popularCollection of popular) {
-        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= popularCollection.id %>"><span class="<%= collection %>-name"><%= popularCollection.name %></span></a><span class="info-detail followerno"><%= popularCollection.followerno %> followers</span></li><%
+  <% if(logged === true) { %>
+  <section class="user-lists"><%
+    if(collection === 'project') { 
+    %><section class="project-list involved-list">
+      <header><h2>You are involved in</h2></header>
+      <ul class=""><% for(let involvedProject of lists.involved) {
+          %><li class="project"><a class="icon-project project-link project-id-<%= involvedProject.id %>" href="/project/<%= involvedProject.id %>"><span class="project-name"><%= involvedProject.name %></span></a><span class="project-involvement"><%= involvedProject.status %></span></li><%
+        } 
+      %></ul>
+    </section><!--
+    --><% } %><section class="<%= collection %>-list following-list">
+      <header><h2>You are following</h2></header>
+      <ul><%
+        for(let followingCollection of lists.following) {
+          %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link <%= collection %>-id-<%= followingCollection.id %>" href="/<%= collection %>/<%= followingCollection.id %>"><span class="<%= collection %>-name"><%= followingCollection.name %></span></a></li><%
+        }
+      %></ul>
+    </section><!--
+    --><section class="<%= collection %>-list common-tags-list">
+      <header><h2>You have common tags with</h2></header>
+      <ul><%
+        for(let commonTagsCollection of lists.commonTags) {
+          var tagArray = [];
+          for(let tg of commonTagsCollection.tags) {
+            tagArray.push(tg.name);
+          }
+          var tagList = tagArray.sort().join(", ");//"
+
+        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link <%= collection %>-id-<%= commonTagsCollection.id %>" href="/<%= collection %>/<%= commonTagsCollection.id %>"><span class="<%= collection %>-name"><%= commonTagsCollection.name %></span></a><span class="common-tagno" data-tooltip="<%= tagList %>" title="<%= tagList %>"><%= commonTagsCollection.tags.length %> tags</span></li><%
+        }
+      %></ul>
+    </section>
+  </section>
+  <% } %>
+  <section class="general-lists">
+    <section class="<%= collection %>-list popular-list-followers">
+      <header><h2>Popular <%= collection %>s (most followed)</h2></header>
+      <ul><% for(let popularCollection of popular) {
+          %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= popularCollection.id %>"><span class="<%= collection %>-name"><%= popularCollection.name %></span></a><span class="info-detail followerno"><%= popularCollection.followerno %> followers</span></li><%
+        } 
+      %></ul>
+    </section><!--
+    --><section class="<%= collection %>-list new-list">
+      <header><h2>Newest <%= collection %>s</h2></header>
+      <ul><% for(let newCollection of newest) {
+        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= newCollection.id %>"><span class="<%= collection %>-name"><%= newCollection.name %></span></a><span class="info-detail created">created <%= newCollection.past %></span></li><%
       } 
-    %></ul>
-  </section><!--
-  --><section class="<%= collection %>-list new-list">
-    <header><h2>Newest <%= collection %>s</h2></header>
-    <ul><% for(let newCollection of newest) {
-      %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= newCollection.id %>"><span class="<%= collection %>-name"><%= newCollection.name %></span></a><span class="info-detail created">created <%= newCollection.past %></span></li><%
-    } 
-    %></ul>
-  </section><!--
-  --><section class="<%= collection %>-list random-list">
-    <header><h2>Random <%= collection %></h2></header>
-    <ul><% for(let randomCollection of random) {
-      %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= randomCollection.id %>"><span class="<%= collection %>-name"><%= randomCollection.name %></span></a></li><%
-    } 
-    %></ul>
+      %></ul>
+    </section><!--
+    --><section class="<%= collection %>-list random-list">
+      <header><h2>Random <%= collection %></h2></header>
+      <ul><% for(let randomCollection of random) {
+        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link" href="/<%= collection %>/<%= randomCollection.id %>"><span class="<%= collection %>-name"><%= randomCollection.name %></span></a></li><%
+      } 
+      %></ul>
+    </section>
   </section>
 </section>
 <% include ./page-bottom.ejs %>

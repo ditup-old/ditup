@@ -15,56 +15,65 @@ module.exports = function (collection) {
   //set the testing environment
   var deps = config.init({db: dbConfig}, dbData);
 
-  describe('visit /user/:username/'+collections, function () {
-    var browser;
-    var browserObj = {};
 
-    config.beforeTest(browserObj, deps);
-    before(function () {
-      browser = browserObj.Value;
-    });
+  let loggedUser = dbData.users[1];
 
-    context('logged in', function () {
-      let loggedUser = dbData.users[1];
-      beforeEach(funcs.login(loggedUser, browserObj));
+  collectionsTest(`/`);
+  //collectionsTest(`/user/${loggedUser.username}/`);
 
-      beforeEach(function (done) {
-        return browser.visit('/user/' + loggedUser.username + '/'+collections)
-          .then(done, done);
+
+  //now we want the same lists in general dit pages (merging these two)
+  function collectionsTest(rootPath) {
+    describe(`visit ${rootPath}${collections}`, function () {
+      var browser;
+      var browserObj = {};
+
+      config.beforeTest(browserObj, deps);
+      before(function () {
+        browser = browserObj.Value;
       });
 
-      afterEach(funcs.logout(browserObj));
+      context('logged in', function () {
+        beforeEach(funcs.login(loggedUser, browserObj));
 
-      context('the logged user is :username', function () {
-        it('should be successful', function () {
-          browser.assert.success();
+        beforeEach(function (done) {
+          return browser.visit(`${rootPath}${collections}`)
+            .then(done, done);
         });
 
-        it('should show list of '+collection+'s user follows', function () {
-          browser.assert.element('.following-list');
-          browser.assert.text('.following-list .'+collection+' .'+collection+'-name', new RegExp('(?=.*'+collection+'1)'));
-          browser.assert.attribute('.following-list .'+collection+'-link.'+collection+'-id-'+dbData[collection+'s'][1].id, 'href', new RegExp('^/'+collection+'/'+dbData[collections][1].id+'.*$'));
-        });
+        afterEach(funcs.logout(browserObj));
 
-        it('should show list of '+collections+' which have common tags with user (sorted by amount of common tags)', function () {
-          browser.assert.element('.common-tags-list');
-          browser.assert.text('.common-tags-list .'+collection+' .'+collection+'-name', new RegExp('(?=.*'+collection+'1)'));
-          browser.assert.text('.common-tags-list li:first-child .common-tagno', '2 tags');
-          browser.assert.attribute('.common-tags-list li:first-child .'+collection+'-link', 'href', new RegExp('^/'+collection+'/'+dbData[collections][1].id+'.*$'));
-          let tagRegex = '';
-          for(let tg of dbData[collections][1].tags) {
-            tagRegex += '(?=.*' + tg + ')';
-          }
-          browser.assert.attribute('.common-tags-list li:first-child .common-tagno', 'title', new RegExp(tagRegex));
-          browser.assert.attribute('.common-tags-list li:first-child .common-tagno', 'data-tooltip', new RegExp(tagRegex));
+        context('the logged user is :username', function () {
+          it('should be successful', function () {
+            browser.assert.success();
+          });
+
+          it('should show list of '+collection+'s user follows', function () {
+            browser.assert.element('.following-list');
+            browser.assert.text('.following-list .'+collection+' .'+collection+'-name', new RegExp('(?=.*'+collection+'1)'));
+            browser.assert.attribute('.following-list .'+collection+'-link.'+collection+'-id-'+dbData[collection+'s'][1].id, 'href', new RegExp('^/'+collection+'/'+dbData[collections][1].id+'.*$'));
+          });
+
+          it('should show list of '+collections+' which have common tags with user (sorted by amount of common tags)', function () {
+            browser.assert.element('.common-tags-list');
+            browser.assert.text('.common-tags-list .'+collection+' .'+collection+'-name', new RegExp('(?=.*'+collection+'1)'));
+            browser.assert.text('.common-tags-list li:first-child .common-tagno', '2 tags');
+            browser.assert.attribute('.common-tags-list li:first-child .'+collection+'-link', 'href', new RegExp('^/'+collection+'/'+dbData[collections][1].id+'.*$'));
+            let tagRegex = '';
+            for(let tg of dbData[collections][1].tags) {
+              tagRegex += '(?=.*' + tg + ')';
+            }
+            browser.assert.attribute('.common-tags-list li:first-child .common-tagno', 'title', new RegExp(tagRegex));
+            browser.assert.attribute('.common-tags-list li:first-child .common-tagno', 'data-tooltip', new RegExp(tagRegex));
+          });
+        });
+        context('the logged user is not :username', function () {
+          it('we should define what should happen');
         });
       });
-      context('the logged user is not :username', function () {
-        it('we should define what should happen');
+      context('not logged in', function () {
+        it('should ask to log in to continue');
       });
     });
-    context('not logged in', function () {
-      it('should ask to log in to continue');
-    });
-  });
+  }
 };

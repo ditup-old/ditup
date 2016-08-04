@@ -28,7 +28,6 @@ module.exports = function (collection, dbData, dependencies, settings) {
   var visit = dependencies.functions.visit;
   var db = dependencies.db;
 
-  let serverObj = dependencies.server;
   let browserObj = dependencies.browser;
 
   var loggedUser = dbData.users[0];
@@ -42,10 +41,9 @@ module.exports = function (collection, dbData, dependencies, settings) {
   }
 
   describe('visit /' + collection + 's', function () {
-    var server, browser;
+    var browser;
     
     before(function () {
-      server = serverObj.Value;
       browser = browserObj.Value;
     });
 
