@@ -15,9 +15,10 @@ The first release should be a proof of the concept. It should be simple and show
     - maybe some notifications
     - new stuff connected to my interests (tags
     - (new features)
+    - activity of the people & dits i follow
 - [ ] add people page to search people
     - [x] search people by similar tags to me
-        - [ ] filter by active for some time period (to filter inactive people out)
+        - filter by active for some time period (to filter inactive people out)
     - [x] new people
     - [x] random user
     - [x] last people online
@@ -50,6 +51,8 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] clean the code
 - [ ] unviewed notifications are not bold
 - [ ] nice error pages
+- [ ] activity (it's not notifications. it's activity. you fetch activity of people & dits you follow to some feed.)
+    - you should be able to filter the activity by type.
 
 ### Future goals and ideas
 
