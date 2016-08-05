@@ -39,20 +39,22 @@ The first release should be a proof of the concept. It should be simple and show
     - [ ] follow
     - [ ] unfollow
     - [ ] comment/discuss
-    - [ ] add tag
+    - [ ] adding tags
     - [ ] vote tags
     - [x] inviting people to projects? is it there?
 - [ ] follow people
-- [ ] merge projects of user with project general: if logged in, both will be shown.
+- [x] merge dits of user with dits general: if logged in, both will be shown.
 - [ ] after login redirect always to the page which was currently on
-- [ ] better /tags page
+- [x] better /tags page
 - [ ] comment the code
 - [ ] write styles
+    - [ ] media query
 - [ ] clean the code
 - [ ] unviewed notifications are not bold
 - [ ] nice error pages
 - [ ] activity (it's not notifications. it's activity. you fetch activity of people & dits you follow to some feed.)
     - you should be able to filter the activity by type.
+- [ ] fix user profile and write tests for it
 
 ### Future goals and ideas
 
