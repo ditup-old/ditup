@@ -15,7 +15,7 @@ var editRoute = require('./project/edit');
 router.use(editRoute);
 
 //first the post, to get the updated data already when querying database for the project
-router.use(postHideFollow('project', {router: express.Router(), db: db }));
+router.use(postHideFollow('project', {}));
 
 //redirect to the correct address
 router.get(['/:id', '/:id/:url','/:id/:url/*', '/:id/*'], function (req, res, next) {

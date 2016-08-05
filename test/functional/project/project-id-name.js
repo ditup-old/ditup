@@ -1,100 +1,27 @@
 'use strict';
 
-// force the test environment to 'test'
-process.env.NODE_ENV = 'development';
-// get the application server module
-var app = require('../../../app');
-var session = require('../../../session');
-
-var Database = require('arangojs');
-var config = require('../../../services/db-config');//but the app is running on different required db-config!!
-var db = new Database({url: config.url, databaseName: config.dbname});
-var dbProject = require('../../../services/data/project')(db);
-var generateUrl = require('../../../routes/discussion/functions').generateUrl;
+let config = require('../partial/config');
+let dbConfig = require('../../../services/db-config');
 
 var dbData = require('../../dbData');
-var dbPopulate = require('../../dbPopulate')(db);
-var collections = require('../../../services/data/collections');
+let deps = config.init({db: dbConfig}, dbData);
+let funcs = config.funcs;
+let co = require('co');
 
 var shared = require('../shared');
 
-// use zombie.js as headless browser
-var Browser = require('zombie');
 describe('visiting /project/:id/:url', function () {
-//TODO user, idea, project, project, discussion
-  var server, browser;
-  var browserObj = {};
-  var serverObj = {};
+  let browserObj = {};
+  let browser;
 
-//*********************setting server & browser
-  before(function () {
-    server = app(session).listen(3000);
-    serverObj.Value = server;
-    browser = new Browser({ site: 'http://localhost:3000' });
-    browserObj.Value = browser;
+  let loggedUser = dbData.users[0];
+  let existentProject = dbData.projects[0];
+
+  config.beforeTest(browserObj, deps);
+
+  beforeEach(function () {
+    browser = browserObj.Value;
   });
-
-  after(function (done) {
-    server.close(done);
-  });
-//*******************END*****************
-
-//**************populate database
-  before(function (done) {
-    dbPopulate.init(collections, config.dbname)
-      .then(done, done);
-  });
-  before(function (done) {
-    dbPopulate.clear()
-      .then(done, done);
-  });
-
-  beforeEach(function (done) {
-    dbPopulate.populate(dbData)
-      .then(done, done);
-  });
-
-  afterEach(function (done) {
-    dbPopulate.clear()
-      .then(done, done);
-  });
-//*******************END*****************
-
-//**************shared variables & functions: loggedUser, existentProject, nonexistentProject, login(done), logout(done)
-  var loggedUser = dbData.users[0];
-
-  function login (done) {
-    browser.visit('/login')
-      .then(() => {
-        return browser.fill('username', loggedUser.username)
-          .fill('password', loggedUser.password)
-          .pressButton('log in');
-      })
-      .then(done, done);
-  }
-
-  function loginUser(user) {
-    return function login (done) {
-      browser.visit('/login')
-        .then(() => {
-          return browser.fill('username', user.username)
-            .fill('password', user.password)
-            .pressButton('log in');
-        })
-        .then(done, done);
-    }
-  }
-
-  function logout (done) {
-    browser.visit('/logout')
-      .then(done, done);
-  }
-  
-  var existentProject = dbData.projects[0];
-  var nonexistentProject = {name: 'nonexistent project', description: 'some description', id: '1234567890'};
-  existentProject.url = generateUrl(existentProject.name);
-  nonexistentProject.url = generateUrl(nonexistentProject.name);
-  //******************END************************************
 
   //***********testing follow/hide
   //shared.follow('project', {existentCollections: [existentProject], loggedUser: loggedUser}, {data: dbProject, server: serverObj, browser: browserObj}, {nocreate: true});
@@ -177,7 +104,7 @@ describe('visiting /project/:id/:url', function () {
 
       context('not logged in', function () {
 
-        beforeEach(logout);
+        beforeEach(funcs.logout(browserObj));
 
         beforeEach(function (done) {
           return browser.visit('/project/' + existentProject.id + '/' + existentProject.url)
@@ -193,9 +120,6 @@ describe('visiting /project/:id/:url', function () {
           browser.assert.attribute('#login-form', 'action', redirect);
         });
 
-        it('should not show join button', function () {
-          browser.assert.elements('#join-button', 0);
-        });
         it('should not show follow/hide links');
         it('should not show a star link');
         it('should not show public comments');
@@ -215,26 +139,26 @@ describe('visiting /project/:id/:url', function () {
             throw new Error('there is no member - cannot run this test');
           });
 
-          beforeEach(logout);
+          beforeEach(funcs.logout(browserObj));
           
-          beforeEach(loginUser(loggedUser));
+          beforeEach(funcs.login(loggedUser, browserObj));
 
           beforeEach(function (done) {
             browser.visit('/project/' + existentProject.id + '/' + existentProject.url)
               .then(done, done);
           });
 
-          afterEach(logout);
+          afterEach(funcs.logout(browserObj));
         };
 
-        beforeEach(login);
+        beforeEach(funcs.login(loggedUser, browserObj));
 
         beforeEach(function (done) {
           browser.visit('/project/' + existentProject.id + '/' + existentProject.url)
             .then(done, done);
         });
 
-        afterEach(logout);
+        afterEach(funcs.logout(browserObj));
 
         it('should show follow/hide links', function () {
           throw new Error('fail');
@@ -251,16 +175,8 @@ describe('visiting /project/:id/:url', function () {
           });
           //copy pasted from shared.js
           it('should show link or field for adding a tag', function () {
-            /*browser.assert.element('#add-tag-form');
-            browser.assert.attribute('#add-tag-form', 'method', 'post');
-            browser.assert.element('#add-tag-form input[type=text]');
-            browser.assert.attribute('#add-tag-form input[type=text]', 'name', 'tagname');
-            browser.assert.element('#add-tag-form input[type=submit]');
-            browser.assert.attribute('#add-tag-form input[type=submit]', 'name', 'submit');
-            browser.assert.attribute('#add-tag-form input[type=submit]', 'value', 'add tag');
-            */
             browser.assert.link('.tag-container .edit', '[edit]', '/project/'+existentProject.id+'/'+existentProject.url+'/edit?fields=tags');
-          }); //' + collection + '/id/name/add-tag
+          });
           it('should make removing tags with negative voting possible');//later
           it('should make voting for tags possible');//later
           it('should show an edit link', function () {
@@ -280,28 +196,6 @@ describe('visiting /project/:id/:url', function () {
           it('can contribute to setting a location');//later
           it('can contribute to editing settings');//other file
           it('can contribute to setting status of the project');
-          it('can contribute to accepting/rejecting joiners');//other file
-        });
-        context('user is not member', function () {
-          context('user is joining', function () {
-            loginAs('joining');
-            it('should show "cancel join" button', function () {
-              return browser.assert.elements('.membership-field #cancel-join-button', 1);
-            });
-          });
-          context('user is invited', function () {
-            loginAs('invited');
-            it('should show "accept/reject invitation button" button', function () {
-              return browser.assert.elements('.membership-field #accept-reject-invite-button', 1);
-            });
-            it('should show a message that user is invited to this project and can accept or reject the invitation');
-          });
-          it('[joining possible && didn\'t join] should show "join" button', function () {
-            return browser.assert.elements('.membership-field #join-button', 1);
-          });
-          it('[joining possible && request pending] should show "cancel joining" button');
-          it('[joining not possible] should show info that joining is not possible');
-          it('[joining not possible] should not show join button');
         });
       });
     });
