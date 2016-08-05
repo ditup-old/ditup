@@ -40,7 +40,19 @@ var scripts = [];
     <span class="profile-username" >@<%= profile.username %></span>
     <% if (rights.edit === true) { %><span><a class="button" href="/user/<%= profile.username %>/edit">Edit Profile</a></span><% } %>
     <% if (session.logged === true && session.username !== profile.username) { %><span><a class="write-message fa fa-comment" href="/messages/<%= profile.username %>"></a></span><% } %>
-  </div>
+  </div><%
+        /**
+         * ********************** *
+         *    follow         *
+         * ********************** *
+         */
+
+        var hideFollow = {
+          view: !!session.logged && profile.username !== session.username,
+          following: profile.following,
+        };
+
+      %><% include partial/hide-follow.ejs %>
   <div><!-- tags -->
     <ul id="tag-list">
       <li><span class="tag" ></span></li>

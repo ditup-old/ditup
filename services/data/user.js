@@ -317,5 +317,67 @@ module.exports = function (db) {
       });
   };
 
+  user.follow = function (follower, followed) {
+    return co(function * () {
+      if(follower === followed) throw new Error('follower === followed, Bad Data');
+
+      var query = `FOR follower IN users FILTER follower.username == @follower
+        FOR followed IN users FILTER followed.username == @followed
+          INSERT {_from: follower._id, _to: followed._id, unique: CONCAT(follower._id, '-', followed._id), created: @created}
+          IN userFollowUser
+          RETURN NEW`;
+      var params = {follower: follower, followed: followed, created: Date.now()};
+
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+
+      if(output.length === 0) throw new Error('404');
+      if(output.length > 1) throw new Error('found more than one user. this should never happen');
+      return;
+    });
+  };
+
+  user.unfollow = function (follower, followed) {
+    return co(function * () {
+      if(follower === followed) throw new Error('follower === followed, Bad Data');
+
+      var query = `FOR follower IN users FILTER follower.username == @follower
+        FOR followed IN users FILTER followed.username == @followed
+          FOR ufu IN userFollowUser
+            FILTER ufu._from == follower._id && ufu._to == followed._id
+            REMOVE ufu IN userFollowUser
+            RETURN OLD`;
+      var params = {follower: follower, followed: followed};
+
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+
+      if(output.length === 0) throw new Error('404');
+      if(output.length > 1) throw new Error('found more than one following. this should never happen');
+      return;
+    });
+  };
+
+  user.following = function (follower, followed) {
+    return co(function * () {
+      if(follower === followed) throw new Error('follower === followed, Bad Data');
+
+      var query = `
+        FOR follower IN users FILTER follower.username == @follower
+          FOR followed IN users FILTER followed.username == @followed
+            FOR ufu IN userFollowUser
+              FILTER ufu._from == follower._id &&  ufu._to == followed._id
+              RETURN ufu`;
+      var params = {follower: follower, followed: followed};
+
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+
+      if(output.length > 1) throw new Error('found more than one following. this should never happen');
+      if(output.length === 1) return true;
+      return false;
+    });
+  };
+
   return user;
 };

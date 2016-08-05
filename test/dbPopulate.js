@@ -1,16 +1,10 @@
 'use strict';
 
 var co = require('co');
+let collectionDefinitions = require('../services/data/collections');
 
 module.exports = function (db) {
-  var data = {};
-  var modules = ['user', 'tag', 'discussion', 'challenge', 'idea', 'project', 'messages', 'notifications'];
-
-
-  for (let md of modules) {
-    data[md] = require('../services/data/'+md)(db);
-  }
-
+  var data = require('../services/independentData')({db: db});
   var generateUrl = require('../routes/discussion/functions').generateUrl;
   
   var dependencies = (function () {
@@ -41,7 +35,15 @@ module.exports = function (db) {
   function populate(dbData) {
     //put dbData to database
     //create users
-    //
+
+    //non-present collections have default empty array
+    (function emptyData() {
+      //iterating through collection names
+      for(let colName in collectionDefinitions) {
+        dbData[colName] = dbData[colName] || [];
+      }
+    })();
+
     function populateNotifications(notifications, users) {
       return co(function *() {
         for(let nt of notifications) {
@@ -214,6 +216,14 @@ module.exports = function (db) {
     
     }
 
+    function populateUserFollowUser(userFollowUser, users) {
+      return co(function * () {
+        for(let ufu of userFollowUser) {
+          yield data.user.follow(users[ufu.follower].username, users[ufu.followed].username);
+        }
+      });
+    }
+
     function populateUserFollowCollection(userFollowCollection, users, collections, collectionName) {
       var ufcPromises = [];
 
@@ -294,6 +304,7 @@ module.exports = function (db) {
     
     return co(function *() {
       yield populateUsers(dbData.users);
+      yield populateUserFollowUser(dbData.userFollowUser, dbData.users);
       yield populateTags(dbData.tags, dbData.users);
       yield populateUserTag(dbData.userTag, dbData.users, dbData.tags);
       //**************** populating collections

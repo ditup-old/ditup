@@ -71,6 +71,10 @@
     "type": "edge",
     "unique": ["unique"]
   },
+  "userFollowUser": {
+    "type": "edge",
+    "unique": ["unique"]
+  },
   "users": {
     "type": "document",
     "unique": ["username", "email"]

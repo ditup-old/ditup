@@ -6,22 +6,20 @@
 hideFollow = hideFollow || {};
 
 hideFollow.view = hideFollow.view || false; //should we show the view?
-hideFollow.hiding = hideFollow.hiding || false; //is hiding?
 hideFollow.following = hideFollow.following || false; //is following?
-hideFollow.collection = hideFollow.collection || 'dit'; //collection name (not used)
 
 if(hideFollow.view === true) {
   if(hideFollow.following === true) {
   //showing an unfollow form
   %>
-    <form id="unfollow-form" method="post">
-      <input type="submit" name="submit" value="unfollow" />
+    <form id="unfollow-form" class="unfollow-button" method="post">
+      <input type="submit" name="action" value="unfollow" />
     </form>
     
   <%} else {
   //showing a follow form %>
-    <form id="follow-form" method="post">
-      <input type="submit" name="submit" value="follow" />
+    <form id="follow-form" class="follow-button" method="post">
+      <input type="submit" name="action" value="follow" />
     </form>
 <%
   }

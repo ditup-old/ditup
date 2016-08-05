@@ -9,6 +9,8 @@ var process = require('../services/processing');
 var validate = require('../services/validation');
 var image = require('../services/image');
 
+let co = require('co');
+
 var routeUserProjects = require('./user/projects');
 var routeUserCollections = require('./user/collections');
 
@@ -35,31 +37,52 @@ router.use(routeUserCollections('idea', {router: express.Router(), data: databas
 router.use(routeUserCollections('challenge', {router: express.Router(), data: database}));
 router.use(routeUserCollections('discussion', {router: express.Router(), data: database}));
 
-router.get('/:username', function (req, res, next) {
-  var username = req.params.username;
-  var sessUser = req.session.user;
+router
+.post('/:username', function (req, res, next){
+  return co(function * () {
+    let sessUser = req.session.user;
+    let username = req.params.username;
 
-  var user, rights;
+    let db = req.app.get('database');
+    let action = req.body.action;
+    
+    //follow or unfollow user
+    if(req.body.action === 'follow') {
+      yield db.user.follow(sessUser.username, username);
+      next();
+    }
+    else if(req.body.action === 'unfollow') {
+      yield db.user.unfollow(sessUser.username, username);
+      next();
+    }
+    else{
+      throw new Error('post not recognized');
+    }
+  })
+    .catch(next);
+})
+.all('/:username', function (req, res, next) {
+  return co(function * () {
+    let db = req.app.get('database');
+    var username = req.params.username;
+    var sessUser = req.session.user;
 
-  //read user
-  database.readUser({username: username})
-    .then(function (_user) {
-      user = _user;
-      return myRightsToUser(sessUser, _user);
-    })
-    .then(function (_rights) {
-      rights = _rights;
-      if(rights.view !== true) throw new Error('you don\'t have rights to see user');
-      return process.user.profile(user);
-    })
-    .then(function (profile) {
-      return res.render('user-profile', {profile: profile, rights: rights, session: sessUser});
-    })
-    .then(null, function (err) {
-      next(err);
-    });
+    //read user
+    let user = yield db.user.read({username: username});
+    let rights = yield myRightsToUser(sessUser, user);
 
+    if(rights.view !== true) throw new Error('you don\'t have rights to see user');
+
+    let profile = yield process.user.profile(user);
+    if(sessUser.logged === true && sessUser.username !== username) {
+      profile.following = yield db.user.following(sessUser.username, username);
+    }
+
+    return res.render('user-profile', {profile: profile, rights: rights, session: sessUser});
+  })
+    .catch(next);
 });
+
 
 router.get('/:username/edit', function (req, res, next) {
   var username = req.params.username;
@@ -314,7 +337,6 @@ router.post('/:username/upload-avatar', upload.single('avatar'), function (req, 
       return res.redirect('/user/' + username + '/edit');
     })
     .then(null, function (err) {
-      console.log(err);
       return next(err);
     });
 });
