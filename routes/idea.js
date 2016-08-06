@@ -8,9 +8,13 @@ var db = require('../services/data');
 var functions = require('./discussion/functions');
 var generateUrl = functions.generateUrl;
 
+var postHideFollow = require('./partial/post-hide-follow');
+
 var editRoute = require('./idea/edit');
 
 router.use(editRoute);
+
+router.use(postHideFollow('idea', {}));
 
 router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;
@@ -21,42 +25,6 @@ router.post(['/:id/:url'], function (req, res, next) {
       return db.idea.addTag(id, tagname, sessUser.username)
         .then(function () {
           sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the idea.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'follow') {
-      //return next();
-      return db.idea.follow(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('Now you follow the idea.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'unfollow') {
-      //return next();
-      return db.idea.unfollow(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('You don\'t follow the idea anymore.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'hide') {
-      //return next();
-      return db.idea.hide(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('The idea won\'t be shown in your search results anymore.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'unhide') {
-      //return next();
-      return db.idea.unhide(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('The idea will be shown in your search results again.');
           return next();
         })
         .then(null, next);
@@ -80,9 +48,8 @@ router.post(['/:id/:url'], function (req, res, next) {
         })
         .then(null, next);
     }
-    else {
-      let err = new Error('we don\'t know what to do with this POST request');
-      return next(err);
+    else{
+      return next();
     }
   }
   else {

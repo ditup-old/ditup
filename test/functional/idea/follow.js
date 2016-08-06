@@ -2,5 +2,5 @@
 
 let followTest = require('../partial/follow');
 
-followTest('project');
+followTest('idea');
 

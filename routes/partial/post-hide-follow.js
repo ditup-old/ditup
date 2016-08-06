@@ -16,16 +16,12 @@ module.exports = function (collection, dependencies) {
           //return next();
           yield db[collection].follow(id, sessUser.username)
           sessUser.messages.push('Now you follow the '+collection+'.');
-          return next();
         }
         else if(req.body.action === 'unfollow') {
           yield db[collection].unfollow(id, sessUser.username)
           sessUser.messages.push('You don\'t follow the '+collection+' anymore.');
-          return next();
         }
-        else {
-          throw new Error('post not recognized');
-        }
+        return next();
       }
       else {
         throw new Error('not authorized');
