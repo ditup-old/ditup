@@ -44,8 +44,10 @@
         </ul>
       </li>
 <% } 
-    %><% if(session.logged !== true) { %><!--
- --><li><a href="/login" >login</a></li><!--
+%><% if(session.logged !== true) { 
+  let extendedLogin = `/login?redirect=${encodeURIComponent(url)}`
+%><!--
+--><li><a href="<%- extendedLogin %>" >login</a></li><!--
  --><li><a href="/signup" >signup</a></li><!--
    --><% } %>
       

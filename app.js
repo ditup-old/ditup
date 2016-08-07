@@ -75,6 +75,12 @@ module.exports = function (session) {
 
   app.use(require('./routes/count-messages'));
   app.use(require('./routes/count-notifications'));
+  
+  //a parameter url provided to ejs views
+  app.use(function(req, res, next) {
+    res.locals.url = req.originalUrl;
+    next();
+  });
 
   //load routes to express
   var routes = require('./routes.json');

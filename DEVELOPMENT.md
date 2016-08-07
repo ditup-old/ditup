@@ -44,7 +44,7 @@ The first release should be a proof of the concept. It should be simple and show
     - [x] inviting people to projects
 - [x] follow people
 - [x] merge dits of user with dits general: if logged in, both will be shown.
-- [ ] after login redirect always to the page which was currently on
+- [x] after login redirect always to the page which was currently on
 - [x] better /tags page
 - [ ] comment the code
 - [ ] write styles

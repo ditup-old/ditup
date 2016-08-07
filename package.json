@@ -50,7 +50,7 @@
     "watch-idea-follow": "mocha ./test/functional/idea/follow --watch",
     "watch-challenge-follow": "mocha ./test/functional/challenge/follow --watch",
     "watch-discussion-follow": "mocha ./test/functional/discussion/follow --watch",
-    "watch-login-redirect": "mocha ./test/functional/login-redirect --watch",
+    "watch-login-redirect": "mocha ./test/functional/login/redirect --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {
