@@ -9,8 +9,10 @@ var db = require('../services/data');
 var functions = require('./collection/functions');
 var generateUrl = functions.generateUrl;
 var editRoute = require('./challenge/edit');
+var postFollowRoute = require('./partial/post-hide-follow');
 
 router.use(editRoute);
+router.use(postFollowRoute('challenge'));
 
 router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;
@@ -21,41 +23,6 @@ router.post(['/:id/:url'], function (req, res, next) {
       return db.challenge.addTag(id, tagname, sessUser.username)
         .then(function () {
           sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the challenge.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'follow') {
-      //return next();
-      return db.challenge.follow(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('Now you follow the challenge.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'unfollow') {
-      //return next();
-      return db.challenge.unfollow(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('You don\'t follow the challenge anymore.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'hide') {
-      return db.challenge.hide(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('The challenge won\'t be shown in your search results anymore.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'unhide') {
-      //return next();
-      return db.challenge.unhide(id, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('The challenge will be shown in your search results again.');
           return next();
         })
         .then(null, next);
@@ -80,8 +47,7 @@ router.post(['/:id/:url'], function (req, res, next) {
         .then(null, next);
     }
     else {
-      let err = new Error('we don\'t know what to do with this POST request');
-      return next(err);
+      return next();
     }
   }
   else {

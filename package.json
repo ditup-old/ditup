@@ -48,6 +48,9 @@
     "watch-user-follow": "mocha ./test/functional/user/follow --watch",
     "watch-project-follow": "mocha ./test/functional/project/follow --watch",
     "watch-idea-follow": "mocha ./test/functional/idea/follow --watch",
+    "watch-challenge-follow": "mocha ./test/functional/challenge/follow --watch",
+    "watch-discussion-follow": "mocha ./test/functional/discussion/follow --watch",
+    "watch-login-redirect": "mocha ./test/functional/login-redirect --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

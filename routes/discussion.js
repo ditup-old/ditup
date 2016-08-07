@@ -1,6 +1,7 @@
 'use strict';
 
 var express = require('express');
+var co = require('co');
 var router = express.Router();
 var functions = require('./discussion/functions');
 var generateUrl = functions.generateUrl;
@@ -9,9 +10,12 @@ var validate = require('../services/validation');
 var db = require('../services/data');
 var editRoute = require('./discussion/edit');
 
+var postHideFollow = require('./partial/post-hide-follow');
+
 const MAX_POST_LENGTH = 16384;
 
 router.use(editRoute);
+router.use(postHideFollow('discussion', {}));
 
 router.post('/:id/:url', function (req, res, next) {
   var sessUser = req.session.user;
@@ -47,10 +51,7 @@ router.post('/:id/:url', function (req, res, next) {
           return next(err);
         });
     }
-    else {
-      let err = new Error('we don\'t know what to do with this POST request');
-      return next(err);
-    }
+    else return next();
   }
   else {
     sessUser.messages.push('You need to <a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> to POST anything');
@@ -59,61 +60,51 @@ router.post('/:id/:url', function (req, res, next) {
 });
 
 router.all(['/:id/:url', '/:id'], function (req, res, next) {
-  var sessUser = req.session.user;
-  var id = req.params.id;
-  var url = req.params.url;
+  return co(function * () {
+    var sessUser = req.session.user;
+    var id = req.params.id;
+    var url = req.params.url;
 
-  req.ditup.discussion = req.ditup.discussion || {};
-  var discussion, expectedUrl;
+    req.ditup.discussion = req.ditup.discussion || {};
+    var expectedUrl;
 
-  return db.discussion.read(id)
-    .then(function (_discussion) {
-      discussion = _discussion;
-      expectedUrl = generateUrl(discussion.name);
-      discussion.url = expectedUrl;
-      discussion.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
-      discussion.id = id;
-      //copying params from previous routes
-      for(var param in req.ditup.discussion) {
-        discussion[param] = req.ditup.discussion[param];
-      }
-      return;
-    })
+    let discussion = yield db.discussion.read(id)
+    expectedUrl = generateUrl(discussion.name);
+    discussion.url = expectedUrl;
+    discussion.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
+    discussion.id = id;
+    //copying params from previous routes
+    for(var param in req.ditup.discussion) {
+      discussion[param] = req.ditup.discussion[param];
+    }
+
     //read posts of discussion
-    .then(function () {
-      return db.discussion.readPosts(id)
-        .then(function (_posts) {
-          discussion.posts = [];
-          for(let post of _posts) {
-            discussion.posts.push(post);
-          }
-          return;
-        });
-    })
+    let posts = yield db.discussion.readPosts(id)
+    discussion.posts = [];
+    for(let post of posts) {
+      discussion.posts.push(post);
+    }
     //read tags of discussion
-    .then(function () {
-      return db.discussion.tags(id)
-        .then(function (_tags) {
-          discussion.tags = [];
-          for(let _tag of _tags) {
-            discussion.tags.push(_tag.name);
-          }
-          return;
-        });
-    })
+    let tags = yield db.discussion.tags(id)
+    discussion.tags = [];
+    for(let tag of tags) {
+      discussion.tags.push(tag.name);
+    }
+    //find out whether user follows the discussion
+    if(sessUser.logged === true) {
+      discussion.following = yield db.discussion.followingUser(id, sessUser.username)
+    }
     //sending the response
-    .then(function () {
-      if(expectedUrl === url) {
-        if(sessUser.logged !== true) {
-          sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
-        }
-        return res.render('discussion', {session: sessUser, discussion: discussion});
+    if(expectedUrl === url) {
+      if(sessUser.logged !== true) {
+        sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
       }
-      else {
-        return res.redirect('/discussion/' + id + '/' + expectedUrl );
-      }
-    })
-    .then(null, next);
+      return res.render('discussion', {session: sessUser, discussion: discussion});
+    }
+    else {
+      return res.redirect('/discussion/' + id + '/' + expectedUrl );
+    }
+  }).catch(next);
 });
 
 

@@ -36,8 +36,8 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] fix project, idea, challenge, discussion pages
     - [x] edit
         - [x] edit not only challenge, but others, too.
-    - [ ] follow
-    - [ ] unfollow
+    - [x] follow
+    - [x] unfollow
     - [ ] comment/discuss
     - [ ] adding tags
     - [ ] vote tags

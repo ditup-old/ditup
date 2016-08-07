@@ -14,7 +14,7 @@ module.exports = function (collection, dependencies) {
       if(sessUser.logged === true) {
         if(req.body.action === 'follow') {
           //return next();
-          yield db[collection].follow(id, sessUser.username)
+          yield db[collection].follow(id, sessUser.username);
           sessUser.messages.push('Now you follow the '+collection+'.');
         }
         else if(req.body.action === 'unfollow') {
