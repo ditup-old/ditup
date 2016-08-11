@@ -12,10 +12,11 @@ var scripts = [];
 <% include ./partial/header.ejs %>
 <section>
   <form class="create-add-tag-form" method="post" accept-charset="utf-8">
-    
-  
+    <span><%= tag.name %></span>
     <input type="hidden" name="tagname" value="<%= tag.name %>" />
     <textarea name="description"></textarea>
+    <input type="submit" name="action" value="create and add tag" />
+    <a href="<%= url %>" target="">cancel</a>
   </form>
 </section>
 <% include ./partial/page-bottom.ejs %>

@@ -114,15 +114,19 @@ describe('/user/:username tags', function () {
         beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=tags`, {'.add-tag-form [name=tagname]': nonExistentTag.name, submit: 'add tag'}, browserObj));
         it('should show a form to create a new tag', function () {
           browser.assert.element('.create-add-tag-form');
-          browser.assert.input('.create-add-tag-form input[name=tagname]', nonExistentTag.name);
+          browser.assert.input('.create-add-tag-form input[type=hidden][name=tagname]', nonExistentTag.name);
           browser.assert.element('.create-add-tag-form textarea[name=description]');
         });
-        it('should offer submitting the new tag : create and add to my profile');
-        it('should offer cancelling');
+        it('should offer submitting the new tag : create and add to my profile', function () {
+          browser.assert.input('.create-add-tag-form [type=submit][name=action]', 'create and add tag');
+        });
+        it('should offer cancelling', function () {
+          browser.assert.link('.create-add-tag-form a', 'cancel', `/user/${loggedUser.username}/edit?field=tags`);
+        });
       });
 
       context('POST the new tag', function () {
-        it('should add the tag to user and go back to the edit tags page');
+        it('should create and add the tag to user and go back to the edit tags page');
         it('should say that the tag was created and added to the user');
       });
     });
