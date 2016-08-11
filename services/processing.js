@@ -14,7 +14,6 @@ var exports = module.exports = {
 
 user.profile = function (userData) {
   var deferred = Q.defer();
-  console.log('userData', userData);
   process.nextTick(function(){
     
     var profile = {};
@@ -36,7 +35,6 @@ user.profile = function (userData) {
 
     deferred.resolve(profile);
   });
-  console.log('processing data');
   return deferred.promise;
 };
 
@@ -46,7 +44,6 @@ user.profileEdit = function (userData) {
     var profile = {};
     //age
     var brthDate = userData.profile.birthday;
-    //console.log(typeof(brthDate), typeof(null), brthDate instanceof Date);
     //var birth = (brthDate instanceof Date) ? {
     //  month: brthDate.getUTCMonth()+1,
     //  day: brthDate.getUTCDate(),
@@ -63,7 +60,6 @@ user.profileEdit = function (userData) {
     //about
     profile.about = userData.profile.about;
     profile.username = userData.username;
-    console.log(profile);
     deferred.resolve(profile);
   });
   return deferred.promise;
