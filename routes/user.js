@@ -4,8 +4,7 @@ var fs = require('fs');
 var multer = require('multer');
 var express = require('express');
 var router = express.Router();
-var database = require('../services/data');
-var process = require('../services/processing');
+var processing = require('../services/processing');
 var validate = require('../services/validation');
 var image = require('../services/image');
 
@@ -32,10 +31,10 @@ router.all(['/:username', '/:username/*'], function (req, res, next) {
 });
 
 //router for /user/[username]/projects
-router.use(routeUserProjects({router: express.Router(), data: database}));
-router.use(routeUserCollections('idea', {router: express.Router(), data: database}));
-router.use(routeUserCollections('challenge', {router: express.Router(), data: database}));
-router.use(routeUserCollections('discussion', {router: express.Router(), data: database}));
+router.use(routeUserProjects());
+router.use(routeUserCollections('idea'));
+router.use(routeUserCollections('challenge'));
+router.use(routeUserCollections('discussion'));
 
 router
 .post('/:username', function (req, res, next){
@@ -73,49 +72,65 @@ router
 
     if(rights.view !== true) throw new Error('you don\'t have rights to see user');
 
-    let profile = yield process.user.profile(user);
+    let profile = yield processing.user.profile(user);
     if(sessUser.logged === true && sessUser.username !== username) {
       profile.following = yield db.user.following(sessUser.username, username);
     }
+    
+    res.locals.tags = yield db.user.tags(username);
 
-    return res.render('user-profile', {profile: profile, rights: rights, session: sessUser});
+    return res.render('user-profile', {profile: profile, rights: rights});
   })
     .catch(next);
 });
 
-
-router.get('/:username/edit', function (req, res, next) {
-  var username = req.params.username;
-  var sessUser = req.session.user;
-
-  var user, rights;
-
-  //read user
-  database.readUser({username: username})
-    .then(function (_user) {
-      user = _user;
-      return myRightsToUser(sessUser, _user);
-    })
-    .then(function (_rights) {
-      rights = _rights;
-      if(rights.edit !== true) throw new Error('you don\'t have rights to edit user');
-      return process.user.profileEdit(user);
-    })
-    .then(function (profile) {
-      return res.render('user-profile-edit', {profile: profile, errors: {}, rights: rights, session: sessUser});
-    })
-    .then(null, function (err) {
-      next(err);
-    });
-});
-
-router.post('/:username/edit', function (req, res, next){
+//checking whether user can edit (him/her self)
+router.all('/:username/edit', function (req, res, next) {
+  let sessUser = req.session.user;
+  if(sessUser.logged === true && sessUser.username === req.params.username) {
+    return next();
+  }
+  else {
+    let err = new Error('Not Authorized');
+    throw err;
+  }
+})
+//posting tags
+.post('/:username/edit', function (req, res, next) {
+  let db = req.app.get('database');
+  if(req.query.field === 'tags') {
+    if(req.body.action === 'add tag') {
+      return co(function * () {
+        let exists = yield db.tag.exists(req.body.tagname);
+        if(exists) {
+          yield db.user.addTag(req.params.username, req.body.tagname);
+          req.session.user.messages.push(`the tag ${req.body.tagname} was added to your profile`);
+          next();
+        }
+        else{
+          // TODO missing validation of the new tag data
+          return res.render('tag-create-add', {tag: {name: req.body.tagname}});
+        }
+      })
+        .catch(next);
+    }
+    else return next();
+  }
+  else {
+    return next();
+  }
+})
+.post('/:username/edit', function (req, res, next){
+  let database = req.app.get('database');
   var username = req.params.username;
   var sessUser = req.session.user;
 
   var user, rights;
   var profile = {};
   var errors = {};
+
+  if(req.query.field === 'tags') return next();
+
   database.readUser({username: username})
     .then(function (_user){
       user = _user;
@@ -146,14 +161,31 @@ router.post('/:username/edit', function (req, res, next){
     })
     .then(null, function (err) {
       if(err.message === 'invalid'){
-        return res.render('user-profile-edit', {profile: profile, errors: errors, rights: rights, session: sessUser});
+        return res.render('user-profile-edit', {profile: profile, errors: errors, rights: rights});
       }
       next(err);
     });
+})
+.all('/:username/edit', function (req, res, next) {
+  return co(function * () {
+    let db = req.app.get('database');
+    var username = req.params.username;
+    var sessUser = req.session.user;
+
+    //read user
+    let user = yield db.user.read({username: username});
+    //making data fit for profile
+    let profile = yield processing.user.profileEdit(user);
+    //reading tags
+    res.locals.tags = yield db.user.tags(username);
+
+    return res.render('user-profile-edit', {profile: profile, errors: {}});
+  }).catch(next);
 });
 
 
 router.get('/:username/avatar', function (req, res, next) {
+  let database = req.app.get('database');
   var username = req.params.username;
   var sessUser = req.session.user;
 
@@ -186,42 +218,6 @@ router.get('/:username/avatar', function (req, res, next) {
     });
 });
 
-router.get('/:username/dits', function (req, res, next) {
-  //find user and check if i can see her.
-  //collect her dits (if it's me, join and accepted too, otherwise just member/admin). (let's sort this in database? or here?)
-  //end request by rendering page with dits
-  //(rendered page if belongs to me, will have option to manage my membership)
-
-  
-  var username = req.params.username;
-  var sessUser = req.session.user;
-
-  var user, rights;
-
-  //read user
-  database.readUser({username: username})
-    .then(function (_user) {
-      user = _user;
-      if(_user === null) throw (new Error('user not found')).status(404);
-      //check if i can see her.
-      return myRightsToUser(sessUser, _user);
-    })
-    .then(function (_rights) {
-      rights = _rights;
-      if(rights.view !== true) throw new Error('you don\'t have rights to see user');
-      //return process.user.profile(user);
-      if(username === sessUser.username) return database.readDitsOfUser({username: username});
-      else return database.readDitsOfUser({username: username}, ['member', 'admin']);
-    })
-    .then(function (dits) {
-      //dits are object {dit: dit, relation: relation}
-      return res.render('user-dits', {user: user, dits: dits, rights: rights, session: sessUser});
-    })
-    .then(null, function (err) {
-      next(err);
-    });
-});
-
 //check if i can see & change settings of user (basically: is it me?)
 router.all(['/:username/settings', '/:username/upload-avatar'], function (req, res, next) {
   var sessUser = req.session.user;
@@ -235,6 +231,7 @@ router.all(['/:username/settings', '/:username/upload-avatar'], function (req, r
 });
 
 router.get('/:username/settings', function (req, res, next) {
+  let database = req.app.get('database');
   //read settings
   //process settings
   //render settings page
@@ -251,11 +248,11 @@ router.get('/:username/settings', function (req, res, next) {
       user = _user;
       
       //process settings
-      return process.user.settings(user);
+      return processing.user.settings(user);
     })
     .then(function (_data) {
       //render the settings page
-      res.render('user-settings', {data: _data, errors: {}, session: sessUser});
+      res.render('user-settings', {data: _data, errors: {}});
     })
     .then(null, function (err) {
       next(err);
@@ -265,6 +262,7 @@ router.get('/:username/settings', function (req, res, next) {
 
 //depends on router.all which checks the rights. this one is allowed only after checking those rights
 router.post('/:username/settings', function (req, res, next) {
+  let database = req.app.get('database');
   var sessUser = req.session.user;
 
   var username = req.params.username;
@@ -289,7 +287,7 @@ router.post('/:username/settings', function (req, res, next) {
     var settings = values;
     return database.updateUserSettings({username: username}, settings)
       .then(function (response) {
-        return res.render('sysinfo', {msg: '<a href="" >settings</a> of <a href="/user/' + username + '" >' + username + '</a> were successfully updated', session: sessUser});
+        return res.render('sysinfo', {msg: '<a href="" >settings</a> of <a href="/user/' + username + '" >' + username + '</a> were successfully updated'});
       });
   }
   
@@ -303,12 +301,12 @@ router.post('/:username/settings', function (req, res, next) {
         user = _user;
         
         //process settings
-        return process.user.settings(user);
+        return processing.user.settings(user);
       })
       .then(function (_data) {
         _data.settings = values;
         //render the settings page
-        res.render('user-settings', {data: _data, errors: errors, session: sessUser});
+        res.render('user-settings', {data: _data, errors: errors});
       })
       .then(null, function (err) {
         next(err);

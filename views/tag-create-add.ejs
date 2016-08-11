@@ -1,0 +1,21 @@
+<%
+var css = [
+  '/css/header.css',
+];
+var title = 'create and add a tag' ;
+
+var headScripts = [
+];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<% include ./partial/header.ejs %>
+<section>
+  <form class="create-add-tag-form" method="post" accept-charset="utf-8">
+    
+  
+    <input type="hidden" name="tagname" value="<%= tag.name %>" />
+    <textarea name="description"></textarea>
+  </form>
+</section>
+<% include ./partial/page-bottom.ejs %>

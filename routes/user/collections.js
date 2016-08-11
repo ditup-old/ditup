@@ -1,12 +1,13 @@
 'use strict';
 
 let co = require('co');
+let express = require('express');
 
 module.exports = function (collection, dependencies) { 
-  let router = dependencies.router;
-  let data = dependencies.data;
+  let router = express.Router();
 
   router.get('/:username/'+collection+'s', function (req, res, next) {
+    let data = req.app.get('database');
     var username = req.params.username;
     var sessUser = req.session.user;
 

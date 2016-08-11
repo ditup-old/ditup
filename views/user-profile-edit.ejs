@@ -7,12 +7,14 @@ var css = [
 var title = 'profile of :'+profile.username ;
 
 var headScripts = [
+/*
   {
     src: '/libs/js/require.js',
     properties: {
       'data-main': '/js/user-profile-edit/main'
     }
   }
+//*/
 ];
 var scripts = [];
 
@@ -36,7 +38,7 @@ var scripts = [];
     display:inline;
   }
 </style>
-<form method="post" >
+<!--form method="post" -->
 <div class="panel-basic" ><!-- basic profile info -->
   <div class="avatar-pic" ></div>
   <div>birthday <input type="text" name="birthday" value="<%= profile.birthday %>" placeholder="yyyy-mm-dd"/></div>
@@ -61,16 +63,25 @@ var scripts = [];
       <input class="button" type="submit" name="submit" value="Save Changes" />
     </span>
   </div>
-  <div><!-- tags -->
+  <div class="user-tags"><!-- tags -->
     <ul id="tag-list">
-      <li><span class="tag" ></span></li>
-      <li><span class="tag" ></span></li>
-      <li><span class="tag" ></span></li>
+      <% for(let tag of tags) { %>
+      <li class="tag" ><%= tag.name %>
+        <form method="post" class="remove-tag-form">
+          <input type="hidden" name="tagname" value="<%= tag.name %>" />
+          <input type="submit" name="remove-tag" value="" class="fa fa-cross" />
+        </form>
+      </li>
+      <% } %>
     </ul>
-    <span id="add-tag" >
+    <form method="post" class="add-tag-form">
+      <input type="text" name="tagname" />
+      <input type="submit" name="action" value="add tag" />
+      <a href="<%= `/user/${profile.username}` %>">cancel</a>
+    </form>
+    <!--span id="add-tag" >
       <input id="autocomplete" type="text" placeholder="add tag" />
-      <span>Tag not found? <a target="_blank" href="/tags/create" >Create it.</a></span>
-    </span>
+    </span-->
   </div>
   <div><h1>about me</h1>
     <div>
@@ -78,7 +89,7 @@ var scripts = [];
     </div>
   </div>
 </div>
-</form>
+<!--/form-->
 <div id="upload-avatar" >
   <form action="/user/<%= profile.username %>/upload-avatar" enctype="multipart/form-data" method="post">
     <input name="avatar" type="file" accept="image/*" />

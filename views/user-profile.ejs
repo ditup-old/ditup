@@ -7,12 +7,12 @@ var css = [
 var title = 'profile of :'+profile.username ;
 
 var headScripts = [
-  {
-    src: '/libs/js/require.js',
-    properties: {
-      'data-main': '/js/user-profile/main'
-    }
-  }
+//  {
+//    src: '/libs/js/require.js',
+//    properties: {
+//      'data-main': '/js/user-profile/main'
+//    }
+//  }
 ];
 var scripts = [];
 
@@ -53,12 +53,15 @@ var scripts = [];
         };
 
       %><% include partial/hide-follow.ejs %>
-  <div><!-- tags -->
-    <ul id="tag-list">
-      <li><span class="tag" ></span></li>
-      <li><span class="tag" ></span></li>
-      <li><span class="tag" ></span></li>
+  <div class="user-tags"><!-- tags -->
+    <ul id="tag-list" class="tag-list">
+      <% for(let tag of tags) { %>
+      <li class="tag" ><%= tag.name %></li>
+      <% } %>
     </ul>
+    <% if(session.logged === true && session.username === profile.username) { %>
+    <a class="edit-tags-link" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
+    <% } %>
   </div>
   <div><h1>about me</h1><div><%= profile.about %></div></div>
 </div>

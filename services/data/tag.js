@@ -10,7 +10,7 @@ module.exports = function (db) {
     var params = {
       name: tag.name,
       description: tag.description,
-      created: tag.meta.created,
+      created: tag.meta.created || Date.now(),
       username: tag.meta.creator
     };
     return db.query(query, params);
@@ -39,6 +39,8 @@ module.exports = function (db) {
         throw new Error('weird database error: more than 1 tag with unique name exists');
       });
   }
+
+  tag.exists = tag.nameExists;
 
   /**
    * @param {Object} [options={}]

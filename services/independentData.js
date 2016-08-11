@@ -116,6 +116,7 @@ module.exports = function independentData(dependencies) {
       }
       return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {dittype: @dittype, profile: @profile} IN dits', {url: dit.url, profile: profile, dittype: dittype});
     },
+
     updateDitSettings: function (dit, settings) {
       return db.query('FOR x IN dits FILTER x.url == @url UPDATE x WITH {settings: @settings} IN dits', {url: dit.url, settings: settings});
     },
@@ -156,19 +157,6 @@ module.exports = function independentData(dependencies) {
     //talk TODO 
     ///C
     createTalk: function (talk) {
-    },
-    //RUD
-
-
-    readTagsOfUser: function (user) {
-      var query = 'FOR u IN users FILTER u.username == @username ' +
-        'FOR ut IN userTag FILTER ut._from == u._id ' +
-        'FOR t IN tags FILTER t._id == ut._to ' +
-        'RETURN {name: t.name, description: t.description}';
-      return db.query(query, {username: user.username})
-        .then(function (cursor) {
-          return cursor.all();
-        });
     },
     deleteTagFromUser: function (tag, user) {
       var query = 'FOR u IN users FILTER u.username == @username ' +

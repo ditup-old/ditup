@@ -82,6 +82,11 @@ module.exports = function (session) {
     next();
   });
 
+  app.use(function(req, res, next) {
+    res.locals.session = req.session.user;
+    next();
+  });
+
   //load routes to express
   var routes = require('./routes.json');
 
@@ -91,8 +96,8 @@ module.exports = function (session) {
     app.use(route.url, router);
   }
   
-  let various = require('./routes/various');
-  app.use(various);
+//  let various = require('./routes/various');
+//  app.use(various);
 
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {

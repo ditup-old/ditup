@@ -305,10 +305,12 @@ module.exports = function (db) {
   };
 
   user.addTag = function (user, tag) {
+    let username = typeof(user) === 'string' ?  user : user.username;
+    let tagname = typeof(tag) === 'string' ? tag : tag.name;
     var query = 'FOR x IN users FILTER x.username == @username LET from = x._id ' +
       'FOR y IN tags FILTER y.name == @name LET to = y._id ' +
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), created: @created } IN userTag';
-    return db.query(query, {username: user.username, name: tag.name, created: Date.now()})
+    return db.query(query, {username: username, name: tagname, created: Date.now()})
       .then(function (cursor) {
         var writes = cursor.extra.stats.writesExecuted;
         if (writes === 0) throw new Error('404');
@@ -316,6 +318,17 @@ module.exports = function (db) {
         throw new Error('problems with adding tag');
       });
   };
+
+  user.tags = function (username) {
+    var query = 'FOR u IN users FILTER u.username == @username ' +
+      'FOR ut IN userTag FILTER ut._from == u._id ' +
+      'FOR t IN tags FILTER t._id == ut._to ' +
+      'RETURN {name: t.name, description: t.description}';
+    return db.query(query, {username: username})
+      .then(function (cursor) {
+        return cursor.all();
+      });
+  },
 
   user.follow = function (follower, followed) {
     return co(function * () {
