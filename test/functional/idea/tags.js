@@ -97,7 +97,7 @@ describe('idea tags', function () {
           });
 
           it('should say that the tag was added', function () {
-            browser.assert.text('.popup-message.info', `the tag ${nonAddedTag.name} was added to the idea ${idea.name}`);
+            browser.assert.text('.popup-message.info', `the tag ${nonAddedTag.name} was added to the idea`);
           });
         });
       });

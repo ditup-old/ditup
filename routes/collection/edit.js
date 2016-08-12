@@ -39,9 +39,9 @@ exp.editRightsCreator = express.Router().all('/:id/:url/edit', function (req, re
   if(authorized !== true) {
     let err = new Error('Not Authorized');
     err.status = 403;
-    next(err);
+    return next(err);
   }
-  next();
+  return next();
 });
 
 //test rights to edit (member)
@@ -62,7 +62,7 @@ exp.editRightsMember = express.Router().all('/:id/:url/edit', function (req, res
       err.status = 403;
       throw err;
     }
-    next();
+    return next();
   })
     .catch(next);
 });
@@ -71,7 +71,7 @@ exp.editRightsMember = express.Router().all('/:id/:url/edit', function (req, res
 
 //display the collection-edit view
 exp.displayEditView = function (fields) {
-  return express.Router().get('/:id/:url/edit', function (req, res, next) {
+  return express.Router().all('/:id/:url/edit', function (req, res, next) {
     let dittype = req.baseUrl.substring(1);
     let db = req.app.get('database');
     let sessUser = req.session.user;
@@ -134,6 +134,7 @@ exp.post = function (fields) {
 
           if(field === 'tags') {
             yield db.idea.addTag(id, req.body.tagname, req.session.user.username);
+            req.session.messages.push(`the tag ${req.body.tagname} was added to the idea`);
           }
           else{
             //we are editing
@@ -147,10 +148,17 @@ exp.post = function (fields) {
         }
       }
       if(inside !== true) {
-        throw new Error('no');
+        throw new Error('unrecognized POST request');
       }
     })
-      .catch(next);
+      .catch(function (e) {
+        //error code if duplicate adding (we don't show error page, but message & edit page without error)
+        if(e.code === 409) {
+          req.session.user.messages.push(`the tag ${req.body.tagname} is already added`);
+          return next();
+        }
+        return next(e);
+      });
   });
 };
 

@@ -282,7 +282,6 @@ proto.addTag = function (collectionName, db) {
         if(writes > 1) throw new Error('more than one tag added. This should never happen.');
       })
       .then(null, function (err) {
-        if(err.code === 409) throw new Error(409);
         throw err;
       });
   };
