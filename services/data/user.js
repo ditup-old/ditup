@@ -328,7 +328,21 @@ module.exports = function (db) {
       .then(function (cursor) {
         return cursor.all();
       });
-  },
+  };
+
+  user.removeTag = function (username, tagname) {
+    return co(function * () {
+      var query = 'FOR u IN users FILTER u.username == @username ' +
+        'FOR t IN tags FILTER t.name == @tagname ' +
+        'FOR ut IN userTag FILTER u._id == ut._from && t._id == ut._to ' +
+        'REMOVE ut IN userTag';
+      let cursor = yield db.query(query, {username: username, tagname: tagname});
+      var writes = cursor.extra.stats.writesExecuted;
+      if (writes === 0) throw new Error('404');
+      if (writes === 1) return;
+      throw new Error('problems with removing tag (that should never happen)');
+    });
+  };
 
   user.follow = function (follower, followed) {
     return co(function * () {

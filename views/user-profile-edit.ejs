@@ -69,7 +69,8 @@ var scripts = [];
       <li class="tag" ><%= tag.name %>
         <form method="post" class="remove-tag-form">
           <input type="hidden" name="tagname" value="<%= tag.name %>" />
-          <input type="submit" name="remove-tag" value="" class="fa fa-cross" />
+          <input type="hidden" name="action" value="remove tag" />
+          <button type="submit"><span class="fa fa-times"></span></button>
         </form>
       </li>
       <% } %>

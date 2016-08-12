@@ -92,6 +92,7 @@ router.all('/:username/edit', function (req, res, next) {
   }
   else {
     let err = new Error('Not Authorized');
+    err.status = 403;
     throw err;
   }
 })
@@ -99,18 +100,52 @@ router.all('/:username/edit', function (req, res, next) {
 .post('/:username/edit', function (req, res, next) {
   let db = req.app.get('database');
   if(req.query.field === 'tags') {
+    //adding tag
     if(req.body.action === 'add tag') {
       return co(function * () {
         let exists = yield db.tag.exists(req.body.tagname);
         if(exists) {
           yield db.user.addTag(req.params.username, req.body.tagname);
           req.session.user.messages.push(`the tag ${req.body.tagname} was added to your profile`);
-          next();
+          return next();
         }
         else{
           // TODO missing validation of the new tag data
           return res.render('tag-create-add', {tag: {name: req.body.tagname}});
         }
+      })
+        .catch(function (err) {
+          if(err.code === 409) {
+            req.session.user.messages.push(`the tag ${req.body.tagname} is already added`);
+            return next();
+          }
+          return next(err);
+        });
+    }
+    else if(req.body.action === 'create and add tag') {
+      return co(function * () {
+        //TODO validation
+        //
+        //create the tag
+        yield db.tag.create({
+          name: req.body.tagname,
+          description: req.body.description,
+          meta: {
+            creator: req.session.user.username
+          }
+        });
+        //tag the tag to the user
+        yield db.user.addTag(req.params.username, req.body.tagname);
+        //make a message
+        req.session.user.messages.push(`the tag ${req.body.tagname} was created and added to your profile`);
+        return next();
+      })
+        .catch(next);
+    }
+    else if(req.body.action === 'remove tag') {
+      return co(function * () {
+        yield db.user.removeTag(req.params.username, req.body.tagname);
+        next();
       })
         .catch(next);
     }
