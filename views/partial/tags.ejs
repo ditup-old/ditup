@@ -7,21 +7,19 @@
   tags.vote = tags.vote || false; //is it possible to vote for tags?
 %>
 
-<!--div id="<%= tags.collection %>-tags"--><%
-  if(tags.list.length === 0) {
-    %>no tags<%
-  }
+<%
   for(var i=0, len=tags.list.length; i < len; ++i){
   %><a href="/tag/<%= tags.list[i].name %>" class="tag"><%= tags.list[i].name %></a><%
   }
   %><a class="more" href="/project/id/name/tags">more</a><%
   if(tags.add === true){
     %>
-    <form id="add-tag-form" method="post" >
+    <form id="add-tag-form" class="add-tag-form" method="post" >
       <input type="text" name="tagname" />
-      <input type="submit" name="submit" value="add tag" />
+      <input type="submit" name="action" value="add tag" />
+      <a href="<%= selfLink %>">cancel</a>
     </form>
     <% 
   }
 
-%><!--/div-->
+%>

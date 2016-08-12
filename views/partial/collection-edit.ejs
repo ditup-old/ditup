@@ -38,7 +38,7 @@ include ./header.ejs %>
       else { %><%= collection.name %><% } %>
     </h1>
   </header>
-  <div class="tag-container">
+  <div class="tag-container collection-tags">
     <%
       /**
        * ********************** *
@@ -47,7 +47,7 @@ include ./header.ejs %>
        */
 
       var tags = {
-        add: !!logged,
+      add: !!logged && edit.indexOf('tags') > -1,
         list: [],
         collection: collectionName
       };

@@ -14,9 +14,9 @@ router.use(editRoutes.editRightsCreator);
 //GET: redirect if necessary TODO
 
 //display the collection-edit view
-router.use(editRoutes.displayEditView(['name', 'description']));
+router.use(editRoutes.displayEditView(['name', 'description', 'tags']));
 
 //POST
-router.use(editRoutes.post(['name', 'description']));
+router.use(editRoutes.post(['name', 'description', 'tags']));
 
 module.exports = router;

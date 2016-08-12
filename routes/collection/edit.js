@@ -92,6 +92,8 @@ exp.displayEditView = function (fields) {
       var collection = req.ditup.collection;
       collection.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
       collection.id = id;
+      collection.url = generateUrl(collection.name);
+
 
       //read tags of collection
       let tags = yield db[dittype].tags(id);
@@ -130,11 +132,16 @@ exp.post = function (fields) {
           //checking that we had some correct field
           inside = true;
 
-          //we are editing
-          let data = req.body[field];
-          //TODO validate the data
-          yield db[dittype].updateField(id, data, field);
-          req.session.messages.push(`the ${field} was updated`);
+          if(field === 'tags') {
+            yield db.idea.addTag(id, req.body.tagname, req.session.user.username);
+          }
+          else{
+            //we are editing
+            let data = req.body[field];
+            //TODO validate the data
+            yield db[dittype].updateField(id, data, field);
+            req.session.messages.push(`the ${field} was updated`);
+          }
           let redirectUrl = field === 'name' ? generateUrl(data) : url;
           return res.redirect(`/${dittype}/${id}/${redirectUrl}`);
         }

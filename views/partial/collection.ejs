@@ -57,7 +57,7 @@ include ./header.ejs %>
       <% } %>
     </h1>
   </header>
-  <div class="tag-container">
+  <div class="tag-container collection-tags">
     <%
       /**
        * ********************** *
@@ -74,7 +74,8 @@ include ./header.ejs %>
       for(var i=0, len=collection.tags.length; i<len; ++i) {
         tags.list.push({name: collection.tags[i]});
       }
-    %><% include ./tags.ejs %>
+      %><% include ./tags.ejs %>
+    <a class="edit-tags-link" href="<%= selfLink %>/edit?field=tags">add tags</a>
   </div>
   <section>
     <span class="collection-description <%= collectionName %>-description" id="<%= collectionName %>-description" >
