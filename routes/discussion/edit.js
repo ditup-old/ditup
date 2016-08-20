@@ -11,12 +11,12 @@ router.use(editRoutes.readCollection);
 //test rights to edit
 router.use(editRoutes.editRightsCreator);
 
+//POST
+router.use(editRoutes.post(['name', 'tags']));
+
 //GET: redirect if necessary TODO
 
 //display the collection-edit view
-router.use(editRoutes.displayEditView(['name']));
-
-//POST
-router.use(editRoutes.post(['name']));
+router.use(editRoutes.displayEditView(['name', 'tags']));
 
 module.exports = router;
