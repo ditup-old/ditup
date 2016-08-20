@@ -138,8 +138,8 @@ exp.post = function (fields) {
               let tagname = req.body.tagname;
               let exists = yield db.tag.exists(tagname);
               if(exists) {
-                yield db.idea.addTag(id, tagname, req.session.user.username);
-                req.session.messages.push(`the tag ${req.body.tagname} was added to the idea`);
+                yield db[dittype].addTag(id, tagname, req.session.user.username);
+                req.session.messages.push(`the tag ${req.body.tagname} was added to the ${dittype}`);
               }
               else {
                 return res.render('tag-create-add', {tag: {name: req.body.tagname}});
@@ -157,8 +157,8 @@ exp.post = function (fields) {
                   creator: req.session.user.username
                 }
               });
-              //add the tag to the idea
-              yield db.idea.addTag(id, tagname, sessUser.username);
+              //add the tag to the dit
+              yield db[dittype].addTag(id, tagname, sessUser.username);
               //make a message
               req.session.user.messages.push(`the tag ${req.body.tagname} was created and added to the ${collectionName}`);
               return next();

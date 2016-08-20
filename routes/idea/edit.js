@@ -19,5 +19,4 @@ router.use(editRoutes.post(['name', 'description', 'tags']));
 //display the collection-edit view
 router.use(editRoutes.displayEditView(['name', 'description', 'tags']));
 
-
 module.exports = router;
