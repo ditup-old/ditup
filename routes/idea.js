@@ -20,16 +20,7 @@ router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;
   let id = req.params.id;
   if(sessUser.logged === true) {
-    if(req.body.submit === 'add tag') {
-      let tagname = req.body.tagname;
-      return db.idea.addTag(id, tagname, sessUser.username)
-        .then(function () {
-          sessUser.messages.push('Tag <a href="/tag/' + tagname + '">' + tagname + '</a> was successfully added to the idea.');
-          return next();
-        })
-        .then(null, next);
-    }
-    else if(req.body.submit === 'comment') {
+    if(req.body.submit === 'comment') {
       let text = req.body.comment;
       return db.idea.addComment(id, {text: text}, sessUser.username)
         .then(function () {

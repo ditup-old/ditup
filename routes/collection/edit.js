@@ -115,6 +115,7 @@ exp.post = function (fields) {
       let db = req.app.get('database');
       let sessUser = req.session.user;
       let dittype = req.baseUrl.substring(1);
+      let collectionName = dittype;
 
       //find out which fields to edit
       let editFields = [];
@@ -133,8 +134,35 @@ exp.post = function (fields) {
           inside = true;
 
           if(field === 'tags') {
-            yield db.idea.addTag(id, req.body.tagname, req.session.user.username);
-            req.session.messages.push(`the tag ${req.body.tagname} was added to the idea`);
+            if(req.body.action === 'add tag') {
+              let tagname = req.body.tagname;
+              let exists = yield db.tag.exists(tagname);
+              if(exists) {
+                yield db.idea.addTag(id, tagname, req.session.user.username);
+                req.session.messages.push(`the tag ${req.body.tagname} was added to the idea`);
+              }
+              else {
+                return res.render('tag-create-add', {tag: {name: req.body.tagname}});
+              }
+            }
+            else if(req.body.action === 'create and add tag') {
+              let tagname = req.body.tagname;
+              //TODO validation
+              //
+              //create the tag
+              yield db.tag.create({
+                name: tagname,
+                description: req.body.description,
+                meta: {
+                  creator: req.session.user.username
+                }
+              });
+              //add the tag to the idea
+              yield db.idea.addTag(id, tagname, sessUser.username);
+              //make a message
+              req.session.user.messages.push(`the tag ${req.body.tagname} was created and added to the ${collectionName}`);
+              return next();
+            }
           }
           else{
             //we are editing
