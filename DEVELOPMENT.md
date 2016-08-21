@@ -39,13 +39,13 @@ The first release should be a proof of the concept. It should be simple and show
     - [x] follow
     - [x] unfollow
     - [ ] comment/discuss
-    - [ ] adding tags
-        - [ ] create tag if nonexistent
-        - [ ] user
-        - [ ] project
-        - [ ] idea
-        - [ ] challenge
-        - [ ] discussion
+    - [x] adding tags
+        - [x] create tag if nonexistent
+        - [x] user
+        - [x] project
+        - [x] idea
+        - [x] challenge
+        - [x] discussion
     - [ ] voting tags
         - [ ] idea
         - [ ] challenge
@@ -55,6 +55,7 @@ The first release should be a proof of the concept. It should be simple and show
 - [x] merge dits of user with dits general: if logged in, both will be shown.
 - [x] after login redirect always to the page which was currently on
 - [x] better /tags page
+- [ ] better /tag/:tagname page
 - [ ] comment the code
 - [ ] write styles
     - [ ] media query
