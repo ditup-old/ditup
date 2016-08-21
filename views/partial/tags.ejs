@@ -6,12 +6,24 @@
   tags.list = tags.list || []; //list of tags ({name, description})
   tags.vote = tags.vote || false; //is it possible to vote for tags?
 %>
-
+<ul>
 <%
-  for(var i=0, len=tags.list.length; i < len; ++i){
-  %><a href="/tag/<%= tags.list[i].name %>" class="tag"><%= tags.list[i].name %></a><%
-  }
-  %><!--a class="more" href="/project/id/name/tags">more</a--><%
+  for(let tag of tags.list){
+  %><li class="tag">
+      <a href="/tag/<%= tag.name %>"><%= tag.name %></a>
+      <% if(tags.remove === true) {%>
+      <form method="post" class="remove-tag-form">
+        <input type="hidden" name="tagname" value="<%= tag.name %>" />
+        <input type="hidden" name="action" value="remove tag" />
+        <button type="submit"><span class="fa fa-times"></span></button>
+      </form>
+      <% } %>
+    </li>
+  <%
+    }
+  %>
+</ul>
+<!--a class="more" href="/project/id/name/tags">more</a--><%
   if(tags.add === true){
     %>
     <form id="add-tag-form" class="add-tag-form" method="post" >

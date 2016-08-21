@@ -2,6 +2,8 @@
 
 module.exports = function (collectionName) { 
 
+  let isProject = collectionName === 'project';
+
   let config = require('../partial/config');
   let dbConfig = require('../../../services/db-config');
   let dbData = require(`../${collectionName}/dbTags`);
@@ -16,7 +18,12 @@ module.exports = function (collectionName) {
     let browser;
 
     let loggedUser = dbData.users[0];
-    let collection = dbData[`${collectionName}s`][0];
+
+    if(isProject) {
+      var member = dbData.users[1];
+    }
+
+    var collection = dbData[`${collectionName}s`][0];
 
     config.beforeTest(browserObj, deps);
 
@@ -31,25 +38,49 @@ module.exports = function (collectionName) {
         browser.assert.elements('.collection-tags .tag', dbData.tags.length-1);
       });
 
-      context('user is logged in', function () {
-        beforeEach(funcs.login(loggedUser, browserObj));
+      context(isProject ? 'user is member' : 'user is logged in', function () {
+        if(isProject) {
+          beforeEach(funcs.login(member, browserObj));
+        }
+        else {
+          beforeEach(funcs.login(loggedUser, browserObj));
+        }
         beforeEach(funcs.visit(()=>`/${collectionName}/${collection.id}/${collection.url}`, browserObj));
         afterEach(funcs.logout(browserObj));
+
         it('should show edit link', function () {
-          browser.assert.link('a.edit-tags-link', 'add tags', `/${collectionName}/${collection.id}/${collection.url}/edit?field=tags`);
+          browser.assert.link('a.edit-tags-link', isProject ? 'edit tags' : 'add tags', `/${collectionName}/${collection.id}/${collection.url}/edit?field=tags`);
         });
       });
+      
+      if(isProject) {
+        context('user is not member', function () {
+          beforeEach(funcs.login(loggedUser, browserObj));
+          beforeEach(funcs.visit(()=>`/${collectionName}/${collection.id}/${collection.url}`, browserObj));
+          afterEach(funcs.logout(browserObj));
+          it('should not show edit link', function () {
+            browser.assert.elements('a.edit-tags-link', 0);
+          });
+        });
+      }
 
       context('user is not logged in', function () {
         beforeEach(funcs.logout(browserObj));
+        beforeEach(funcs.visit(()=>`/${collectionName}/${collection.id}/${collection.url}`, browserObj));
+
         it('should not show edit link', function () {
           browser.assert.elements('a.edit-tags-link', 0);
         });
       });
     });
 
-    context('logged in', function () {
-      beforeEach(funcs.login(loggedUser, browserObj));
+    context(isProject ? 'member' : 'logged in', function () {
+      if(isProject) {
+        beforeEach(funcs.login(member, browserObj));
+      }
+      else {
+        beforeEach(funcs.login(loggedUser, browserObj));
+      }
       afterEach(funcs.logout(browserObj));
 
       context('click edit link', function () {
@@ -57,7 +88,7 @@ module.exports = function (collectionName) {
         //clicking the edit link
         beforeEach(function (done) {
           co(function * () {
-            yield browser.clickLink('add tags');
+            yield browser.clickLink('a.edit-tags-link');
             done();
           }).catch(done);
         });
@@ -73,9 +104,19 @@ module.exports = function (collectionName) {
           browser.assert.element('.add-tag-form input[type=text][name=tagname]');
           browser.assert.input('.add-tag-form input[type=submit][name=action]', 'add tag');
         });
+
         it('should show cancel link', function () {
           browser.assert.link('.add-tag-form a', 'cancel', `/${collectionName}/${collection.id}/${collection.url}`);
         });
+        
+        if(isProject) {
+          it('should show cross to remove tag', function () {
+            browser.assert.elements('.tag .remove-tag-form', dbData.tags.length-1);
+            browser.assert.element('.tag .remove-tag-form input[type=hidden][name=tagname][value="tag0"]');
+            browser.assert.elements('.tag .remove-tag-form input[name=action][value="remove tag"]', dbData.tags.length-1);
+            browser.assert.elements('.tag .remove-tag-form [type=submit]', dbData.tags.length-1);
+          });
+        }
       });
 
       context('add the tag (POST)', function () {
@@ -142,14 +183,25 @@ module.exports = function (collectionName) {
         });
       });
 
-      context('voting for tags', function () {
-        it('TODO');
-        //voting up
-        //voting down
-        //show votes which user did
-        //show tags user voted for first
-        //if voted, cannot do the same vote
-      });
+      if(isProject) {
+        context('remove the tag (POST)', function () {
+          beforeEach(funcs.fill(() => `/${collectionName}/${collection.id}/${collection.url}/edit?field=tags`, {submit: '.remove-tag-form [type=submit]'}, browserObj));
+          it('should remove the tag from the user', function () {
+            browser.assert.elements('.tag', dbData.tags.length-2);
+          });
+        });
+      }
+      
+      if(!isProject) {
+        context('voting for tags', function () {
+          it('TODO');
+          //voting up
+          //voting down
+          //show votes which user did
+          //show tags user voted for first
+          //if voted, cannot do the same vote
+        });
+      }
     });
   });
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 let data = {};
-const USER_NO = 1;
+const USER_NO = 2;
 const TAG_NO = 6;
 const PROJECT_NO = 1;
 
@@ -43,5 +43,9 @@ for(let i=0; i<TAG_NO-1; ++i) {
     creator: 0
   });
 }
+
+data.projectMember = [
+  {"collection": 0, "user": 1, "status": "member"}
+];
 
 module.exports = data;

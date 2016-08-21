@@ -163,6 +163,10 @@ exp.post = function (fields) {
               req.session.user.messages.push(`the tag ${req.body.tagname} was created and added to the ${collectionName}`);
               return next();
             }
+            else if(dittype === 'project' && req.body.action === 'remove tag') {
+              let tagname = req.body.tagname;
+              yield db.project.removeTag(id, tagname);
+            }
           }
           else{
             //we are editing

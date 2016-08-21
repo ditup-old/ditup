@@ -76,7 +76,7 @@ include ./partial/header.ejs %>
   <nav class="link-container">
     <a id="edit-project-link" href="<%= longUrl %>/edit" >edit</a>
   </nav>
-  <div class="tag-container">
+  <section class="tag-container collection-tags">
     <%
       /**
        * ********************** *
@@ -93,8 +93,11 @@ include ./partial/header.ejs %>
       for(var i=0, len=project.tags.length; i<len; ++i) {
         tags.list.push({name: project.tags[i].name});
       }
-    %><% include ./partial/tags.ejs %><a class="edit" href="<%= longUrl %>/edit?fields=tags">[edit]</a>
-  </div>
+      %><% include ./partial/tags.ejs %>
+      <% if(member === true) { %>
+      <a class="edit-tags-link" href="<%= longUrl %>/edit?field=tags">edit tags</a>
+      <% } %>
+  </section>
   <span id="project-status" ><%= project.status %></span>
   <section>
     <span class="project-description collection-description" >
