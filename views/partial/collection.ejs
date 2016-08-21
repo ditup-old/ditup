@@ -75,7 +75,9 @@ include ./header.ejs %>
         tags.list.push({name: collection.tags[i]});
       }
       %><% include ./tags.ejs %>
-    <a class="edit-tags-link" href="<%= selfLink %>/edit?field=tags">add tags</a>
+      <% if (logged === true) { %>
+      <a class="edit-tags-link" href="<%= selfLink %>/edit?field=tags">add tags</a>
+      <% } %>
   </div>
   <section>
     <span class="collection-description <%= collectionName %>-description" id="<%= collectionName %>-description" >
