@@ -27,12 +27,15 @@ exp.readCollection = express.Router().all('/:id/:url/edit', function (req, res, 
     .catch(next);
 });
 
-//test rights to edit (creator)
+//test rights to edit (creator) && everybody if tags
 exp.editRightsCreator = express.Router().all('/:id/:url/edit', function (req, res, next) {
   let sessUser = req.session.user;
   let authorized;
 
   if(sessUser.logged && req.ditup.collection.creator.username === sessUser.username) {
+    authorized = true;
+  }
+  else if(req.query.field === 'tags' && sessUser.logged) {
     authorized = true;
   }
 
