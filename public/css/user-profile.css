@@ -1,18 +1,18 @@
-div.panel-basic {
-  float:left;
-  width:25%;
+.panel-basic {
+  float: left;
+  width: 25%;
 }
 
-div.panel-info {
-  float:left;
-  width:75%;
+.panel-info {
+  float: left;
+  width: 75%;
 }
 
-span.profile-name {
+.profile-name {
   font-size: 2em;
 }
 
-span.profile-username {
+.profile-username {
   font-size: 1.2em;
   color: gray;
 }

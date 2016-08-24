@@ -56,6 +56,7 @@
     "watch-challenge-tags": "mocha ./test/functional/challenge/tags --watch",
     "watch-discussion-tags": "mocha ./test/functional/discussion/tags --watch",
     "watch-project-tags": "mocha ./test/functional/project/tags --watch",
+    "watch-user": "mocha ./test/functional/user/profile --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

@@ -42,6 +42,8 @@ module.exports = function (db) {
       for(let colName in collectionDefinitions) {
         dbData[colName] = dbData[colName] || [];
       }
+
+      dbData.userProfiles = dbData.userProfiles || [];
     })();
 
     function populateNotifications(notifications, users) {
@@ -78,6 +80,15 @@ module.exports = function (db) {
           if(user.verified !== false) {
             yield data.user.updateEmailVerified({username: userData.username}, {verifyDate: Date.now(), verified: true})
           }
+        }
+      });
+    }
+
+    function populateUserProfiles(users, profiles) {
+      return co(function * () {
+        for(let profile of profiles) {
+          yield data.user.updateProfile(users[profile.user], profile);
+          users[profile.user].profile = profile;
         }
       });
     }
@@ -304,6 +315,7 @@ module.exports = function (db) {
     
     return co(function *() {
       yield populateUsers(dbData.users);
+      yield populateUserProfiles(dbData.users, dbData.userProfiles);
       yield populateUserFollowUser(dbData.userFollowUser, dbData.users);
       yield populateTags(dbData.tags, dbData.users);
       yield populateUserTag(dbData.userTag, dbData.users, dbData.tags);

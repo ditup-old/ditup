@@ -4,7 +4,7 @@ var css = [
   '/css/user-profile.css',
   '/css/tag-elem.css'
 ];
-var title = 'profile of :'+profile.username ;
+var title = 'profile of '+profile.username ;
 
 var headScripts = [
 //  {
@@ -19,7 +19,7 @@ var scripts = [];
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
 <style>
-  div.avatar-pic {
+  .avatar-pic {
     background-image: url('/user/<%= profile.username %>/avatar');
     background-repeat: no-repeat;
     background-size: contain;
@@ -27,18 +27,17 @@ var scripts = [];
     padding-bottom:100%;
   }
 </style>
-<div class="panel-basic" ><!-- basic profile info -->
+<section class="panel-basic" ><!-- basic profile info -->
   <div class="avatar-pic" ></div>
   <div><%= profile.age %></div>
   <div><%= profile.gender %></div>
-  <div><%= profile.joined %></div>
+  <div class="profile-joined"><%= profile.joined %></div>
   <div><%= profile.lastLogin %></div>
-</div>
-<div class="panel-info" ><!--  -->
+</section>
+<section class="panel-info" ><!--  -->
   <div>
     <span class="profile-name" ><%= profile.name %></span>
-    <span class="profile-username" >@<%= profile.username %></span>
-    <% if (rights.edit === true) { %><span><a class="button" href="/user/<%= profile.username %>/edit">Edit Profile</a></span><% } %>
+    <span class="profile-username icon-user" ><%= profile.username %></span>
     <% if (session.logged === true && session.username !== profile.username) { %><span><a class="write-message fa fa-comment" href="/messages/<%= profile.username %>"></a></span><% } %>
   </div><%
         /**
@@ -47,22 +46,24 @@ var scripts = [];
          * ********************** *
          */
 
-        var hideFollow = {
-          view: !!session.logged && profile.username !== session.username,
+        var follow = {
+          view: !!session.logged,
+          edit: !!session.logged && profile.username !== session.username,
           following: profile.following,
+          followers: profile.followers
         };
 
-      %><% include partial/hide-follow.ejs %>
-  <div class="user-tags"><!-- tags -->
+      %><% include partial/follow.ejs %>
+  <section class="user-tags"><!-- tags -->
     <ul id="tag-list" class="tag-list">
       <% for(let tag of tags) { %>
-      <li class="tag" ><%= tag.name %></li>
+      <li class="tag icon-tag" ><%= tag.name %></li>
       <% } %>
     </ul>
     <% if(session.logged === true && session.username === profile.username) { %>
     <a class="edit-tags-link" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
     <% } %>
-  </div>
-  <div><h1>about me</h1><div><%= profile.about %></div></div>
-</div>
+  </section>
+  <section class="profile-about"></section>
+</section>
 <% include ./partial/page-bottom.ejs %>
