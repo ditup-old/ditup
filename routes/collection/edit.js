@@ -173,7 +173,7 @@ exp.post = function (fields) {
           }
           else{
             //we are editing
-            let data = req.body[field];
+            var data = req.body[field];
             //TODO validate the data
             yield db[dittype].updateField(id, data, field);
             req.session.messages.push(`the ${field} was updated`);
