@@ -3,6 +3,7 @@
 let config = require('../partial/config');
 let dbConfig = require('../../../services/db-config');
 let dbData = require(`./dbProfile`);
+let marked
 
 let deps = config.init({db: dbConfig}, dbData);
 let funcs = config.funcs;
@@ -34,29 +35,45 @@ describe('profile of a user /user/:username', function () {
     beforeEach(funcs.login(loggedUser, browserObj));
     beforeEach(funcs.visit(`/user/${loggedUser.username}`, browserObj));
     afterEach(funcs.logout(browserObj));
+
     it('should show name & surname', function () {
       browser.assert.element('.profile-name');
       browser.assert.text('.profile-name', `${loggedUser.profile.name} ${loggedUser.profile.surname}`);
     });
+
     it('should show tags', function () {
       browser.assert.element('.user-tags');
       browser.assert.elements('.user-tags .tag', dbData.tags.length-1);
     });
+
     it('should show joined when', function () {
       browser.assert.element('.profile-joined');
       browser.assert.text('.profile-joined', new RegExp('^.*ago$'));
     });
+
     it('should show number of followers', function () {
       browser.assert.element('.follow-count-followers');
       browser.assert.text('.follow-count-followers', String(dbData.users.length-1));
     });
+
     it('should show last active when', function () {
       browser.assert.element('.profile-active');
       browser.assert.text('.profile-active', 'active right now');
     });
-    it('should show about');
-    it('should show age');
-    it('should show gender');
+
+    it('should show about', function () {
+      browser.assert.element('.profile-about');
+      browser.assert.text('.profile-about', 'this is some about text which has multiple lines and is marked with markdown');
+    });
+
+    it('should show age', function () {
+      browser.assert.element('.profile-age');
+      browser.assert.text('.profile-age', '19');
+    });
+    it('should show gender', function () {
+      browser.assert.element('.profile-gender');
+      browser.assert.text('.profile-gender', 'male');
+    });
 
     context('as myself', function () {
       it('should show edit links');

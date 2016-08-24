@@ -29,8 +29,8 @@ var scripts = [];
 </style>
 <section class="panel-basic" ><!-- basic profile info -->
   <div class="avatar-pic" ></div>
-  <div><%= profile.age %></div>
-  <div><%= profile.gender %></div>
+  <div class="profile-age"><%= profile.age %></div>
+  <div class="profile-gender"><%= profile.gender %></div>
   <div class="profile-joined"><%= profile.joined %></div>
   <div class="profile-active"><%= profile.active %></div>
 </section>
@@ -64,6 +64,6 @@ var scripts = [];
     <a class="edit-tags-link" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
     <% } %>
   </section>
-  <section class="profile-about"></section>
+  <section class="profile-about"><%- profile.about %></section>
 </section>
 <% include ./partial/page-bottom.ejs %>

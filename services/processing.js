@@ -1,5 +1,7 @@
 'use strict';
 
+var marked = require('marked');
+
 var dit = {};
 var tag = {};
 var user = {};
@@ -28,7 +30,7 @@ user.profile = function (userData) {
   //username
   profile.username = userData.username;
   //about
-  profile.about = userData.profile.about;
+  profile.about = marked(userData.profile.about);
   return profile;
 };
 
