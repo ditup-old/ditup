@@ -18,7 +18,9 @@ user.profile = function (userData) {
   profile.gender = (userData.profile.gender != '' && userData.profile.gender != 'unspecified') ? userData.profile.gender : '';
   //joined
   var joinDate = userData.account.join_date;
+  let active = userData.account.active;
   profile.joined = `joined ${countPastTime(joinDate)}`;
+  profile.active = `active ${countPastTime(active)}`;
   //last login
   profile.lastLogin = 'Logged ' + countPastTime(userData.account.last_login) + '.';
   //name

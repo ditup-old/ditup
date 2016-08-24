@@ -61,6 +61,9 @@ module.exports = function (session) {
     }
     next();
   });
+  
+  //update user active to now (when was the user last active? when active, update.)
+  app.use(require('./routes/active-user'));
 
   app.use(function (req, res, next) {
     //push message into req.session.user.messages to show it in the nearest view

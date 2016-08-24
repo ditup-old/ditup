@@ -50,7 +50,10 @@ describe('profile of a user /user/:username', function () {
       browser.assert.element('.follow-count-followers');
       browser.assert.text('.follow-count-followers', String(dbData.users.length-1));
     });
-    it('should show last active when');
+    it('should show last active when', function () {
+      browser.assert.element('.profile-active');
+      browser.assert.text('.profile-active', 'active right now');
+    });
     it('should show about');
     it('should show age');
     it('should show gender');

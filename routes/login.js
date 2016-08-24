@@ -37,7 +37,7 @@ router.post('/', function (req, res, next) {
         sessUser.surname = userData.surname;
         sessUser.email = userData.email;
 
-        return database.updateUserAccount({username: username}, {last_login: Date.now()});
+        return database.user.updateAccount({username: username}, {last_login: Date.now()});
       }
       throw new Error('login not successful');
     })
