@@ -12,9 +12,6 @@ module.exports = function (db) {
   var user = {};
 
   user.create = function (user) {
-    //var graph = db.graph('ditg');
-    //var userCollection = graph.vertexCollection('users');
-    //return userCollection.save(user);
     return db.query('INSERT @user IN users', {user: user});
   };
 
@@ -35,15 +32,22 @@ module.exports = function (db) {
       ? {username: user.username}
       : {email: user.email};
 
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (users) {
-        if(users.length === 1) return users[0];
-        if(users.length === 0) return null; //throw new Error('user ' + user.username + ' not found');
-        if(users.length > 1) throw new Error('database corruption: username ' + user.username + ' is not unique');
-      });
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+
+      if(output.length === 0) {
+        let err = new Error('User Not Found');
+        err.status = 404;
+        throw err;
+      }
+
+      if(output.length > 1) {
+        throw new Error('database corruption: username is not unique');
+      }
+
+      return output[0];
+    });
   };
 
   user.search = function (string) {

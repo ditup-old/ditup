@@ -3,7 +3,7 @@
 let config = require('../partial/config');
 let dbConfig = require('../../../services/db-config');
 let dbData = require(`./dbProfile`);
-let marked
+let co = require('co');
 
 let deps = config.init({db: dbConfig}, dbData);
 let funcs = config.funcs;
@@ -26,16 +26,20 @@ describe('profile of a user /user/:username', function () {
   beforeEach(funcs.visit(`/user/${otherUser.username}`, browserObj));
 
   it('should show a profile picture');
+
+  /*
   it('should show username', function () {
     browser.assert.element('.profile-username');
     browser.assert.text('.profile-username', otherUser.username);
   });
+  // */
 
   context('logged in', function () {
     beforeEach(funcs.login(loggedUser, browserObj));
     beforeEach(funcs.visit(`/user/${loggedUser.username}`, browserObj));
     afterEach(funcs.logout(browserObj));
 
+    /*
     it('should show name & surname', function () {
       browser.assert.element('.profile-name');
       browser.assert.text('.profile-name', `${loggedUser.profile.name} ${loggedUser.profile.surname}`);
@@ -68,24 +72,51 @@ describe('profile of a user /user/:username', function () {
 
     it('should show age', function () {
       browser.assert.element('.profile-age');
-      browser.assert.text('.profile-age', '19');
+      browser.assert.text('.profile-age', '19 years old');
     });
+
     it('should show gender', function () {
       browser.assert.element('.profile-gender');
       browser.assert.text('.profile-gender', 'male');
     });
+    // */
 
     context('as myself', function () {
-      it('should show edit links');
+      beforeEach(funcs.visit(`/user/${loggedUser.username}`, browserObj));
+      it('should show edit links', function () {
+        browser.assert.link('.profile-name-edit-link', 'edit name', `/user/${loggedUser.username}/edit?field=name`);
+        browser.assert.link('.profile-about-edit-link', 'edit description', `/user/${loggedUser.username}/edit?field=about`);
+        browser.assert.link('.profile-birthday-edit-link', 'edit birthday', `/user/${loggedUser.username}/edit?field=birthday`);
+        browser.assert.link('.profile-gender-edit-link', 'edit gender', `/user/${loggedUser.username}/edit?field=gender`);
+      });
     });
 
     context('as other user', function () {
-      it('should show follow link');
-      it('should show talk link');
+      beforeEach(funcs.visit(`/user/${otherUser.username}`, browserObj));
+      it('should show follow button', function () {
+        browser.assert.element('.follow-button');
+      });
+
+      it('should show talk link', function () {
+        browser.assert.link('.user-messages-link', 'talk', `/messages/${otherUser.username}`);
+      });
     });
   });
 
   context('not logged in', function () {
     it('should show \'log in to see more\'');
+  });
+
+  context('user doesn\'t exist', function () {
+    it('should show 404 page', function (done) {
+      return co(function * () {
+        try {
+          yield browser.visit(`/user/nonexistent-user`);
+        }
+        catch(e) {}
+        browser.assert.status(404);
+        done();
+      }).catch(done);
+    });
   });
 });

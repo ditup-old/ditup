@@ -276,42 +276,26 @@ router.all('/:username/edit', function (req, res, next) {
     return res.render('user-profile-edit', {profile: profile, errors: {}});
   }).catch(next);
 });
-
-
+// */
+//
+//when user doesn't exist, this function will return the default profile picture. not error.
 router.get('/:username/avatar', function (req, res, next) {
-  let database = req.app.get('database');
-  var username = req.params.username;
-  var sessUser = req.session.user;
+  return co(function * () {
+    let database = req.app.get('database');
 
-  var user, rights;
+    var username = req.params.username;
+    var sessUser = req.session.user;
 
-  //read user
-  return database.readUser({username: username})
-    .then(function (_user) {
-      user = _user;
-      if(_user === null) {
-        var err = new Error('user not found');
-        err.status = 404;
-        throw err;
-      }
-      //check if i can see her.
-      return myRightsToUser(sessUser, _user);
-    })
-    .then(function (_rights) {
-      rights = _rights;
-      if(rights.view !== true) throw new Error('you don\'t have rights to see user');
-      //read the avatar image of user
-      return image.avatar.read(username);
-    })
-    .then(function (_img) {
-      res.writeHead(200, {'Content-Type': _img.type});
-      return res.end(_img.data); // Send the file data to the browser.
-    })
-    .then(null, function (err) {
-      return next(err);
-    });
+    //read the avatar
+    let img = yield image.avatar.read(username);
+
+    res.writeHead(200, {'Content-Type': img.type});
+    return res.end(img.data); // Send the file data to the browser.
+  })
+    .catch(next);
 });
 
+/*
 //check if i can see & change settings of user (basically: is it me?)
 router.all(['/:username/settings', '/:username/upload-avatar'], function (req, res, next) {
   var sessUser = req.session.user;

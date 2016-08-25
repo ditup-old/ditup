@@ -15,7 +15,7 @@ var exports = module.exports = {
 user.profile = function (userData) {
   var profile = {};
   //age
-  profile.age = userData.profile.birthday instanceof Date ? '' + countAge(userData.profile.birthday) + ' years old' : '' ;
+  profile.age = userData.profile.birthday ? `${countAge(userData.profile.birthday)} years old` : '' ;
   //gender
   profile.gender = (userData.profile.gender != '' && userData.profile.gender != 'unspecified') ? userData.profile.gender : '';
   //joined

@@ -4,7 +4,10 @@ var css = [
   '/css/user-profile.css',
   '/css/tag-elem.css'
 ];
-var title = 'profile of '+profile.username ;
+var title = 'profile of '+profile.username;
+var logged = session.logged;
+var profileUrl = `/user/${profile.username}`;
+var me = logged === true && profile.username === session.username ? true : false;
 
 var headScripts = [
 //  {
@@ -29,17 +32,20 @@ var scripts = [];
 </style>
 <section class="panel-basic" ><!-- basic profile info -->
   <div class="avatar-pic" ></div>
-  <div class="profile-age"><%= profile.age %></div>
-  <div class="profile-gender"><%= profile.gender %></div>
+  <div class="profile-age"><%= profile.age %></div><% if(me) { %><a class="profile-birthday-edit-link" href="<%= profileUrl %>/edit?field=birthday">edit birthday</a><% } %>
+  <div class="profile-gender"><%= profile.gender %></div><% if(me) { %><a class="profile-gender-edit-link" href="<%= profileUrl %>/edit?field=gender">edit gender</a><% } %>
   <div class="profile-joined"><%= profile.joined %></div>
   <div class="profile-active"><%= profile.active %></div>
 </section>
 <section class="panel-info" ><!--  -->
-  <div>
-    <span class="profile-name" ><%= profile.name %></span>
-    <span class="profile-username icon-user" ><%= profile.username %></span>
-    <% if (session.logged === true && session.username !== profile.username) { %><span><a class="write-message fa fa-comment" href="/messages/<%= profile.username %>"></a></span><% } %>
-  </div><%
+  <span class="profile-name" ><%= profile.name %></span><% if(me) { %><a class="profile-name-edit-link" href="<%= profileUrl %>/edit?field=name">edit name</a><% } %>
+  <span class="profile-username icon-user" ><%= profile.username %></span>
+  <%
+  if (logged && !me) { 
+  %><span><a class="user-messages-link write-message fa fa-comment" href="/messages/<%= profile.username %>">talk</a></span><%
+  }
+  %>
+  <%
         /**
          * ********************** *
          *    follow         *
@@ -47,8 +53,8 @@ var scripts = [];
          */
 
         var follow = {
-          view: !!session.logged,
-          edit: !!session.logged && profile.username !== session.username,
+          view: logged,
+          edit: logged && !me,
           following: profile.following,
           followers: profile.followers
         };
@@ -64,6 +70,6 @@ var scripts = [];
     <a class="edit-tags-link" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
     <% } %>
   </section>
-  <section class="profile-about"><%- profile.about %></section>
+  <section class="profile-about"><%- profile.about %></section><% if(me) { %><a class="profile-about-edit-link" href="<%= profileUrl %>/edit?field=about">edit description</a><% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>
