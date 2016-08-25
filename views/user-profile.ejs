@@ -24,22 +24,10 @@ var scripts = [];
 <style>
   .profile-avatar {
     background-image: url('/user/<%= profile.username %>/avatar');
-    background-repeat: no-repeat;
-    background-size: contain;
-    width:100%;
-    padding-bottom:100%;
   }
 </style>
-<section class="panel-basic" ><!-- basic profile info -->
-  <div class="profile-avatar"></div>
-  <div class="profile-age"><%= profile.age %></div><% if(me) { %><a class="profile-birthday-edit-link" href="<%= profileUrl %>/edit?field=birthday">edit birthday</a><% } %>
-  <div class="profile-gender"><%= profile.gender %></div><% if(me) { %><a class="profile-gender-edit-link" href="<%= profileUrl %>/edit?field=gender">edit gender</a><% } %>
-  <div class="profile-joined"><%= profile.joined %></div>
-  <div class="profile-active"><%= profile.active %></div>
-</section>
-<section class="panel-info" ><!--  -->
-  <span class="profile-name" ><%= profile.name %></span><% if(me) { %><a class="profile-name-edit-link" href="<%= profileUrl %>/edit?field=name">edit name</a><% } %>
-  <span class="profile-username icon-user" ><%= profile.username %></span>
+<section class="page">
+  <nav class="action-panel">
   <%
   if (logged && !me) { 
   %><span><a class="user-messages-link write-message fa fa-comment" href="/messages/<%= profile.username %>">talk</a></span><%
@@ -59,17 +47,29 @@ var scripts = [];
           followers: profile.followers
         };
 
-      %><% include partial/follow.ejs %>
-  <section class="user-tags"><!-- tags -->
-    <ul id="tag-list" class="tag-list">
-      <% for(let tag of tags) { %>
-      <li class="tag icon-tag" ><%= tag.name %></li>
+        %><% include partial/follow.ejs %>
+  </nav>
+  <section class="panel-basic" ><!-- basic profile info -->
+    <div class="profile-avatar"><% if(me) { %><a class="profile-avatar-edit-link icon-edit" href="<%= profileUrl %>/edit?field=avatar">edit avatar</a><% } %></div>
+    <div><span class="profile-age"><%= profile.age %></span><% if(me) { %> <a class="profile-birthday-edit-link icon-edit" href="<%= profileUrl %>/edit?field=birthday">edit birthday</a><% } %></div>
+    <div class="profile-gender"><%= profile.gender %></div><% if(me) { %><a class="profile-gender-edit-link icon-edit" href="<%= profileUrl %>/edit?field=gender">edit gender</a><% } %>
+    <div class="profile-joined"><%= profile.joined %></div>
+    <div class="profile-active"><%= profile.active %></div>
+  </section><!--
+  --><section class="panel-info" ><!--  -->
+    <div><span class="profile-username icon-user"><%= profile.username %></span></div>
+    <div><span class="profile-name"><%= profile.name %></span><% if(me) { %> <a class="profile-name-edit-link icon-edit" href="<%= profileUrl %>/edit?field=name">edit name</a><% } %></div>
+    <section class="user-tags"><!-- tags -->
+      <ul id="tag-list" class="tag-list">
+        <% for(let tag of tags) { %>
+        <li class="tag icon-tag" ><%= tag.name %></li>
+        <% } %>
+      </ul>
+      <% if(session.logged === true && session.username === profile.username) { %>
+      <a class="edit-tags-link icon-edit" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
       <% } %>
-    </ul>
-    <% if(session.logged === true && session.username === profile.username) { %>
-    <a class="edit-tags-link" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
-    <% } %>
+    </section>
+    <section class="profile-about"><%- profile.about %></section><% if(me) { %><a class="profile-about-edit-link icon-edit" href="<%= profileUrl %>/edit?field=about">edit description</a><% } %>
   </section>
-  <section class="profile-about"><%- profile.about %></section><% if(me) { %><a class="profile-about-edit-link" href="<%= profileUrl %>/edit?field=about">edit description</a><% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>

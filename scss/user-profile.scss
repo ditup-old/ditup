@@ -1,18 +1,45 @@
+@import "fa-icon-mixin";
+
+@import "page-mixin";
+@include page();
+
+.profile-avatar {
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:100%;
+  padding-bottom:100%;
+  position: relative;
+}
+
+.profile-avatar-edit-link {
+  position:absolute;
+  bottom:5px;
+  left:5px;
+  padding:0.2em;
+  background-color: rgba(255,255,255,0.8);
+  border-radius:0.2em;
+}
+
+.panel-basic, .panel-info {
+  display: inline-block;
+  vertical-align: top;
+}
+
 .panel-basic {
-  float:left;
-  width:25%;
+  width:200px;
 }
 
 .panel-info {
-  float:left;
-  width:75%;
+  width: $page-max-width - 200px;
+  padding-left:1em;
 }
 
 .profile-name {
-  font-size: 2em;
+  font-size:2em;
+  font-weight: bold;
 }
 
 .profile-username {
-  font-size: 1.2em;
-  color: gray;
+  font-size:1.2em;
+  color:gray;
 }

@@ -36,6 +36,14 @@
       "email": "mrkvon@example.com"
     }
   ],
+  "userProfiles": [
+    {
+      "user": 3,
+      "birthday": "1997-01-13",
+      "name": "user5",
+      "surname": "user5surname"
+    }
+  ],
   "tags": [
     {
       "name": "tag1",
