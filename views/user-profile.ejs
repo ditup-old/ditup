@@ -22,7 +22,7 @@ var scripts = [];
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
 <style>
-  .avatar-pic {
+  .profile-avatar {
     background-image: url('/user/<%= profile.username %>/avatar');
     background-repeat: no-repeat;
     background-size: contain;
@@ -31,7 +31,7 @@ var scripts = [];
   }
 </style>
 <section class="panel-basic" ><!-- basic profile info -->
-  <div class="avatar-pic" ></div>
+  <div class="profile-avatar"></div>
   <div class="profile-age"><%= profile.age %></div><% if(me) { %><a class="profile-birthday-edit-link" href="<%= profileUrl %>/edit?field=birthday">edit birthday</a><% } %>
   <div class="profile-gender"><%= profile.gender %></div><% if(me) { %><a class="profile-gender-edit-link" href="<%= profileUrl %>/edit?field=gender">edit gender</a><% } %>
   <div class="profile-joined"><%= profile.joined %></div>

@@ -25,9 +25,11 @@ describe('profile of a user /user/:username', function () {
 
   beforeEach(funcs.visit(`/user/${otherUser.username}`, browserObj));
 
-  it('should show a profile picture');
+  it('should show a profile picture', function () {
+    browser.assert.element('.profile-avatar');
+  });
 
-  /*
+  //*
   it('should show username', function () {
     browser.assert.element('.profile-username');
     browser.assert.text('.profile-username', otherUser.username);
@@ -39,7 +41,7 @@ describe('profile of a user /user/:username', function () {
     beforeEach(funcs.visit(`/user/${loggedUser.username}`, browserObj));
     afterEach(funcs.logout(browserObj));
 
-    /*
+    //*
     it('should show name & surname', function () {
       browser.assert.element('.profile-name');
       browser.assert.text('.profile-name', `${loggedUser.profile.name} ${loggedUser.profile.surname}`);
@@ -104,7 +106,11 @@ describe('profile of a user /user/:username', function () {
   });
 
   context('not logged in', function () {
-    it('should show \'log in to see more\'');
+    beforeEach(funcs.logout(browserObj));
+    beforeEach(funcs.visit(`/user/${otherUser.username}`, browserObj));
+    it('should show \'log in to see more\'', function () {
+      browser.assert.text('.popup-message', 'log in to see more');
+    });
   });
 
   context('user doesn\'t exist', function () {

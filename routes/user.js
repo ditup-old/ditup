@@ -42,11 +42,14 @@ router
 
     //read user
     let user = yield db.user.read({username: username});
+    let profile;
 
-    let profile = yield processing.user.profile(user);
-
-    if(!sessUser.logged) {
-      profile = {username: profile.username};
+    if(sessUser.logged) {
+      profile = yield processing.user.profile(user);
+    }
+    else {
+      profile = {username: username};
+      sessUser.messages.push('log in to see more');
     }
     
     //show number of followers
