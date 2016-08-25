@@ -90,6 +90,7 @@ describe('profile of a user /user/:username', function () {
         browser.assert.link('.profile-about-edit-link', 'edit description', `/user/${loggedUser.username}/edit?field=about`);
         browser.assert.link('.profile-birthday-edit-link', 'edit birthday', `/user/${loggedUser.username}/edit?field=birthday`);
         browser.assert.link('.profile-gender-edit-link', 'edit gender', `/user/${loggedUser.username}/edit?field=gender`);
+        browser.assert.link('.profile-avatar-edit-link', 'edit avatar', `/user/${loggedUser.username}/edit?field=avatar`);
       });
     });
 
