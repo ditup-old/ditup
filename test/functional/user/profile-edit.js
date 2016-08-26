@@ -169,6 +169,10 @@ describe('/user/:username/profile/edit', function () {
       context('field = tags', function () {
         it('is tested in test/functional/user/tags', () => {});
       });
+
+      context('field = avatar', function () {
+        it('TODO');
+      });
       // */
     });
   });
