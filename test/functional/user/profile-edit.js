@@ -27,7 +27,8 @@ describe('/user/:username/profile/edit', function () {
   context('me', function () {
     beforeEach(funcs.login(loggedUser, browserObj));
     afterEach(funcs.logout(browserObj));
-
+    
+    /*
     context('GET', function () {
       let tests = {
         name: [
@@ -95,14 +96,69 @@ describe('/user/:username/profile/edit', function () {
         });
       }
     });
+    // */
 
     context('POST', function () {
-      let fields = ['name', 'about', 'birthday', 'gender', 'avatar'];
+      let fields = ['name', 'about', 'birthday', 'gender'/*, 'avatar'*/];
 
       for(let field of fields) {
+        let goodProfile = {
+          name: 'Name',
+          surname: 'Surname',
+          about: 'some about text',
+          birthday: '1988-01-01',
+          gender: 'other',
+        };
+
+        let longString = 'aaaaaaaa';
+        for(let i=0; i<10; ++i) {
+          longString += longString;
+        }
+
+        let badProfile = {
+          name: longString,
+          surname: longString,
+          about: longString,
+          birthday: 'abcde',
+          gender: 'nonexistent',
+        };
+
         context(`field = ${field}`, function () {
           context('good data', function () {
-            it(`should update the ${field} with the new data`);
+            let submitData = {
+              submit: `.profile-edit-${field} input[type=submit]`
+            };
+
+            if(field === 'gender') {
+              submitData['.profile-edit-gender [name=gender]'] = {
+                value: goodProfile.gender,
+                action: 'select'
+              };
+            }
+            else {
+              submitData[`.profile-edit-${field} [name=${field}]`] = goodProfile[field];
+            }
+
+            if(field === 'name') {
+              submitData[`.profile-edit-name [name=surname]`] = goodProfile.surname;
+            }
+
+            beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=${field}`, submitData, browserObj));
+
+            it(`should update the ${field} with the new data`, function () {
+              browser.assert.success();
+              browser.assert.redirected();
+              browser.assert.url(`/user/${loggedUser.username}`);
+              if(field === 'name') {
+                browser.assert.text('.profile-name', `${goodProfile.name} ${goodProfile.surname}`);
+              }
+              else if(field === 'birthday') {
+                browser.assert.text('.profile-age', '28 years old');
+              }
+              else{
+                browser.assert.text(`.profile-${field}`, goodProfile[field]);
+              }
+            });
           });
           context('bad data', function () {
             it(`should complain that the ${field} input is in bad format`)

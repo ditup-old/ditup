@@ -16,6 +16,7 @@ router.all('/:username/edit', function (req, res, next) {
   }
 });
 
+////tags
 router.post('/:username/edit', function (req, res, next) {
   let db = req.app.get('database');
   if(req.query.field === 'tags') {
@@ -73,6 +74,44 @@ router.post('/:username/edit', function (req, res, next) {
   else {
     return next();
   }
+});
+
+router.post('/:username/edit', function (req, res, next) {
+  let username = req.params.username;
+  //name & surname
+  if(req.query.field === 'name') {
+    return co(function * () {
+      let db = req.app.get('database');
+      yield db.user.updateProfile({username: username}, {name: req.body.name, surname: req.body.surname});
+      return res.redirect(`/user/${req.params.username}`);
+    }).catch(next);
+  }
+  //about
+  else if(req.query.field === 'about') {
+    return co(function * () {
+      let db = req.app.get('database');
+      yield db.user.updateProfile({username: username}, {about: req.body.about});
+      return res.redirect(`/user/${req.params.username}`);
+    }).catch(next);
+  }
+  //birthday
+  else if(req.query.field === 'birthday') {
+    return co(function * () {
+      let db = req.app.get('database');
+      yield db.user.updateProfile({username: username}, {birthday: req.body.birthday});
+      return res.redirect(`/user/${req.params.username}`);
+    }).catch(next);
+  }
+  //gender
+  else if(req.query.field === 'gender') {
+    return co(function * () {
+      let db = req.app.get('database');
+      yield db.user.updateProfile({username: username}, {gender: req.body.gender});
+      return res.redirect(`/user/${req.params.username}`);
+    }).catch(next);
+  }
+
+  return next();
 });
 
 router.all('/:username/edit', function (req, res, next) {

@@ -71,7 +71,14 @@ function fill(url, data, browserObj) {
       yield browser.visit(_url);
       for(let name in data) {
         if(name !== 'submit') {
-          browser.fill(name, data[name]);
+          if(typeof(data[name]) === 'object') {
+            if(data[name].action === 'select') {
+              browser.select(name, data[name].value);
+            }
+          }
+          else {
+            browser.fill(name, data[name]);
+          }
         }
       }
       yield browser.pressButton(data['submit'] || 'submit');
