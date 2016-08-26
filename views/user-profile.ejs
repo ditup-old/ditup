@@ -4,10 +4,12 @@ var css = [
   '/css/user-profile.css',
   '/css/tag-elem.css'
 ];
-var title = 'profile of '+profile.username;
+
+var title = `${edit ? 'editing ' : ''}profile of ${profile.username}`;
 var logged = session.logged;
 var profileUrl = `/user/${profile.username}`;
 var me = logged === true && profile.username === session.username ? true : false;
+var edit = edit === true ? true : false;
 
 var headScripts = [
 //  {
@@ -28,12 +30,13 @@ var scripts = [];
 </style>
 <section class="page">
   <nav class="action-panel">
-  <%
-  if (logged && !me) { 
-  %><span><a class="user-messages-link write-message fa fa-comment" href="/messages/<%= profile.username %>">talk</a></span><%
-  }
-  %>
-  <%
+    <%
+    if(!edit) {
+      if (logged && !me) { 
+      %><span><a class="user-messages-link write-message fa fa-comment" href="/messages/<%= profile.username %>">talk</a></span><%
+      }
+      %>
+      <%
         /**
          * ********************** *
          *    follow         *
@@ -48,28 +51,102 @@ var scripts = [];
         };
 
         %><% include partial/follow.ejs %>
+    <% } %>
   </nav>
   <section class="panel-basic" ><!-- basic profile info -->
-    <div class="profile-avatar"><% if(me) { %><a class="profile-avatar-edit-link icon-edit" href="<%= profileUrl %>/edit?field=avatar">edit avatar</a><% } %></div>
-    <div><span class="profile-age"><%= profile.age %></span><% if(me) { %> <a class="profile-birthday-edit-link icon-edit" href="<%= profileUrl %>/edit?field=birthday">edit birthday</a><% } %></div>
-    <div class="profile-gender"><%= profile.gender %></div><% if(me) { %><a class="profile-gender-edit-link icon-edit" href="<%= profileUrl %>/edit?field=gender">edit gender</a><% } %>
+    <div class="profile-avatar">
+      <% if(edit === true && field === 'avatar') { %>
+      <form class="profile-edit-avatar" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar" accept="image/*" />
+        <input type="hidden" name="action" value="save" />
+        <input type="submit" value="Upload!" />
+      </form>
+      <% } else { %>
+      <% if(me && !edit) { %><a class="profile-avatar-edit-link icon-edit" href="<%= profileUrl %>/edit?field=avatar">edit avatar</a><% } %>
+      <% } %>
+    </div>
+    <div>
+      <% if(edit === true && field === 'birthday') { %>
+      <form method="post" class="profile-edit-birthday">
+        <input type="text" name="birthday" value="<%= profile.birthday %>" />
+        <input type="submit" name="action" value="save" />
+      </form>
+      <% } else { %>
+      <span class="profile-age"><%= profile.age %></span>
+      <% if(me && !edit) { %> <a class="profile-birthday-edit-link icon-edit" href="<%= profileUrl %>/edit?field=birthday">edit birthday</a><% } %>
+      <% } %>
+    </div>
+    <div>
+      <% if(edit === true && field === 'gender') { %>
+      <form method="post" class="profile-edit-gender">
+        <select name="gender">
+          <option value="unspecified">unspecified</option>
+          <option <% if (profile.gender === 'male') { %> selected="selected"<% } %> value="male">male</option>
+          <option <% if (profile.gender === 'female') { %> selected="selected"<% } %>value="female">female</option>
+          <option <% if (profile.gender === 'other') { %> selected="selected"<% } %>value="other">other</option>
+        </select>
+        <input type="submit" name="action" value="save" />
+      </form>
+      <% } else { %>
+      <span class="profile-gender"><%= profile.gender %></span>
+      <% if(me && !edit) { %> <a class="profile-gender-edit-link icon-edit" href="<%= profileUrl %>/edit?field=gender">edit gender</a><% } %>
+      <% } %>
+    </div>
     <div class="profile-joined"><%= profile.joined %></div>
     <div class="profile-active"><%= profile.active %></div>
   </section><!--
   --><section class="panel-info" ><!--  -->
     <div><span class="profile-username icon-user"><%= profile.username %></span></div>
-    <div><span class="profile-name"><%= profile.name %></span><% if(me) { %> <a class="profile-name-edit-link icon-edit" href="<%= profileUrl %>/edit?field=name">edit name</a><% } %></div>
+    <div>
+      <% if(edit === true && field === 'name') { %>
+      <form method="post" class="profile-edit-name">
+        <input type="text" name="name" value="<%= profile.name %>" />
+        <input type="text" name="surname" value="<%= profile.surname %>" />
+        <input type="submit" name="action" value="save" />
+      </form>
+      <% } else { %>
+      <span class="profile-name"><%= profile.name %></span>
+      <% if(me && !edit) { %> <a class="profile-name-edit-link icon-edit" href="<%= profileUrl %>/edit?field=name">edit name</a><% } %>
+      <% } %>
+    </div>
     <section class="user-tags"><!-- tags -->
       <ul id="tag-list" class="tag-list">
         <% for(let tag of tags) { %>
-        <li class="tag icon-tag" ><%= tag.name %></li>
+        <li class="tag icon-tag" ><%= tag.name %>
+          <% if(edit === true && field==='tags') { %>
+          <form method="post" class="remove-tag-form">
+            <input type="hidden" name="tagname" value="<%= tag.name %>" />
+            <input type="hidden" name="action" value="remove tag" />
+            <button type="submit"><span class="fa fa-times"></span></button>
+          </form>
+          <% } %>
+        </li>
+        <% } %>
+        <% if(edit === true && field==='tags') { %>
+        <form method="post" class="add-tag-form">
+          <input type="text" name="tagname" />
+          <input type="submit" name="action" value="add tag" />
+          <a href="<%= `/user/${profile.username}` %>">cancel</a>
+        </form>
         <% } %>
       </ul>
-      <% if(session.logged === true && session.username === profile.username) { %>
+      <% if(me && !edit) { %>
       <a class="edit-tags-link icon-edit" href="/user/<%= session.username %>/edit?field=tags">edit tags</a>
       <% } %>
     </section>
-    <section class="profile-about"><%- profile.about %></section><% if(me) { %><a class="profile-about-edit-link icon-edit" href="<%= profileUrl %>/edit?field=about">edit description</a><% } %>
+    <% if(edit===true && field==='about') { %>
+    <section class="profile-edit-about">
+      <form method="post">
+        <textarea name="about"><%= profile.aboutRaw %></textarea>
+        <input type="submit" name="action" value="save" />
+      </form>
+    </section>
+    <% } else { %>
+    <section class="profile-about"><%- profile.about %></section>
+    <% if(me && !edit) { %><a class="profile-about-edit-link icon-edit" href="<%= profileUrl %>/edit?field=about">edit description</a><% } %>
+    <%
+    }
+    %>
   </section>
 </section>
 <% include ./partial/page-bottom.ejs %>

@@ -24,7 +24,7 @@ for(let i=0; i<USER_NO; ++i) {
     name: `name${i}`,
     surname: `surname${i}`,
     gender: gender[i % gender.length],
-    birthday: new Date('1997-08-08'),
+    birthday: '1997-08-08',
     about: `this is some about text
 
 which has multiple lines

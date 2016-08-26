@@ -35,25 +35,22 @@ user.profile = function (userData) {
 };
 
 user.profileEdit = function (userData) {
-  var deferred = Q.defer();
-  process.nextTick(function(){
-    var profile = {};
-    //age
-    var brthDate = userData.profile.birthday;
-    var birthday = (brthDate === null) ? '' : brthDate;
-    profile.birthday = birthday;
-    //gender
-    profile.gender = userData.profile.gender === 'unspecified' ? null : userData.profile.gender;
-    //name
-    profile.name = userData.profile.name;
-    //surname
-    profile.surname = userData.profile.surname;
-    //about
-    profile.about = userData.profile.about;
-    profile.username = userData.username;
-    deferred.resolve(profile);
-  });
-  return deferred.promise;
+  var profile = {};
+  //age
+  var brthDate = userData.profile.birthday;
+  var birthday = (brthDate === null) ? '' : brthDate;
+  profile.birthday = birthday;
+  //gender
+  profile.gender = userData.profile.gender === 'unspecified' ? null : userData.profile.gender;
+  //name
+  profile.name = userData.profile.name;
+  //surname
+  profile.surname = userData.profile.surname;
+  //about
+  profile.about = marked(userData.profile.about);
+  profile.aboutRaw = userData.profile.about;
+  profile.username = userData.username;
+  return profile;
 };
 
 user.settings = function (user) {
