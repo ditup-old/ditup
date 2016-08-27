@@ -1,7 +1,6 @@
 'use strict';
 
 var fs = require('fs');
-var multer = require('multer');
 var express = require('express');
 var router = express.Router();
 var processing = require('../services/processing');
@@ -265,29 +264,6 @@ router.post('/:username/settings', function (req, res, next) {
 });
 
 
-var upload = multer({
-  dest: './files/uploads/',
-  limits: {
-    fileSize: 2*1024*1024
-  }
-});
-
-router.post('/:username/upload-avatar', upload.single('avatar'), function (req, res, next) {
-  var sessUser = req.session.user;
-  var username = req.params.username;
-  if (sessUser.username !== username) throw new Error('this should never happen. already checked that they\'re similar');
-  if (req.file === undefined) throw new Error('file too big or other error');
-
-  var tempPath = req.file.path;
-
-  return image.avatar.create(tempPath, username)
-    .then(function (){
-      return res.redirect('/user/' + username + '/edit');
-    })
-    .then(null, function (err) {
-      return next(err);
-    });
-});
 
 module.exports = router;
 

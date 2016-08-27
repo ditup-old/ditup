@@ -99,50 +99,58 @@ describe('/user/:username/profile/edit', function () {
     // */
 
     context('POST', function () {
-      let fields = ['name', 'about', 'birthday', 'gender'/*, 'avatar'*/];
+      //*
+      //we test these fields: /user/:username/edit?field=:field
+      let fields = ['name', 'about', 'birthday', 'gender'];
+
+      let goodProfile = {
+        name: 'Name',
+        surname: 'Surname',
+        about: 'some about text',
+        birthday: '1988-01-01',
+        gender: 'other',
+      };
+
+      let longString = 'aaaaaaaa';
+      for(let i=0; i<10; ++i) {
+        longString += longString;
+      }
+
+      let badProfile = {
+        name: longString,
+        surname: longString,
+        about: longString,
+        birthday: 'abcde',
+        gender: 'nonexistent',
+      };
 
       for(let field of fields) {
-        let goodProfile = {
-          name: 'Name',
-          surname: 'Surname',
-          about: 'some about text',
-          birthday: '1988-01-01',
-          gender: 'other',
-        };
-
-        let longString = 'aaaaaaaa';
-        for(let i=0; i<10; ++i) {
-          longString += longString;
-        }
-
-        let badProfile = {
-          name: longString,
-          surname: longString,
-          about: longString,
-          birthday: 'abcde',
-          gender: 'nonexistent',
-        };
 
         context(`field = ${field}`, function () {
           context('good data', function () {
+            //preparation of data for submitting
             let submitData = {
               submit: `.profile-edit-${field} input[type=submit]`
             };
-
+            
+            //we select gender from a drop-down menu
             if(field === 'gender') {
               submitData['.profile-edit-gender [name=gender]'] = {
                 value: goodProfile.gender,
                 action: 'select'
               };
             }
+            //other fields have a text input
             else {
               submitData[`.profile-edit-${field} [name=${field}]`] = goodProfile[field];
             }
-
+            
+            //name has name and surname (filling the surname, too)
             if(field === 'name') {
               submitData[`.profile-edit-name [name=surname]`] = goodProfile.surname;
             }
-
+            
+            //filling the form
             beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=${field}`, submitData, browserObj));
 
             it(`should update the ${field} with the new data`, function () {
@@ -161,27 +169,77 @@ describe('/user/:username/profile/edit', function () {
             });
           });
           context('bad data', function () {
-            it(`should complain that the ${field} input is in bad format`)
+            //preparation of data for submitting
+            let submitData = {
+              submit: `.profile-edit-${field} input[type=submit]`
+            };
+            
+            //we select gender from a drop-down menu
+            if(field === 'gender') {
+              submitData['.profile-edit-gender [name=gender]'] = {
+                value: badProfile.gender,
+                action: 'select'
+              };
+            }
+            //other fields have a text input
+            else {
+              submitData[`.profile-edit-${field} [name=${field}]`] = badProfile[field];
+            }
+            
+            //name has name and surname (filling the surname, too)
+            if(field === 'name') {
+              submitData[`.profile-edit-name [name=surname]`] = badProfile.surname;
+            }
+            
+            //filling the form
+            beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=${field}`, submitData, browserObj));
+
+            it(`should complain that the ${field} input is in bad format`, function () {
+              
+            });
           });
         });
       }
-      //*
+      // */
+
       context('field = tags', function () {
         it('is tested in test/functional/user/tags', () => {});
       });
 
       context('field = avatar', function () {
-        it('TODO');
+        beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=avatar`, {avatar:'/home/michal/fotky/lisboa.jpg', submit: 'Upload!'}, browserObj));
+        it('should upload a new image, crop it and resize it and show it', function () {
+          browser.assert.success();
+          browser.assert.redirected();
+          browser.assert.url(`/user/${loggedUser.username}`);
+        });
       });
-      // */
     });
   });
 
   context('not me', function () {
-    it('should show error 403 - not authorized');
+    it('should show error 403 - not authorized', function (done) {
+      return co(function * () {
+        try {
+          yield browser.visit(`/user/${otherUser.username}/edit?field=name`);
+        }
+        catch(e) {}
+        browser.assert.status(403);
+        done();
+      }).catch(done);
+    });
   });
   context('not logged in', function () {
     beforeEach(funcs.logout(browserObj));
-    it('should show error 403 - not authorized');
+    it('should show error 403 - not authorized', function (done) {
+      return co(function * () {
+        try {
+          yield browser.visit(`/user/${loggedUser.username}/edit?field=name`);
+        }
+        catch(e) {}
+        browser.assert.status(403);
+        done();
+      }).catch(done);
+    });
   });
 });

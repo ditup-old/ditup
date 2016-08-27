@@ -2,7 +2,11 @@
 
 let router = require('express').Router();
 let co = require('co');
+var multer = require('multer');
+var image = require('../../services/image');
 let processing = require('../../services/processing');
+
+let validate = require('../../services/validation/validate');
 
 router.all('/:username/edit', function (req, res, next) {
   let sessUser = req.session.user;
@@ -15,6 +19,42 @@ router.all('/:username/edit', function (req, res, next) {
     throw err;
   }
 });
+
+//upload avatar image
+var upload = multer({
+  dest: './files/uploads/',
+  limits: {
+    fileSize: 2*1024*1024
+  }
+});
+
+router.post('/:username/edit',
+  //check that the field is 'avatar'
+  function (req, res, next){
+    if(req.query.field === 'avatar') return next();
+    else return next(new Error('not avatar'));
+  },
+  //multer
+  upload.single('avatar'),
+  //processing the uploaded image
+  function (req, res, next) {
+    return co(function * (){
+      var username = req.params.username;
+      if (req.file === undefined) throw new Error('file too big or other error');
+
+      var tempPath = req.file.path;
+
+      yield image.avatar.create(tempPath, username);
+      return res.redirect(`/user/${username}`);
+    })
+      .catch(next);
+  },
+  //if field is not avatar, continue routing
+  function (err, req, res, next) {
+    if(err.message === 'not avatar') return next();
+    else return next(err);
+  }
+);
 
 ////tags
 router.post('/:username/edit', function (req, res, next) {
@@ -82,6 +122,10 @@ router.post('/:username/edit', function (req, res, next) {
   if(req.query.field === 'name') {
     return co(function * () {
       let db = req.app.get('database');
+      //validate
+      validate.user.name(req.body.name);
+      validate.user.surname(req.body.surname);
+      //save to database
       yield db.user.updateProfile({username: username}, {name: req.body.name, surname: req.body.surname});
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
@@ -90,6 +134,9 @@ router.post('/:username/edit', function (req, res, next) {
   else if(req.query.field === 'about') {
     return co(function * () {
       let db = req.app.get('database');
+
+      validate.user.about(req.body.about);
+
       yield db.user.updateProfile({username: username}, {about: req.body.about});
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
@@ -98,6 +145,9 @@ router.post('/:username/edit', function (req, res, next) {
   else if(req.query.field === 'birthday') {
     return co(function * () {
       let db = req.app.get('database');
+
+      validate.user.birthday(req.body.birthday);
+
       yield db.user.updateProfile({username: username}, {birthday: req.body.birthday});
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
@@ -106,6 +156,9 @@ router.post('/:username/edit', function (req, res, next) {
   else if(req.query.field === 'gender') {
     return co(function * () {
       let db = req.app.get('database');
+
+      validate.user.gender(req.body.gender);
+
       yield db.user.updateProfile({username: username}, {gender: req.body.gender});
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
