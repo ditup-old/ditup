@@ -112,7 +112,7 @@ describe('/user/:username/profile/edit', function () {
       };
 
       let longString = 'aaaaaaaa';
-      for(let i=0; i<10; ++i) {
+      for(let i=0; i<12; ++i) {
         longString += longString;
       }
 
@@ -195,7 +195,7 @@ describe('/user/:username/profile/edit', function () {
             beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=${field}`, submitData, browserObj));
 
             it(`should complain that the ${field} input is in bad format`, function () {
-              
+              browser.assert.element('.popup-message');
             });
           });
         });
