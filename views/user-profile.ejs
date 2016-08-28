@@ -105,7 +105,7 @@ var scripts = [];
         <input type="submit" name="action" value="save" />
       </form>
       <% } else { %>
-      <span class="profile-name"><%= profile.name + (edit ? ' '+profile.surname : '') %></span>
+      <span class="profile-name"><%= (edit ? `${profile.name} ${profile.surname}` : profile.name) %></span>
       <% if(me && !edit) { %> <a class="profile-name-edit-link icon-edit" href="<%= profileUrl %>/edit?field=name">edit name</a><% } %>
       <% } %>
     </div>
