@@ -45,6 +45,8 @@ router.post('/:username/edit',
       var tempPath = req.file.path;
 
       yield image.avatar.create(tempPath, username);
+
+      req.session.messages.push('the new avatar was successfully uploaded');
       return res.redirect(`/user/${username}`);
     })
       .catch(next);
@@ -105,7 +107,8 @@ router.post('/:username/edit', function (req, res, next) {
     else if(req.body.action === 'remove tag') {
       return co(function * () {
         yield db.user.removeTag(req.params.username, req.body.tagname);
-        next();
+        req.session.user.messages.push(`the tag ${req.body.tagname} was removed from your profile`);
+        return next();
       })
         .catch(next);
     }
@@ -127,6 +130,7 @@ router.post('/:username/edit', function (req, res, next) {
       validate.user.surname(req.body.surname);
       //save to database
       yield db.user.updateProfile({username: username}, {name: req.body.name, surname: req.body.surname});
+      req.session.messages.push('the name and surname were successfully updated');
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
   }
@@ -138,6 +142,7 @@ router.post('/:username/edit', function (req, res, next) {
       validate.user.about(req.body.about);
 
       yield db.user.updateProfile({username: username}, {about: req.body.about});
+      req.session.messages.push('the \'about\' field was successfully updated');
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
   }
@@ -149,6 +154,7 @@ router.post('/:username/edit', function (req, res, next) {
       validate.user.birthday(req.body.birthday);
 
       yield db.user.updateProfile({username: username}, {birthday: req.body.birthday});
+      req.session.messages.push('the birthday was successfully updated');
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
   }
@@ -160,12 +166,23 @@ router.post('/:username/edit', function (req, res, next) {
       validate.user.gender(req.body.gender);
 
       yield db.user.updateProfile({username: username}, {gender: req.body.gender});
+      req.session.messages.push('the gender was successfully updated');
       return res.redirect(`/user/${req.params.username}`);
     }).catch(next);
   }
 
   return next();
-});
+},
+  //catching the error of invalid input
+  //if 400 - bad data, show error in .popup-message and fill the form with the inputted bad data
+  function (err, req, res, next) {
+    if(err.status === 400) {
+      req.session.user.messages.push(err.message);
+      return next();
+    }
+    else return next(err);
+  }
+);
 
 router.all('/:username/edit', function (req, res, next) {
   let fields = ['name', 'tags', 'about', 'birthday', 'gender', 'avatar'];
@@ -181,6 +198,23 @@ router.all('/:username/edit', function (req, res, next) {
       let user = yield db.user.read({username: username});
       //making data fit for profile
       let profile = yield processing.user.profileEdit(user);
+
+      //the forms [name, surname, about] should be filled with bad data of user.
+      let badDataFields = ['name', 'about'];
+      
+      if(req.method === 'POST' && badDataFields.indexOf(req.query.field)>-1) {
+        if(req.query.field === 'name') {
+          profile.name = req.body.name;
+          profile.surname = req.body.surname;
+        }
+        else if(req.query.field === 'about') {
+          profile.aboutRaw = req.body.about;
+        }
+        else {
+          profile[req.query.field] = req.body[req.query.field];
+        }
+      }
+
       //reading tags
       res.locals.tags = yield db.user.tags(username);
 

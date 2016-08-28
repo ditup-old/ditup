@@ -148,5 +148,8 @@ var scripts = [];
     }
     %>
   </section>
+  <% if(edit) { %>
+  <a href="/user/<%= profile.username %>">cancel</a>
+  <% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>

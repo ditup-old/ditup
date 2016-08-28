@@ -28,7 +28,7 @@ describe('/user/:username/profile/edit', function () {
     beforeEach(funcs.login(loggedUser, browserObj));
     afterEach(funcs.logout(browserObj));
     
-    /*
+    //*
     context('GET', function () {
       let tests = {
         name: [
@@ -81,9 +81,6 @@ describe('/user/:username/profile/edit', function () {
             }
           ]
         ],
-        otherField: [
-          ['should show error unrecognized field']
-        ]
       }
 
       for(let field in tests) {
@@ -93,6 +90,10 @@ describe('/user/:username/profile/edit', function () {
           for(let test of tests[field]) {
             it(test[0], test[1]);
           }
+
+          it('should show a cancel button', function () {
+            browser.assert.link('a', 'cancel', `/user/${loggedUser.username}`);
+          });
         });
       }
     });
@@ -168,6 +169,7 @@ describe('/user/:username/profile/edit', function () {
               }
             });
           });
+
           context('bad data', function () {
             //preparation of data for submitting
             let submitData = {
@@ -193,10 +195,26 @@ describe('/user/:username/profile/edit', function () {
             
             //filling the form
             beforeEach(funcs.fill(`/user/${loggedUser.username}/edit?field=${field}`, submitData, browserObj));
-
-            it(`should complain that the ${field} input is in bad format`, function () {
-              browser.assert.element('.popup-message');
-            });
+            
+            if(field !== 'gender') { //gender is taken from a selection and it's impossible to test the non-existent selection
+              it(`should show the edit page again`, function () {
+                browser.assert.success();
+                browser.assert.url(`/user/${loggedUser.username}/edit?field=${field}`);
+              });
+              it(`should complain that the ${field} input is in bad format`, function () {
+                browser.assert.element('.popup-message');
+              });
+              
+              let fillBadFields = ['name', 'about'];
+              if(fillBadFields.indexOf(field)>-1){
+                it(`should have the field filled with the input data`, function () {
+                  browser.assert.input(`[name=${field}]`, badProfile[field]);
+                  if(field === 'name') {
+                    browser.assert.input(`[name=surname]`, badProfile.surname);
+                  }
+                });
+              }
+            }
           });
         });
       }
