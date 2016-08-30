@@ -10,24 +10,24 @@ follow.following = follow.following || false; //is following?
 follow.followers = typeof(follow.followers) === 'number' ? follow.followers : '?'; //number of followers
 
 if(follow.view === true) {
+%>
+<section class="follow-unfollow-field">
+  <span class="follow-unfollow-subfield"><%
   if(follow.edit === true) {
     if(follow.following === true) {
     //showing an unfollow form
-    %>
-      <form id="unfollow-form" class="unfollow-button" method="post">
+    %><form id="unfollow-form" class="unfollow-button" method="post">
         <input type="submit" name="action" value="unfollow" />
-      </form>
-      
-    <%} else {
-    //showing a follow form %>
-      <form id="follow-form" class="follow-button" method="post">
+      </form><%} else {
+    //showing a follow form %><form id="follow-form" class="follow-button" method="post">
         <input type="submit" name="action" value="follow" />
-      </form>
-    <%
+      </form><%
     }
   }
-  %>
-  <span class="follow-count-followers"><%= follow.followers %></span>
+  else if(follow.edit !== true) { %>followers<% } 
+  %></span><!--
+--><span class="follow-count-followers follow-unfollow-subfield"><%= follow.followers %></span>
+  </section>
   <%
 }
 %>

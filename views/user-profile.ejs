@@ -51,7 +51,9 @@ var scripts = [];
         };
 
         %><% include partial/follow.ejs %>
-    <% } %>
+        <% } else if(edit===true){ %>
+    <a href="/user/<%= profile.username %>">cancel</a>
+        <% } %>
   </nav>
   <section class="panel-basic" ><!-- basic profile info -->
     <div class="profile-avatar">
@@ -148,8 +150,5 @@ var scripts = [];
     }
     %>
   </section>
-  <% if(edit) { %>
-  <a href="/user/<%= profile.username %>">cancel</a>
-  <% } %>
 </section>
 <% include ./partial/page-bottom.ejs %>

@@ -1,0 +1,23 @@
+@import "colors";
+
+$follow-border: 2px solid $darker;
+
+.follow-unfollow-field {
+  display: inline-block;
+
+  border: $follow-border;
+  border-radius: 1px;
+  
+
+  form {
+    display: inline-block;
+  }
+}
+
+.follow-unfollow-subfield {
+  padding: 2px;
+}
+
+.follow-count-followers {
+  border-left: $follow-border;
+}

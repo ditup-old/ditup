@@ -128,7 +128,9 @@ $font-size: 16px;
 
 /* make a horizontal separator between dit and connect menu */
 .connect-menu {
-  border-left: 1px dotted $light;
+  &:before {
+    @include fa-icon('f142');
+  }
 }
 
 /* align the last expanded items to the right */
