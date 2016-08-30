@@ -40,6 +40,7 @@ user.profileEdit = function (userData) {
   var brthDate = userData.profile.birthday;
   var birthday = (brthDate === null) ? '' : brthDate;
   profile.birthday = birthday;
+  profile.age = userData.profile.birthday ? `${countAge(userData.profile.birthday)} years old` : '' ;
   //gender
   profile.gender = userData.profile.gender === 'unspecified' ? null : userData.profile.gender;
   //name
