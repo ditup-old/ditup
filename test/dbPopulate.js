@@ -98,8 +98,9 @@ module.exports = function (db) {
       for(let i = 0, len = tags.length; i < len; ++i) {
         let creator = typeof(tags[i].creator) === 'number' ? users[tags[i].creator].username : tags[i].creator;
         tags[i].creator = creator;
+        tags[i].tagname = tags[i].name || tags[i].tagname;
         let tp = data.tag.create({
-          name: tags[i].name,
+          name: tags[i].tagname,
           description: tags[i].description,
           meta: {
             created: Date.now(),
