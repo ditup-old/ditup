@@ -81,7 +81,15 @@ var months = [
   'December',
 ];
 
-tag.view = tag.edit = function (tag) {
+tag.view = function (tag) {
+  let processed = {};
+  processed.name = processed.tagname = tag.tagname || tag.name;
+  processed.rawDescription = tag.description;
+  processed.description = marked(tag.description);
+  return processed;
+}
+
+tag.edit = function (tag) {
   return tag;
 };
 

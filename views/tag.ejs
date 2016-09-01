@@ -3,12 +3,8 @@ var css = [
   '/css/header.css',
   '/css/tag.css',
 ];
-var title = '#'+data.name ;
 
-if(data.description === '') {
-  data.description = 'no description';
-}
-
+var title = `tag ${tag.tagname}`;
 
 var headScripts = [];
 var scripts = [];
@@ -16,15 +12,17 @@ var scripts = [];
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
 
-<style>
-h1 {
-  font-weight: bold;
-}
-</style>
-<h1>#<%= data.name %></h1>
-<div><%= data.description %></div>
-<a class="button" href="/tag/<%= data.name %>/edit" >edit tag</a>
-<div>number of users using this tag</div>
-<div>number of dits using this tag</div>
-<div>popular dits using this tag</div>
+<section class="page">
+  <header>
+    <h1 class="icon-tag tag-tagname"><%= tag.tagname %></h1>
+    <nav>
+      <% if(rights.edit === true) { %><a class="button edit-tag-link" href="/tag/<%= tag.tagname %>/edit" >edit</a><% } %>
+      <span>links to pages with the dits and users with this tag</span>
+    </nav>
+  </header>
+  <section class="tag-description"><%- tag.description %></section>
+  <div>number of users using this tag</div>
+  <div>number of dits using this tag</div>
+  <div>popular dits using this tag</div>
+</section>
 <% include ./partial/page-bottom.ejs %>

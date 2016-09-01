@@ -1,12 +1,13 @@
 'use strict';
 
+let co = require('co');
 
 module.exports = function (db) {
   var tag = {};
 
   tag.create = function (tag) {
     var query = 'FOR u IN users FILTER u.username == @username ' +
-      'INSERT {name: @name, description: @description, meta: {created: @created, creator: u._id}} IN tags';
+      'INSERT {tagname: @name, name: @name, description: @description, meta: {created: @created, creator: u._id}} IN tags';
     var params = {
       name: tag.name,
       description: tag.description,
@@ -20,6 +21,22 @@ module.exports = function (db) {
         return false;
       });*/
   };
+
+  tag.read = function (tagname) {
+    return co(function * () {
+      let cursor = yield db.query('FOR x IN tags FILTER x.tagname == @tagname RETURN x', {tagname: tagname});
+      let tags = yield cursor.all();
+
+      var len = tags.length;
+      if(len === 0) {
+        let err = new Error('Not Found');
+        err.status = 404;
+        throw err;
+      }
+      if(len === 1) return tags[0];
+      throw new Error(`weird amount of tags ${tagname} found`);
+    });
+  }
 
   /**
    * 

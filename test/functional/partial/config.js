@@ -9,7 +9,8 @@ module.exports = {
     login: loginUser,
     logout: logoutUser,
     visit: visit,
-    fill: fill
+    fill: fill,
+    testError : testError
   }
 };
 
@@ -169,4 +170,30 @@ function beforeTest(browserObj, dependencies) {
       .then(done, done);
   });
   //*******************END*****************
+}
+
+function testError(url, errorCode, browserObj) {
+  return function (done) {
+    return co(function * () {
+      let browser = browserObj.Value;
+      try {
+        yield browser.visit(getUrl(url));
+      }
+      catch(e) {}
+      browser.assert.status(errorCode);
+      done();
+    }).catch(done);
+  }
+}
+
+function getUrl(url) {
+  if(typeof(url) === 'string') {
+    return url;
+  }
+  else if (typeof(url) === 'function') {
+    return url();
+  }
+  else {
+    throw new Error('url needs to have type function or string, but has '+typeof(url));
+  }
 }

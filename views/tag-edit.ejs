@@ -3,7 +3,7 @@ var css = [
   '/css/header.css',
   '/css/tag-edit.css',
 ];
-var title = '#' + data.name ;
+var title = '#' + tag.tagname ;
 
 var headScripts = [];
 var scripts = [];
@@ -11,19 +11,18 @@ var scripts = [];
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
 
-<style>
-</style>
-<h1>edit tag <%= data.name %></h1>
-<div>
-  <form method="post" >
-    <div>name</div>
-    <div>#<%= data.name %></div>
-    <div>description</div>
-    <textarea name="description" ><%= data.description %></textarea><%= errors.description %>
-    <div>
-      <input type="submit" name="edit" value="edit" class="button" />
-      <a class="button" href="/tag/<%= data.name %>">Cancel</a>
-    </div>
-  </form>
-</div>
+<section class="page" >
+  <header>
+    <h1 class="icon-tag tag-tagname"><%= tag.tagname %></h1>
+  </header>
+  <section class="tag-description">
+    <form method="post" class="edit-tag-form" >
+      <div><%= tag.tagname %></div>
+      <div>description</div>
+      <textarea name="description" ><%= tag.description %></textarea>
+      <input type="submit" name="action" value="save" class="button" />
+      <a class="button" href="/tag/<%= tag.tagname %>">cancel</a>
+    </form>
+  </section>
+</section>
 <% include ./partial/page-bottom.ejs %>

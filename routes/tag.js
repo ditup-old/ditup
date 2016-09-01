@@ -1,10 +1,9 @@
 'use strict';
 
-var Q = require('q');
 var express = require('express');
 var router = express.Router();
+let co = require('co');
 
-var database = require('../services/data');
 var process = require('../services/processing');
 var validate = require('../services/validation');
 
@@ -12,55 +11,47 @@ router.get('/', function (req, res, next) {
   return res.redirect('tags');
 });
 
-router.get('/:name', function (req, res, next) {
-  var sessUser = req.session.user;
-  var name = req.params.name;
+router.get('/:tagname', function (req, res, next) {
+  let db = req.app.get('database');
+  return co(function * () {
+    var sessUser = req.session.user;
+    var tagname = req.params.tagname;
+    let tag = yield db.tag.read(tagname);
+    tag = process.tag.view(tag);
 
-  return database.readTag({name: name})
-    .then(function (tag) {
-      if(tag === null) {
-        var err = new Error('404: Tag not found.');
-        err.status = 404;
-        return next(err);
-      }
-      return process.tag.view(tag);
-    })
-    .then(function (tag) {
-      return res.render('tag', {data: tag, session: sessUser});
-    })
-    .then(null, function(err) {
-      return next(err);
-    });
+    //rendering
+    res.locals.rights = {edit: sessUser.logged === true ? true : false};
+    res.locals.tag = tag;
+    return res.render('tag');
+  })
+    .catch(next);
 });
 
 //checking rights to edit tag
-router.all('/:name/edit', function (req, res, next) {
+router.all('/:tagname/edit', function (req, res, next) {
   //at this moment any logged in user can edit tag. (how to do version control?)
   var sessUser = req.session.user;
-  if(sessUser.logged === true) return next();
-  var err = new Error('you need to be logged in to edit this tag');
-  return next(err);
+  if(sessUser.logged !== true) {
+    let e = new Error('Not Authorized');
+    e.status = 403;
+    return next(e);
+  }
+  return next();
 });
 
-router.get('/:name/edit', function (req, res, next) {
-  var sessUser = req.session.user;
-  var name = req.params.name;
+router.get('/:tagname/edit', function (req, res, next) {
+  return co(function * () {
+    let db = req.app.get('database');
+    var sessUser = req.session.user;
+    var tagname = req.params.tagname;
 
-  return database.readTag({name: name})
-    .then(function (tag) {
-      if(tag === null) {
-        var err = new Error('404: Tag not found.');
-        err.status = 404;
-        return next(err);
-      }
-      return process.tag.edit(tag);
-    })
-    .then(function (tag) {
-      return res.render('tag-edit', {data: tag, errors: {}, session: sessUser});
-    })
-    .then(null, function(err) {
-      return next(err);
-    });
+    let tag = yield db.tag.read(tagname);
+    tag = process.tag.edit(tag);
+
+    res.locals.tag = tag;
+    return res.render('tag-edit');
+  })
+    .catch(next);
 });
 
 router.post('/:name/edit', function (req, res, next) {

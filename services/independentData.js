@@ -125,18 +125,6 @@ module.exports = function independentData(dependencies) {
     },
     //tag
     createTag: that.tag.create,
-    readTag: function (tag) {
-      return db.query('FOR x IN tags FILTER x.name == @name RETURN x', {name: tag.name})
-        .then(function (cursor) {
-          return cursor.all();
-        })
-        .then(function (tags){
-          var len = tags.length;
-          if(len === 0) return null;
-          if(len === 1) return tags[0];
-          throw new Error('weird amount of tags ' + tag.name + ' found');
-        });
-    },
     searchTags: function (string) {
       //TODO return number of tag uses
       var query = 'FOR t IN tags ' +
