@@ -114,7 +114,7 @@ var scripts = [];
     <section class="user-tags"><!-- tags -->
       <ul id="tag-list" class="tag-list">
         <% for(let tag of tags) { %>
-        <li class="tag icon-tag" ><%= tag.name %>
+        <li class="tag icon-tag" ><a href="/tag/<%= tag.name %>"><%= tag.name %></a>
           <% if(edit === true && field==='tags') { %>
           <form method="post" class="remove-tag-form">
             <input type="hidden" name="tagname" value="<%= tag.name %>" />

@@ -44,12 +44,24 @@ describe('tag pages', function () {
         browser.assert.text('.tag-description', existentTag.description);
       });
 
-      it('should show amount of all the uses of the tag');
-      it('should show amount of uses by users');
-      it('should show amount of uses by challenges');
-      it('should show amount of uses by ideas');
-      it('should show amount of uses by projects');
-      it('should show amount of uses by discussions');
+      it('should show amount of all the uses of the tag', function () {
+        browser.assert.text('.tag-all-count', dbData.users.length + dbData.challenges.length + dbData.ideas.length + dbData.projects.length + dbData.discussions.length);
+      });
+      it('should show amount of uses by users', function () {
+        browser.assert.text('.tag-user-count', dbData.users.length);
+      });
+      it('should show amount of uses by challenges', function () {
+        browser.assert.text('.tag-challenge-count', dbData.challenges.length);
+      });
+      it('should show amount of uses by ideas', function () {
+        browser.assert.text('.tag-idea-count', dbData.ideas.length);
+      });
+      it('should show amount of uses by projects', function () {
+        browser.assert.text('.tag-project-count', dbData.projects.length);
+      });
+      it('should show amount of uses by discussions', function () {
+        browser.assert.text('.tag-discussion-count', dbData.discussions.length);
+      });
 
       context('logged in', function () {
         beforeEach(funcs.login(loggedUser, browserObj));
@@ -93,15 +105,30 @@ describe('tag pages', function () {
 
       context('POST', function () {
         context('the tagname exists', function () {
+          beforeEach(funcs.fill(`/tag/${existentTag.tagname}/edit`, {'.edit-tag-form [name=description]': validDescription ,submit: '.edit-tag-form [value=save]'}, browserObj));
           context('valid data', function () {
-            it('should redirect to the tag page');
-            it('should update the tag');
-            it('should say the update was successful');
+            it('should redirect to the tag page', function () {
+              browser.assert.redirected();
+              browser.assert.url(`/tag/${existentTag.tagname}`);
+            });
+            it('should update the tag', function () {
+              browser.assert.text('.tag-description', validDescription);
+            });
+            it('should say the update was successful', function () {
+              browser.assert.text('.popup-message', `the tag ${existentTag.tagname} was successfully updated`);
+            });
           });
           context('invalid data', function () {
-            it('should show the edit page again');
-            it('should show the new invalid data in the form');
-            it('should tell the error');
+            beforeEach(funcs.fill(`/tag/${existentTag.tagname}/edit`, {'.edit-tag-form [name=description]': invalidDescription ,submit: '.edit-tag-form [value=save]'}, browserObj));
+            it('should show the edit page again', function () {
+              browser.assert.url(`/tag/${existentTag.tagname}/edit`);
+            });
+            it('should show the new invalid data in the form', function () {
+              browser.assert.text('.edit-tag-form textarea[name=description]', invalidDescription);
+            });
+            it('should tell the error', function () {
+              browser.assert.element('.popup-message');
+            });
           });
         });
 
@@ -118,4 +145,5 @@ describe('tag pages', function () {
   });
 
   it('TODO pages /tag/:tagname/projects etc.');
+  it('TODO maybe show popular dits with this tag');
 });

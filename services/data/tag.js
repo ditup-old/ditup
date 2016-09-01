@@ -38,6 +38,9 @@ module.exports = function (db) {
     });
   }
 
+  tag.update = function (tagname, data) {
+    return db.query('FOR t IN tags FILTER t.tagname == @tagname UPDATE t WITH @data IN tags', {tagname: tagname, data: data});
+  },
   /**
    * 
    *
@@ -135,16 +138,18 @@ module.exports = function (db) {
     options.limit.count = options.limit.count || 5;
 
     var query=`FOR t IN tags
-      LET userLinks = LENGTH(FOR ut IN userTag FILTER ut._to == t._id RETURN ut._id)
-      LET ditLinks = 0 // LENGTH(FOR dt IN ditTag FILTER dt._to == t._id RETURN dt._id)
-      LET links = userLinks + ditLinks
+      LET userLinks = LENGTH(FOR ut IN userTag FILTER ut._to == t._id RETURN null)
+      LET ideaLinks = LENGTH(FOR pt IN ideaTag FILTER pt._to == t._id RETURN null)
+      LET challengeLinks = LENGTH(FOR pt IN challengeTag FILTER pt._to == t._id RETURN null)
+      LET projectLinks = LENGTH(FOR pt IN projectTag FILTER pt._to == t._id RETURN null)
+      LET discussionLinks = LENGTH(FOR pt IN discussionTag FILTER pt._to == t._id RETURN null)
+      LET links = userLinks + ideaLinks + challengeLinks + discussionLinks + projectLinks
       SORT links DESC
       LIMIT @offset, @count
       RETURN {
         name: t.name,
         description: t.description,
         userno: userLinks,
-        ditno: ditLinks,
         no: links
       }`;
 
@@ -194,6 +199,31 @@ module.exports = function (db) {
         return results;
       });
   };
+
+  tag.uses = function (tagname) {
+    return co(function * () {
+      let query = `FOR t IN tags FILTER t.tagname == @tagname
+        LET usrs = (FOR ut IN userTag FILTER ut._to == t._id RETURN null)
+        LET cls = (FOR ct IN challengeTag FILTER ct._to == t._id RETURN null)
+        LET ids = (FOR it IN ideaTag FILTER it._to == t._id RETURN null)
+        LET prs = (FOR pt IN projectTag FILTER pt._to == t._id RETURN null)
+        LET dcs = (FOR dt IN discussionTag FILTER dt._to == t._id RETURN null)
+        RETURN {
+          users: COUNT(usrs),
+          challenges: COUNT(cls),
+          ideas: COUNT(ids),
+          projects: COUNT(prs),
+          discussions: COUNT(dcs),
+          'all': COUNT(usrs) + COUNT(cls) + COUNT(ids) + COUNT(prs) + COUNT(dcs)
+        }
+        `;
+      let params = {tagname: tagname};
+
+      let cursor = yield db.query(query, params);
+      let out = yield cursor.all();
+      return out[0];
+    });
+  }
 
   return tag;
 };

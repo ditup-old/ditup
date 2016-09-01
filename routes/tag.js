@@ -5,7 +5,7 @@ var router = express.Router();
 let co = require('co');
 
 var process = require('../services/processing');
-var validate = require('../services/validation');
+var validate = require('../services/validation/validate');
 
 router.get('/', function (req, res, next) {
   return res.redirect('tags');
@@ -22,6 +22,9 @@ router.get('/:tagname', function (req, res, next) {
     //rendering
     res.locals.rights = {edit: sessUser.logged === true ? true : false};
     res.locals.tag = tag;
+    res.locals.count = yield db.tag.uses(tagname);
+
+
     return res.render('tag');
   })
     .catch(next);
@@ -39,7 +42,35 @@ router.all('/:tagname/edit', function (req, res, next) {
   return next();
 });
 
-router.get('/:tagname/edit', function (req, res, next) {
+router.post('/:tagname/edit', function (req, res, next) {
+  return co(function * () {
+    let db = req.app.get('database');
+    let tagname = req.params.tagname;
+    
+    //validation
+    validate.tag.description(req.body.description);
+    //updating in database
+    yield db.tag.update(tagname, {description: req.body.description});
+    //informing about success
+    req.session.messages.push(`the tag ${tagname} was successfully updated`);
+    //redirect to the tag page
+    return res.redirect(`/tag/${tagname}`);
+  })
+    .catch(next);
+  
+  function invalidBranch() {
+    return res.render('tag-edit', {data: tag, errors: errors, session: sessUser});
+  }
+
+}, function (err, req, res, next) {
+  if(err.status === 400) {
+    req.session.user.messages.push(err.message);
+    return next();
+  }
+  return next(err);
+});
+
+router.all('/:tagname/edit', function (req, res, next) {
   return co(function * () {
     let db = req.app.get('database');
     var sessUser = req.session.user;
@@ -47,46 +78,16 @@ router.get('/:tagname/edit', function (req, res, next) {
 
     let tag = yield db.tag.read(tagname);
     tag = process.tag.edit(tag);
+    
+    //filling form with the invalid data
+    if(req.method === 'POST') {
+      tag.description = req.body.description;
+    }
 
     res.locals.tag = tag;
     return res.render('tag-edit');
   })
     .catch(next);
-});
-
-router.post('/:name/edit', function (req, res, next) {
-  var sessUser = req.session.user;
-  var name = req.params.name;
-  var desc = req.body.description;
-  var tag = {name: name, description: desc};
-  
-  var errors = {};
-  var values = {};
-
-  //validate tag data
-  return Q.resolve(validate.tag.edit(tag, errors, values))
-    .then(function (isValid) {
-      if(isValid === true) {
-        return validBranch();
-      }
-      else return invalidBranch();
-    })
-    .then(null, function (err) {
-      return next(err);
-    });
-  
-  function validBranch() {
-    //edit tag and redirect to it
-    return database.updateTag({name: name, description: values.description})
-      .then(function () {
-        return res.redirect('/tag/' + name);
-      });
-  }
-
-  function invalidBranch() {
-    return res.render('tag-edit', {data: tag, errors: errors, session: sessUser});
-  }
-
 });
 
 module.exports = router;

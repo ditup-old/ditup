@@ -26,5 +26,18 @@ rules.user = {
   }
 }
 
+rules.tag = {
+  tagname: {
+    empty: false,
+    regex: /^[a-z0-9]+(\-[a-z0-9]+)*$/,
+    minLength: 2,
+    maxLength: 64
+  },
+  description: {
+    empty: true,
+    maxLength: 2048
+  }
+}
+
 
 module.exports = rules;

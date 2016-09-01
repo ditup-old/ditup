@@ -1,0 +1,17 @@
+@import "page-mixin";
+@import "colors";
+
+@include page();
+
+.tag-description {
+  &:empty::before{
+    content: "no description";
+    color: $darker;
+  }
+}
+
+hr {
+  background-color: $darker;
+  border:none;
+  height: 5px;
+}

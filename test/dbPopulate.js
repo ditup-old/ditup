@@ -178,7 +178,7 @@ module.exports = function (db) {
       for(let _ct of challengeTag) {
         let creator = typeof(_ct.creator) === 'number' ? users[_ct.creator].username : _ct.creator;
         let challenge = challenges[_ct.collection].id;
-        let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].name : _ct.tag;
+        let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].tagname || tags[_ct.tag].name: _ct.tag;
         let ctp = data[collectionName].addTag(challenge, tag, creator);
         ctPromises.push(ctp);
       }

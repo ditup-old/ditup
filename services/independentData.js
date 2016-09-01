@@ -136,28 +136,8 @@ module.exports = function independentData(dependencies) {
           return cursor.all();
         });
     },
-    updateTag: function (tag) {
-      return db.query('FOR x IN tags FILTER x.name == @name UPDATE x WITH @tag IN tags', {name: tag.name, tag: tag});
-    },
     deleteTag: function (tag) {
       return db.query('FOR x IN tags FILTER x.name == @name REMOVE x IN tags', {name: tag.name});
-    },
-    //talk TODO 
-    ///C
-    createTalk: function (talk) {
-    },
-    deleteTagFromUser: function (tag, user) {
-      var query = 'FOR u IN users FILTER u.username == @username ' +
-        'FOR t IN tags FILTER t.name == @name ' +
-        'FOR ut IN userTag FILTER u._id == ut._from && t._id == ut._to ' +
-        'REMOVE ut IN userTag';
-      return db.query(query, {username: user.username, name: tag.name})
-        .then(function (cursor) {
-          var writes = cursor.extra.stats.writesExecuted;
-          if (writes === 0) return {success: false, err: 'user doesn\'t have that tag'};
-          if (writes === 1) return {success: true};
-          throw new Error('problems with removing tag (that should never happen)');
-        });
     },
     //tag-dit
     addTagToDit: function (tag, dit) {

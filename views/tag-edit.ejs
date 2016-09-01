@@ -1,9 +1,9 @@
 <%
 var css = [
   '/css/header.css',
-  '/css/tag-edit.css',
+  '/css/tag.css',
 ];
-var title = '#' + tag.tagname ;
+var title = `editing tag ${tag.tagname}`;
 
 var headScripts = [];
 var scripts = [];
@@ -17,11 +17,11 @@ var scripts = [];
   </header>
   <section class="tag-description">
     <form method="post" class="edit-tag-form" >
-      <div><%= tag.tagname %></div>
-      <div>description</div>
-      <textarea name="description" ><%= tag.description %></textarea>
-      <input type="submit" name="action" value="save" class="button" />
-      <a class="button" href="/tag/<%= tag.tagname %>">cancel</a>
+      <textarea name="description" placeholder="description"><%= tag.description %></textarea>
+      <div>
+        <input type="submit" name="action" value="save" />
+        <a href="/tag/<%= tag.tagname %>">cancel</a>
+      </div>
     </form>
   </section>
 </section>

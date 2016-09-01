@@ -86,7 +86,9 @@ router.post('/:username/edit', function (req, res, next) {
     }
     else if(req.body.action === 'create and add tag') {
       return co(function * () {
-        //TODO validation
+        //validation
+        validate.tag.tagname(req.body.tagname);
+        validate.tag.description(req.body.description);
         //
         //create the tag
         yield db.tag.create({

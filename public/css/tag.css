@@ -1,0 +1,32 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.tag-description:empty::before {
+  content: "no description";
+  color: #6ca6ca;
+}
+
+hr {
+  background-color: #6ca6ca;
+  border: none;
+  height: 5px;
+}

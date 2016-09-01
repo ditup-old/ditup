@@ -310,7 +310,7 @@ module.exports = function (db) {
 
   user.addTag = function (user, tag) {
     let username = typeof(user) === 'string' ?  user : user.username;
-    let tagname = typeof(tag) === 'string' ? tag : tag.name;
+    let tagname = typeof(tag) === 'string' ? tag : tag.name || tag.tagname;
     var query = 'FOR x IN users FILTER x.username == @username LET from = x._id ' +
       'FOR y IN tags FILTER y.name == @name LET to = y._id ' +
       'INSERT {_from: from, _to: to, unique: CONCAT(from, "-", to), created: @created } IN userTag';
