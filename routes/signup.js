@@ -1,5 +1,7 @@
 'use strict';
 
+let co = require('co');
+
 var express = require('express');
 var router = express.Router();
 var validate = require('../services/validation');
@@ -36,29 +38,31 @@ router.post('/', function (req, res, next) {
     password: form.password,
     password2: form.password2
   };
-  
-  return accountModule.createUser(formData)
-      .then(function () {
-        var username = formData.username;
-        var email = formData.email;
-        return accountModule.initEmailVerification({username: username, email: email});
-      })
-      .then(function () {
-        //generate success message
-        sessUser.username = formData.username;
-        sessUser.logged = true;
-        var message = 'Welcome ' + formData.username + '. Your new account was created and verification email was sent to ' + formData.email + '. It should arrive soon. In the meantime why don\'t you fill up your profile?';
-        req.session.messages.push(message);
-        return res.redirect('/user/' + formData.username + '/edit');
-      
-      })
-      .then(null, function (err) {
-        if(err.message === 'invalid data') {
-          sessUser.messages.push('there were some errors in processing signup request');
-          return res.render('signup', { errors: err.errors, values: formData, session: sessUser});
-        }
-        return next(err);
-      });
+
+  return co(function * () {
+    try {
+      yield accountModule.createUser(formData);
+    }
+    catch(e) {
+      if(e.message === 'invalid data') {
+        sessUser.messages.push('there were some errors in processing signup request');
+        return res.render('signup', { errors: e.errors, values: formData});
+      }
+      else throw(e);
+    }
+
+    let host = `${req.protocol}://${req.hostname}`;
+    yield accountModule.initEmailVerification({username:formData.username, email: formData.email, host: host});
+
+    //generate success message
+    sessUser.username = formData.username;
+    sessUser.logged = true;
+
+    var message = `Welcome ${formData.username}. Your new account was created and verification email was sent to ${formData.email}. It should arrive soon. In the meantime why don't you fill up your profile?`;
+    req.session.messages.push(message);
+    return res.redirect(`/user/${formData.username}/edit?field=name`);
+  })
+    .catch(next);
 });
 
 module.exports = router;

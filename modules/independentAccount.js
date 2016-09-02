@@ -31,6 +31,7 @@ module.exports = function independentAccount(dependencies) {
   ret.initEmailVerification = function (data) {
     var username = data.username;
     var email = data.email;
+    var host = data.host || 'https://ditup.org';
 
     return co(function *() {
       //create verification code, salt & hash
@@ -58,7 +59,7 @@ module.exports = function independentAccount(dependencies) {
       var mailerData = {
         username: username,
         email: email,
-        url: 'https://ditup.org/account/verify-email/'+username+'/'+code
+        url: `${host}/account/verify-email/${username}/${code}`
       };
       return yield mailer.send.verifyEmail(mailerData);
     });
