@@ -26,7 +26,8 @@ router.get('/verify-email/:username/:code', function (req, res, next) {
 
   return co(function *() {
     yield accountModule.verifyEmail(verifyData);
-    return res.render('sysinfo', {msg: 'verification successful', session: sessUser});
+    sessUser.messages.push('the verification was successful');
+    return res.render('sysinfo', {msg: 'verification successful'});
   })
     .catch(next);
 });

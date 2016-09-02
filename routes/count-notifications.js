@@ -18,7 +18,7 @@ router.all('*', function (req, res, next) {
       sessUser.unviewedNotificationsCount = count;
       return next();
     })
-    .catch((err) => {return next(err);});
+    .catch(next);
   }
   return next();
 });
