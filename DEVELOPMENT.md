@@ -55,7 +55,7 @@ The first release should be a proof of the concept. It should be simple and show
 - [x] merge dits of user with dits general: if logged in, both will be shown.
 - [x] after login redirect always to the page which was currently on
 - [x] better /tags page
-- [ ] better /tag/:tagname page
+- [x] better /tag/:tagname page
 - [ ] comment the code
 - [ ] write styles
     - [ ] media query
@@ -66,6 +66,8 @@ The first release should be a proof of the concept. It should be simple and show
     - you should be able to filter the activity by type.
 - [x] fix user profile and write tests for it
 - [ ] fix showing number of messages & notifications when reading messages/notifications
+- [ ] the adder of a tag to crowdsourced objects should be able to remove it from the object until voted.
+- [ ] the new tags should be removable by their creator when not used.
 
 ### Future goals and ideas
 
