@@ -72,6 +72,11 @@ router.all('/:username', function (req, res, next) {
   return co(function *() {
     let messages = yield db.messages.read([sessUser.username, username]);
     yield db.messages.view({from: username, to: sessUser.username});
+
+    //update the user's messages count
+    let count = yield db.messages.countUnread(sessUser.username);
+    sessUser.unreadMessagesCount = count;
+
     return res.render('messages-user', {session: sessUser, recipient: {username: username}, messages: messages});
   })
   .catch(function (err) {

@@ -45,6 +45,8 @@ router.post('/', function (req, res, next) {
   .catch(next);
 });
 
+router.use(require('./count-notifications'));
+
 router.all('/', function (req, res,next) {
   let sessUser = req.session.user;
   

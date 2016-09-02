@@ -65,7 +65,7 @@ The first release should be a proof of the concept. It should be simple and show
 - activity (it's not notifications. it's activity. you fetch activity of people & dits you follow to some feed.)
     - you should be able to filter the activity by type.
 - [x] fix user profile and write tests for it
-- [ ] fix showing number of messages & notifications when reading messages/notifications
+- [x] fix showing number of messages & notifications when reading messages/notifications
 - [ ] the adder of a tag to crowdsourced objects should be able to remove it from the object until voted.
 - [ ] the new tags should be removable by their creator when not used.
 
