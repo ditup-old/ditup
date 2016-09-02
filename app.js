@@ -26,6 +26,11 @@ module.exports = function (session) {
   //setting database globally
   app.set('database', database);
 
+  //setting host globaly
+  let host = require('./config/host')
+  let port = host.port ? `:${host.port}` : '';
+  app.set('host', `${host.protocol}://${host.hostname}${host.port}`);
+
   // uncomment after placing your favicon in /public
   //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
   //

@@ -51,7 +51,7 @@ router.post('/', function (req, res, next) {
       else throw(e);
     }
 
-    let host = `${req.protocol}://${req.hostname}`;
+    let host = req.app.get('host');
     yield accountModule.initEmailVerification({username:formData.username, email: formData.email, host: host});
 
     //generate success message
