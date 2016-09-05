@@ -240,6 +240,8 @@ module.exports = function independentAccount(dependencies) {
     var password = data.password;
     var hash, salt, iterations;
 
+    return co(function * () {});
+
     return database.readUser({username: username})
       .then(function (user) {
         if(!user) throw new Error('user not exist');

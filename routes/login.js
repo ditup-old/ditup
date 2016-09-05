@@ -1,63 +1,62 @@
 'use strict';
 
-var express = require('express');
-var router = express.Router();
-var database = require('../services/data');
+var router = require('express').Router();
 var accountService = require('../services/account');
 var accountModule = require('../modules/account');
 
+let matchPassword = require('./login/matchPassword');
+
+let co = require('co');
+
+//checking whether the user is already logged in
 router.all('*', function (req, res, next) {
   var sessUser = req.session.user;
   if(sessUser.logged === true) {
-    sessUser.messages.push('you are logged in as <a href="/user/'+ sessUser.username +'" >' + sessUser.username + '</a>. To log in you need to <a href="/logout">log out</a> first.');
-    return res.render('sysinfo', {session: sessUser});
+    sessUser.messages.push(`you are logged in as <a href="/user/${sessUser.username}" >${sessUser.username}</a>. To log in as a different user you need to <a href="/logout">log out</a> first.`);
+    return res.render('sysinfo');
   }
-  else {
-    next();
-  }
+  return next();
 });
 
+//rendering login page
 router.get('/', function (req, res, next) {
-  var sessUser = req.session.user;
-  res.render('login', {session: sessUser});
+  return res.render('login');
 });
 
-router.post('/', function (req, res, next) {
-  var sessUser = req.session.user;
-  var username = req.body.username;
-  var password = req.body.password;
-  var userData = {};
-      
-  return accountModule.matchPassword({username: username, password: password}, userData)
-    .then(function (match) {
-      if(match === true) {
-        sessUser.logged = true;
-        sessUser.username = username;
-        sessUser.name = userData.name;
-        sessUser.surname = userData.surname;
-        sessUser.email = userData.email;
+router.post('/',
+  //matching password
+  matchPassword,
+  //success management
+  function (req, res, next) {
+    let db = req.app.get('database');
+    let sessUser = req.session.user;
 
-        return database.user.updateAccount({username: username}, {last_login: Date.now()});
-      }
-      throw new Error('login not successful');
-    })
-    .then(function () {
+    return co(function * (){
+      //setting a session to logged
+      sessUser.logged = true;
+      sessUser.username = req.body.username;
 
-      //return res.render('sysinfo', {msg: 'login successful', session: sessUser});
+      //updating last_login in database
+      yield db.user.updateAccount({username: req.session.user.username}, {last_login: Date.now()});
 
-      req.session.messages.push('login successful. you\'re logged in as <a href="/user/' + sessUser.username + '">' + ((sessUser.name || sessUser.surname ? sessUser.name + ' ' + sessUser.surname : '') || sessUser.username) + '</a>');
+      //some message
+      req.session.messages.push(`login successful. you're logged in as <a href="/user/${sessUser.username}">${sessUser.username}</a>`);
+
+      //redirecting
       var redir = req.query.redirect || '/';
-      res.redirect(redir);
-      return;
+      return res.redirect(redir);
     })
-    .then(null, function (err) {
-      console.log(err.stack);
-      if(err.message === 'login not successful') {
-        sessUser.messages.push('login not successful');
-        return res.render('login', {session: sessUser});
-      }
-      return next(err);
-    });
-});
+    .catch(next);
+  },
+  //catching the error and writing the error message
+  function (err, req, res, next){
+    let sessUser = req.session.user;
+    if(err.status === 403 && err.message === 'login not successful') {
+      sessUser.messages.push('login not successful');
+      return res.render('login');
+    }
+    return next(err);
+  }
+);
 
 module.exports = router;
