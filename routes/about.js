@@ -23,8 +23,11 @@ router.get('/', function(req, res, next) {
   }
 
   return co(function *() {
+    let content = yield readFile('services/data/about.ejs');
+    /*
     let md = yield readFile('services/data/about.md');
     let content = marked(md);
+    */
 
     return res.render('about', {session: sessUser, content: content});
   })

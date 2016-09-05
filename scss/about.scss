@@ -1,3 +1,51 @@
+@import 'colors';
 @import 'page-mixin';
 
 @include page();
+
+$about-icon-size: 30px;
+
+.about-icon {
+  display: block;
+  background-color: $dark;
+  color: $light;
+  height: $about-icon-size;
+  width: $about-icon-size;
+  font-size: 20px;
+  border-radius: $about-icon-size/2;
+  text-align: center;
+  vertical-align: middle;
+  line-height: $about-icon-size;
+  margin:auto;
+  margin-bottom:5px;
+}
+
+.about-page {
+  font-family: Baskerville;
+  text-align: center;
+
+  hr {
+    height:2px;
+    background-color: $darker;
+    border: none;
+  }
+}
+
+.about-line {
+  padding-top: 2px;
+  padding-bottom: 10px;
+}
+
+.about-emphasize {
+  font-family: "Baskerville-italic"
+}
+
+@font-face {
+  font-family: "Baskerville";
+  src: url("/fonts/libre-baskerville/LibreBaskerville-Regular.otf");
+}
+
+@font-face {
+  font-family: "Baskerville-italic";
+  src: url("/fonts/libre-baskerville/LibreBaskerville-Italic.otf");
+}
