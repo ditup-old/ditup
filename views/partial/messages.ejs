@@ -17,7 +17,7 @@
 <% for (var m in session.messages) { %>
 <div class="popup-message info" ><span class="popup-text"><%- session.messages[m] %></span><span class="fa fa-times popup-close"></span></div>
   <% } %>
-<script src="/libs/js/jquery.js"></script>
+<script src="/libs/bower/jquery/dist/jquery.js"></script>
 <script>
   var popupClose = $('.popup-close');
   popupClose.on('click', function (e) {
