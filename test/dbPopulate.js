@@ -114,34 +114,20 @@ module.exports = function (db) {
     }
 
     function populateCollections(collections, users, collectionName) {
-      var collectionPromises = [];
-      for(let i = 0, len = collections.length; i < len; ++i) {
-        let creator = typeof(collections[i].creator) === 'number' ? users[collections[i].creator].username : collections[i].creator;
-        collections[i].creator = creator;
-        let cp = data[collectionName].create({
-          name: collections[i].name,
-          description: collections[i].description,
-          join: collections[i].join,
-          join_info: collections[i].join_info,
-          creator: creator
-        });
-        collectionPromises.push(cp);
-      }
-      return Promise.all(collectionPromises)
-        .then(function (_ids) {
-          //copying the ids of the newly saved collections into the original collection object (for further use)
-          
-          for(let i=0, len = _ids.length; i<len; ++i) {
-            collections[i].id = _ids[i].id;
-            collections[i].url = generateUrl(collections[i].name);
-            collections[i].tags = collections[i].tags || [];
-          }
-          return;
-        });
+      return co(function * () {
+        for(let collection of collections) {
+          collection.creator = typeof(collection.creator) === 'number' ? users[collection.creator].username : collection.creator;
+
+          let createdCollection = yield data[collectionName].create(collection);
+
+          collection.id = createdCollection.id;
+          collection.url = generateUrl(collection.name);
+          collection.tags = collection.tags || [];
+        }
+      });
     }
 
     function populateUserTag(userTag, users, tags) {
-      var users;
       var utPromises = [];
       //resetting the tags in data object to empty
       for(let u of users){
@@ -326,9 +312,10 @@ module.exports = function (db) {
 
         yield populateCollections(dbData[col + 's'], dbData.users, col);
         yield Promise.all([
-            populateCollectionTag(dbData[col+'Tag'], dbData[col+'s'], dbData.tags, dbData.users, col),
-            populateCollectionCommentAuthor(dbData[col+'CommentAuthor'], dbData[col+'s'], dbData.users, col),
-            populateUserFollowCollection(dbData['userFollow'+Col], dbData.users, dbData[col+'s'], col)]);
+          populateCollectionTag(dbData[col+'Tag'], dbData[col+'s'], dbData.tags, dbData.users, col),
+          populateCollectionCommentAuthor(dbData[col+'CommentAuthor'], dbData[col+'s'], dbData.users, col),
+          populateUserFollowCollection(dbData['userFollow'+Col], dbData.users, dbData[col+'s'], col)
+        ]);
       }
       yield populateProjectMember(dbData.projectMember, dbData.projects, dbData.users);
       yield populateMessages(dbData.messages || [], dbData.users);

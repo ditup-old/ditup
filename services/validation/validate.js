@@ -44,7 +44,7 @@ function vldt(value, rules, fieldName) {
     if(rule === 'maxLength') {
       let valid = typeof(value) === 'string' && value.length <= rules.maxLength;
       if(!valid) {
-        err.message = `the maximum length of ${fieldName || 'field'} is ${rules.maxLength}`;
+        err.message = `the maximal length of ${fieldName || 'field'} is ${rules.maxLength}`;
         throw err;
       }
     }

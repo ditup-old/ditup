@@ -1,5 +1,7 @@
 'use strict';
 
+let co = require('co');
+
 var proto = require('./proto');
 
 
@@ -9,29 +11,30 @@ module.exports = function (db) {
   discussion.create = proto.create(['name'], 'discussions', db);
   
   discussion.read = function (id) {
-    var query = `FOR d IN discussions FILTER d._key == @id
-      LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
-      FOR c IN creator
-        RETURN MERGE(d, {creator: {username: c.username}})
-        `;
-
+    var query = `
+      FOR d IN discussions FILTER d._key == @id
+        LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
+        FOR c IN creator
+          RETURN MERGE(d, {creator: {username: c.username}}, {id: d._key})
+    `;
     var params = {id: id};
 
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (discs) {
-        if(discs.length === 1) {
-          return discs[0];
-        }
-        else if(discs.length === 0) {
-          throw new Error(404);
-        }
-        else {
-          throw new Error('duplicate discussion id. this should never happen.');
-        }
-      });
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let discs = yield cursor.all();
+
+      if(discs.length === 1) {
+        return discs[0];
+      }
+      else if(discs.length === 0) {
+        let err = new Error('Not Found');
+        err.status = 404;
+        throw err;
+      }
+      else {
+        throw new Error('duplicate discussion id. this should never happen.');
+      }
+    });
   };
 
   discussion.update; //TODO
@@ -51,24 +54,19 @@ module.exports = function (db) {
       });
   };
 
-  discussion.addPost = proto.addComment('discussions', db);
+  discussion.addComment = proto.addComment('discussions', db);
 
-  discussion.readPost = function () {
+  discussion.readComment = function () {
     throw new Error('TODO!');
   };
 
-  discussion.readPosts = proto.readComments('discussions', db);
-  discussion.removePost = proto.removeComment('discussions', db);
-  discussion.updatePost = proto.updateComment('discussions', db);
+  discussion.readComments = proto.readComments('discussions', db);
+  discussion.removeComment = proto.removeComment('discussions', db);
+  discussion.updateComment = proto.updateComment('discussions', db);
 
-  discussion.canEditPost = function () {};
+  discussion.canEditComment = function () {};
 
   //alternative post>comment name
-  discussion.addComment = discussion.addPost;
-  discussion.readComment = discussion.readPost;
-  discussion.readComments = discussion.readPosts;
-  discussion.updateComment = discussion.updatePost;
-  discussion.removeComment = discussion.removePost;
 
 
   discussion.addTag = proto.addTag('discussions', db);

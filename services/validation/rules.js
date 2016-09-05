@@ -39,5 +39,13 @@ rules.tag = {
   }
 }
 
+rules.comment = {
+  text: {
+    empty: false,
+    minLength: 1,
+    maxLength: 16384
+  }
+}
+
 
 module.exports = rules;
