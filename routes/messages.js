@@ -13,7 +13,7 @@ router.all(['/', '/:username'], function (req, res, next) {
   let sessUser = req.session.user;
   let username = req.params.username;
   if(sessUser.logged !== true) {
-    let err = new Error('403 - not authorized');
+    let err = new Error('Not Authorized');
     err.status = 403;
     return next(err);
   }
@@ -24,9 +24,9 @@ router.get('/', function(req, res, next) {
   let sessUser = req.session.user;
   return co(function *() {
     let lastMessages = yield db.messages.readLast(sessUser.username);
-    return res.render('messages', {session: sessUser, lastMessages: lastMessages});
+    return res.render('messages', {lastMessages: lastMessages});
   })
-  .catch((err) => {return next(err);});
+  .catch(next);
 });
 
 //if post, post message
@@ -57,7 +57,7 @@ router.post('/:username', function(req, res, next) {
     sessUser.messages.push('the message was sent successfully');
     return next();
   })
-  .catch(function (err) { next(err); });
+  .catch(next);
 });
 
 router.all('/:username', function (req, res, next) {
@@ -79,9 +79,7 @@ router.all('/:username', function (req, res, next) {
 
     return res.render('messages-user', {session: sessUser, recipient: {username: username}, messages: messages});
   })
-  .catch(function (err) {
-    return next(err);
-  });
+  .catch(next);
 
 });
 

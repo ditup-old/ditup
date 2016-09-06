@@ -26,21 +26,7 @@ describe('messages', function () {
     context('not logged in', function () {
       beforeEach(funcs.logout(browserObj));
 
-      it('should return status 403 not authorized', function (done) {
-        co(function *() {
-          try {
-            yield browser.visit('/messages');
-          }
-          catch(e) {}
-
-          browser.assert.status(403);
-
-          return done();
-        })
-        .catch(function (err) {
-          return done(err);
-        });
-      });
+      it('should return status 403 not authorized', funcs.testError('/messages', 403, browserObj));
     });
 
     context('logged in', function () {

@@ -68,12 +68,47 @@ module.exports = function (db) {
   };
 
   messages.readLast = function (username, settings) {
+    /*
     let query = `
       LET msgs = (FOR usr IN users FILTER usr.username == @username
         FOR msg IN messages FILTER msg._from == usr._id || msg._to == usr._id
           LET otherUserId = msg._from == usr._id ? msg._to : msg._from
           FOR ousr IN users FILTER ousr._id == otherUserId
             RETURN MERGE(msg, {user: {username: usr.username, _id: usr._id}}, {otherUser: {username: ousr.username, _id: ousr._id}})
+      )
+      LET msgsByUser = (
+        FOR msg IN msgs
+          SORT msg.created DESC
+          COLLECT ou = msg.otherUser, u = msg.user INTO messagesOfUser
+          RETURN {user: u, otherUser: ou, msgs: messagesOfUser[*].msg}
+      )
+
+      FOR mbu IN msgsByUser
+        LET lastMsg = (FOR m IN mbu.msgs
+          LIMIT 1
+          RETURN m
+        )
+        LET lm = lastMsg[0]
+        SORT lm.created DESC
+        RETURN {
+          text: lm.text,
+          created: lm.created,
+          viewed: mbu.otherUser._id == lm._from ? lm.viewed : null,
+          from: mbu.otherUser._id == lm._from ? {username: mbu.otherUser.username} : {username: mbu.user.username},
+          to: mbu.otherUser._id == lm._to ? {username: mbu.otherUser.username} : {username: mbu.user.username}
+        }`;
+    // */
+    let query = `
+      LET msgs = (FOR usr IN users FILTER usr.username == @username
+        FOR msg IN messages FILTER msg._from == usr._id || msg._to == usr._id
+          //LET otherUserId = msg._from == usr._id ? msg._to : msg._from
+          LET fromUserId = msg._from
+          LET toUserId = msg._to
+          FOR fromUser IN users FILTER fromUser._id == fromUserId
+            FOR toUser IN users FILTER toUser._id == toUserId
+              LET oneUser = fromUser.username == @username ? {username: fromUser.username, _id: fromUser._id} : {username: toUser.username, _id: toUser._id}
+              LET otherUser = fromUser.username == @username ? {username: toUser.username, _id: toUser._id} : {username: fromUser.username, _id: fromUser._id}
+              RETURN MERGE(msg, {user: oneUser}, {otherUser: otherUser})
       )
       LET msgsByUser = (
         FOR msg IN msgs
