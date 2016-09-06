@@ -32,12 +32,13 @@ The first release should be a proof of the concept. It should be simple and show
         - by tags
         - name
         - username
-- [ ] make a single info site /about
+- [x] make a single info site /about
 - [ ] fix project, idea, challenge, discussion pages
     - [x] edit
         - [x] edit not only challenge, but others, too.
     - [x] follow
     - [x] unfollow
+    - [ ] number of followers
     - [ ] comment/discuss
     - [x] adding tags
         - [x] create tag if nonexistent
@@ -62,7 +63,7 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] clean the code
 - [ ] unviewed notifications are not bold
 - [ ] nice error pages
-- activity (it's not notifications. it's activity. you fetch activity of people & dits you follow to some feed.)
+- [ ] activity (it's not notifications. it's activity. you fetch activity of people & dits you follow to some feed.)
     - you should be able to filter the activity by type.
 - [x] fix user profile and write tests for it
 - [x] fix showing number of messages & notifications when reading messages/notifications
