@@ -93,15 +93,7 @@ include ./header.ejs %>
       <textarea name="comment"></textarea>
       <input type="submit" name="action" value="comment" />
     </form>
-  <% } 
-    else {
-      var redirectUrl = encodeURIComponent('/' + collectionName + '/' + collection.id + '/' + collection.url);
-      var action = '/login?redirect='+redirectUrl;
-  %>
-  <% include ./login-form-simple.ejs %>
-  <%
-    }
-  %>
+  <% } %>
   </div>
   <div id="<%= collectionName %>-comments">
   <% for(let co of collection.comments) { %>
