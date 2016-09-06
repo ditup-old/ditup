@@ -40,7 +40,7 @@ include ./header.ejs %>
 
         var follow = {
           view: true,
-          hiding: !!collection.hiding,
+          edit: !!logged,
           following: !!collection.following,
           followers: collection.followerno,
           collection: collectionName
