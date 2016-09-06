@@ -1,15 +1,11 @@
 'use strict';
 
-var express = require('express');
-//var entities = require('entities');
-var router = express.Router();
-//var validate = require('../services/validation');
-var db = require('../services/data');
-var functions = require('./discussion/functions');
-var generateUrl = functions.generateUrl;
+var router = require('express').Router();
+
+var showCollection = require('./collection/showCollection');
+var postCollection = require('./collection/post');
 
 var postHideFollow = require('./partial/post-hide-follow');
-
 var editRoute = require('./idea/edit');
 
 router.use(editRoute);
@@ -49,89 +45,6 @@ router.post(['/:id/:url'], function (req, res, next) {
   }
 });
 
-router.all(['/:id/:url', '/:id'], function (req, res, next) {
-  var sessUser = req.session.user;
-
-  var id = req.params.id;
-  var url = req.params.url;
-  req.ditup.idea = req.ditup.idea || {};
-  var idea, expectedUrl;
-
-//first reading the idea
-  return db.idea.read(id)
-    .then(function (_idea) {
-      idea = _idea;
-      expectedUrl = generateUrl(idea.name);
-      idea.url = expectedUrl;
-      idea.link = 'http://'+req.headers.host+req.originalUrl; //this is a link for users for copying
-      idea.id = id;
-      //copying params from previous routes
-      for(var param in req.ditup.idea) {
-        idea[param] = req.ditup.idea[param];
-      }
-      return;
-    })
-    //read tags of idea
-    .then(function () {
-      return db.idea.tags(id)
-        .then(function (_tags) {
-          idea.tags = [];
-          for(let _tag of _tags) {
-            idea.tags.push(_tag.name);
-          }
-          return;
-        });
-    })
-    //read comments of idea
-    .then(function () {
-      return db.idea.readComments(id)
-        .then(function (_coms) {
-          idea.comments = [];
-          for(let co of _coms) {
-            idea.comments.push(co);
-          }
-          return;
-        });
-    })
-    //if user is logged in, find out whether she follows the idea
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.idea.followingUser(id, sessUser.username)
-          .then(function(_flwng) {
-            idea.following = _flwng;
-            return;
-          });
-      }
-      else {
-        return;
-      }
-    })
-    //if user is logged in, find out whether she hides the idea
-    .then(function () {
-      if(sessUser.logged === true) {
-        return db.idea.followingUser(id, sessUser.username, true)
-          .then(function(_hdng) {
-            idea.hiding = _hdng;
-            return;
-          });
-      }
-      else {
-        return;
-      }
-    })
-    //sending the response
-    .then(function () {
-      if(expectedUrl === url) {
-        if(sessUser.logged !== true) {
-          sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> or <a href="/signup">sign up</a> to read more and contribute');
-        }
-        return res.render('idea', {session: sessUser, idea: idea});
-      }
-      else {
-        return res.redirect('/idea/' + id + '/' + expectedUrl );
-      }
-    })
-    .then(null, next);
-});
+router.all(['/:id/:url', '/:id'], showCollection);
 
 module.exports = router;

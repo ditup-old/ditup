@@ -55,12 +55,13 @@ module.exports = function (db) {
   idea.removeComment = proto.removeComment('ideas', db);
 
   idea.follow = proto.follow('ideas', db);
-  idea.hide = proto.hide('ideas', db);
+//  idea.hide = proto.hide('ideas', db);
   idea.following = proto.following('ideas', db);
   idea.followingUser = proto.followingUser('ideas', db);
   idea.followers = proto.followers('ideas', db);
+  idea.countFollowers = proto.countFollowers('ideas', db);
   idea.unfollow = proto.unfollow('ideas', db);
-  idea.unhide = proto.unhide('ideas', db);
+//  idea.unhide = proto.unhide('ideas', db);
   idea.readIdeasByTags = proto.readCollectionsByTags(['name', 'description'], 'ideas', db);
 
   idea.popular = proto.popular('ideas', db);

@@ -75,7 +75,7 @@ describe('user visits /discussion/:id/:name', function () {
 
     // */
 
-    /*
+    //*
     context('has rights to add comments', function () {
       beforeEach(funcs.login(loggedUser, browserObj));
       beforeEach(funcs.visit(() => `/discussion/${existentDiscussion.id}/${existentDiscussion.url}`, browserObj));

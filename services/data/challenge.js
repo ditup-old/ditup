@@ -56,12 +56,13 @@ module.exports = function (db) {
   challenge.removeComment = proto.removeComment('challenges', db);
 
   challenge.follow = proto.follow('challenges', db);
-  challenge.hide = proto.hide('challenges', db);
+//  challenge.hide = proto.hide('challenges', db);
   challenge.following = proto.following('challenges', db);
   challenge.followingUser = proto.followingUser('challenges', db);
   challenge.followers = proto.followers('challenges', db);
+  challenge.countFollowers = proto.countFollowers('challenges', db);
   challenge.unfollow = proto.unfollow('challenges', db);
-  challenge.unhide = proto.unhide('challenges', db);
+//  challenge.unhide = proto.unhide('challenges', db);
   challenge.readChallengesByTags = proto.readCollectionsByTags(['name', 'description'], 'challenges', db);
 
   challenge.popular = proto.popular('challenges', db);
