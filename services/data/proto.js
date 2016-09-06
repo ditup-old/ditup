@@ -55,7 +55,33 @@ proto.create = function (expectedParams, collectionName, db, otherParams) {
   };
 };
 
-proto.read = function () {
+proto.read = function (collectionName, db) {
+  return function (id) {
+    var query = `
+      FOR d IN ${collectionName} FILTER d._key == @id
+        LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
+        FOR c IN creator
+          RETURN MERGE(d, {creator: {username: c.username}}, {id: d._key})
+    `;
+    var params = {id: id};
+
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let collections = yield cursor.all();
+
+      if(collections.length === 1) {
+        return collections[0];
+      }
+      else if(collections.length === 0) {
+        let err = new Error('Not Found');
+        err.status = 404;
+        throw err;
+      }
+      else {
+        throw new Error(`duplicate ${collectionName} id. this should never happen.`);
+      }
+    });
+  };
 };
 
 proto.updateField = function (collectionName, db) {

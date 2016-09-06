@@ -22,7 +22,7 @@
     "watch-challenge-id": "mocha ./test/functional/challenge/challenge-id-name --watch",
     "watch-ideas-new": "mocha ./test/functional/idea/ideas-new --watch",
     "watch-ideas": "mocha ./test/functional/idea/ideas --watch",
-    "watch-idea-id": "mocha ./test/functional/idea/idea-id-name --watch",
+    "watch-idea": "mocha ./test/functional/idea/idea --watch",
     "watch-projects-new": "mocha ./test/functional/project/projects-new --watch",
     "watch-project-id": "mocha ./test/functional/project/project-id-name --watch",
     "watch-project-join": "mocha ./test/functional/project/project-join --watch",

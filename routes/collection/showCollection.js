@@ -18,6 +18,7 @@ module.exports = function (req, res, next) {
     let collection = yield db[collectionName].read(id);
     let expectedUrl = generateUrl(collection.name);
     collection.url = expectedUrl;
+    collection.id = id;
     
     if(url !== expectedUrl) {
       return res.redirect(`/${collectionName}/${id}/${expectedUrl}`);

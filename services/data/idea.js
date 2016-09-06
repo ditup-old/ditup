@@ -8,29 +8,7 @@ module.exports = function (db) {
 
   idea.create = proto.create(['name', 'description'], 'ideas', db);
 
-  idea.read = function (id) {
-    var query = `FOR d IN ideas FILTER d._key == @id
-      LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
-      FOR c IN creator
-        RETURN MERGE(d, {creator: {username: c.username}})`;
-
-    var params = {id: id};
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (discs) {
-        if(discs.length === 1) {
-          return discs[0];        }
-        else if(discs.length === 0) {
-          throw new Error(404);
-        }
-        else {
-          throw new Error('duplicate idea id. this should never happen.');
-        }
-      });
-  };
+  idea.read = proto.read('ideas', db);;
 
   idea.update = function () {
     throw new Error('TODO!');

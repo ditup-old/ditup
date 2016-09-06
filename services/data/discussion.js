@@ -10,33 +10,7 @@ module.exports = function (db) {
 
   discussion.create = proto.create(['name'], 'discussions', db);
   
-  discussion.read = function (id) {
-    var query = `
-      FOR d IN discussions FILTER d._key == @id
-        LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
-        FOR c IN creator
-          RETURN MERGE(d, {creator: {username: c.username}}, {id: d._key})
-    `;
-    var params = {id: id};
-
-    return co(function * () {
-      let cursor = yield db.query(query, params);
-      let discs = yield cursor.all();
-
-      if(discs.length === 1) {
-        return discs[0];
-      }
-      else if(discs.length === 0) {
-        let err = new Error('Not Found');
-        err.status = 404;
-        throw err;
-      }
-      else {
-        throw new Error('duplicate discussion id. this should never happen.');
-      }
-    });
-  };
-
+  discussion.read = proto.read('discussions', db);
   discussion.update; //TODO
 
   discussion.updateField = proto.updateField('discussions', db);

@@ -12,6 +12,13 @@ router.use(editRoute);
 
 router.use(postHideFollow('idea', {}));
 
+router.post(['/:id/:url'],
+    postCollection.checkLogged,
+    postCollection.processPost,
+    postCollection.processErrors
+);
+
+/*
 router.post(['/:id/:url'], function (req, res, next) {
   let sessUser = req.session.user;
   let id = req.params.id;
@@ -44,7 +51,7 @@ router.post(['/:id/:url'], function (req, res, next) {
     next();
   }
 });
-
+// */
 router.all(['/:id/:url', '/:id'], showCollection);
 
 module.exports = router;
