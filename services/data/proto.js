@@ -457,12 +457,11 @@ proto.followers = function (collectionName, db) {
 proto.countFollowers = function (collectionName, db) {
   return function (id) {
     var query = `
-      LET col = (FOR d IN `+collectionName+` FILTER d._key == @id RETURN d)
+      LET col = (FOR d IN ${collectionName} FILTER d._key == @id RETURN d)
       LET output = (
         FOR d IN col
-          FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER ufd._to == d._id && ufd.hide == false
-            FOR u IN users FILTER u._id == ufd._from
-              RETURN u
+          FOR ufd IN userFollow${singularUppercase(collectionName)} FILTER ufd._to == d._id && ufd.hide == false
+            RETURN null
       )
       RETURN LENGTH(col) == 0 ? "404-error" : COUNT(output)`;
     var params = {id: id};

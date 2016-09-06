@@ -74,9 +74,10 @@ module.exports = function (db) {
   discussion.tags = proto.tags('discussions', db);
 
   discussion.follow = proto.follow('discussions', db);
-  discussion.hide = proto.hide('discussions', db);
+  //discussion.hide = proto.hide('discussions', db);
   discussion.unfollow = proto.unfollow('discussions', db);
-  discussion.unhide = proto.unhide('discussions', db);
+  discussion.countFollowers = proto.countFollowers('discussions', db);
+  //discussion.unhide = proto.unhide('discussions', db);
   discussion.following = proto.following('discussions', db);
   discussion.followingUser = proto.followingUser('discussions', db);
   discussion.followers = proto.followers('discussions', db);

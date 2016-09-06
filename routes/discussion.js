@@ -97,6 +97,9 @@ router.all(['/:id/:url', '/:id'], function (req, res, next) {
       discussion.following = yield db.discussion.followingUser(id, sessUser.username)
     }
 
+    //count number of followers
+    discussion.followerno = yield db.discussion.countFollowers(id);
+
     //sending the response
     if(sessUser.logged !== true) {
       sessUser.messages.push('<a href="/login?redirect='+encodeURIComponent(req.originalUrl)+'">log in</a> to see more and contribute');

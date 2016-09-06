@@ -10,7 +10,7 @@ let funcs = config.funcs;
 
 var generateUrl = require('../../../routes/collection/functions').generateUrl;
 
-describe('user visits /discussion/:id/:topic', function () {
+describe('user visits /discussion/:id/:name', function () {
   let browserObj = {};
   let browser;
 
@@ -29,10 +29,10 @@ describe('user visits /discussion/:id/:topic', function () {
 
   context('the discussion exists', function () {
     //*
-    context('url has an incorrect topic', function () {
+    context('url has an incorrect name', function () {
       beforeEach(funcs.visit(() => `/discussion/${existentDiscussion.id}/random-url`, browserObj));
 
-      it('should permanent redirect to the url with correct topic', function () {
+      it('should permanent redirect to the url with correct name', function () {
         browser.assert.success();
         browser.assert.redirected();
         browser.assert.url(`/discussion/${existentDiscussion.id}/${existentDiscussion.url}`);
@@ -42,7 +42,7 @@ describe('user visits /discussion/:id/:topic', function () {
     context('user visits /discussion/:id (without .../:url)', function () {
       beforeEach(funcs.visit(() => `/discussion/${existentDiscussion.id}`, browserObj));
 
-      it('should permanent redirect to the url with correct topic', function () {
+      it('should permanent redirect to the url with correct name', function () {
         browser.assert.success();
         browser.assert.redirected();
         browser.assert.url(`/discussion/${existentDiscussion.id}/${existentDiscussion.url}`);
@@ -56,7 +56,7 @@ describe('user visits /discussion/:id/:topic', function () {
         browser.assert.success();
       });
 
-      it('should show a discussion topic', function () {
+      it('should show a discussion name', function () {
         browser.assert.text('.discussion-name', existentDiscussion.name);
       });
 
@@ -66,11 +66,16 @@ describe('user visits /discussion/:id/:topic', function () {
           browser.assert.text(`#discussion-comment-${comment.id} .discussion-comment-author`, comment.author);
         }
       });
+
+      it('should show number of followers', function () {
+        browser.assert.element('.follow-count-followers');
+        browser.assert.text('.follow-count-followers', '0');
+      });
     });
 
     // */
 
-
+    /*
     context('has rights to add comments', function () {
       beforeEach(funcs.login(loggedUser, browserObj));
       beforeEach(funcs.visit(() => `/discussion/${existentDiscussion.id}/${existentDiscussion.url}`, browserObj));
@@ -148,6 +153,7 @@ describe('user visits /discussion/:id/:topic', function () {
         it('should show 403 Error (untestable)');
       });
     });
+    // */
   });
 
   context('the discussion doesn\'t exist', function () {

@@ -4,7 +4,7 @@
 
   var css = [
     '/css/header.css',
-    '/css/'+collectionName+'.css'
+    `/css/${collectionName}.css`
   ];
 
   var title = collection.name;
@@ -31,22 +31,22 @@ include ./header.ejs %>
         };
       %>
       <% include ./share.ejs %>
-
-      <a class="link-to-followers" href="">followers: <span class="number-of-followers"><%= collection.followerno %></span></a><%
+      <%
         /**
          * ********************** *
-         *    hide-follow         *
+         *       follow           *
          * ********************** *
          */
 
-        var hideFollow = {
-          view: !!logged,
+        var follow = {
+          view: true,
           hiding: !!collection.hiding,
           following: !!collection.following,
+          followers: collection.followerno,
           collection: collectionName
         };
 
-        %><% include ./hide-follow.ejs %>
+        %><% include ./follow.ejs %>
     </nav>
     <h1>
       <span class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" >

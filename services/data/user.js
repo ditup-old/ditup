@@ -416,7 +416,7 @@ module.exports = function (db) {
         FOR u IN users FILTER u.username == @username
             LET links = (FOR ufu IN userFollowUser
               FILTER ufu._to == u._id
-              RETURN ufu)
+              RETURN null)
             RETURN COUNT(links)`;
       var params = {username: username};
 
