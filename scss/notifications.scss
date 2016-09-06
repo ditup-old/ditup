@@ -13,14 +13,14 @@
 
   &.unviewed {
     font-weight: bold;
+
+    button {
+      font-weight: bold;
+    }
   }
 
   button {
     cursor:pointer;
     line-height:1;
   }
-}
-
-.unviewed.unviewed.unviewed.unviewed {
-  font-weight:bold;
 }

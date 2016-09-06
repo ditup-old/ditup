@@ -32,11 +32,11 @@
   font-weight: bold;
 }
 
+.notification.unviewed button {
+  font-weight: bold;
+}
+
 .notification button {
   cursor: pointer;
   line-height: 1;
-}
-
-.unviewed.unviewed.unviewed.unviewed {
-  font-weight: bold;
 }
