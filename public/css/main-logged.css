@@ -1,0 +1,31 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.main-todo {
+  margin-top: 6px;
+}
+
+.main-todo ul {
+  list-style-type: disc;
+  margin-left: 0;
+  padding-left: 1em;
+}
