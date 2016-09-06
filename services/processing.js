@@ -56,7 +56,7 @@ user.profileEdit = function (userData) {
 
 user.settings = function (user) {
   var settings = user.settings || {};
-  return Q.resolve({
+  return Promise.resolve({
     username: user.username,
     settings: {
       view: settings.view || 'all'
