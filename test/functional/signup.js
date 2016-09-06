@@ -1,124 +1,89 @@
 'use strict';
 
-//set things up
+let config = require('./partial/config');
+let dbConfig = require('../../services/db-config');
+let dbData = require('../dbData');
 
-// force the test environment to 'test'
-process.env.NODE_ENV = 'development';
-// get the application server module
-var app = require('../../app');
-var session = require('../../session');
+let deps = config.init({db: dbConfig}, dbData);
+let funcs = config.funcs;
 
-var Database = require('arangojs');
-var config = require('../../services/db-config');
-var db = new Database({url: config.url, databaseName: config.dbname});
-//var dbUser = require('../../services/data/user')(db);
-
-// use zombie.js as headless browser
-var Browser = require('zombie');
-
-//the tests themselves
 describe('signup', function () {
+  let browserObj = {};
+  let browser;
+
+  config.beforeTest(browserObj, deps);
+
+  beforeEach(function () {
+    browser = browserObj.Value;
+  });
+
+  let loggedUser = dbData.users[0];
 
   var newUser = {
     username: 'new-user',
     password: 'asdfasdf',
-    email: 'michal.salajka@protonmail.com'
+    email: 'michal.salajka@example.com'
   };
-  var server, browser;
-  var browserObj = {};
-  var serverObj = {};
-  
-  before(function () {
-    server = app(session).listen(3000);
-    serverObj.Value = server;
-    browser = new Browser({ site: 'http://localhost:3000' });
-    browserObj.Value = browser;
-  });
-
-  after(function (done) {
-    server.close(done);
-  });
-
-  var loggedUser = {username: 'test1', password: 'asdfasdf'};
-
-  function login (done) {
-    browser.visit('/login')
-      .then(() => {
-        return browser.fill('username', loggedUser.username)
-          .fill('password', loggedUser.password)
-          .pressButton('log in');
-      })
-      .then(done, done);
-  }
-
-  function logout (done) {
-    browser.visit('/logout')
-      .then(done, done);
-  }
 
   context('not logged in', function () {
-    beforeEach(logout);
+    beforeEach(funcs.logout(browserObj));
+    afterEach(funcs.logout(browserObj));
 
     context('GET', function () {
-      it('should show a signup form', function (done) {
-        browser.visit('/signup')
-          .then(function () {
-            browser.assert.success();
-            browser.assert.element('form#signup-form');
-          })
-          .then(done, done);
+      beforeEach(funcs.visit('/signup', browserObj));
+
+      it('should show a signup form', function () {
+        browser.assert.success();
+        browser.assert.element('form#signup-form');
       });
     });
 
     context('POST', function () {
-      beforeEach(function (done) {
-        browser.visit('/signup')
-          .then(done, done);
-      });
       context('valid data', function () {
-        beforeEach(function (done) {
-          browser
-            .fill('username', newUser.username)
-            .fill('email', newUser.email)
-            .fill('password', newUser.password)
-            .fill('password2', newUser.password)
-            .pressButton('sign up')
-            .then(done, done);
-        });
+        beforeEach(funcs.fill('/signup', {username: newUser.username, email: newUser.email, password: newUser.password, password2: newUser.password, submit: 'sign up'}, browserObj));
 
-        afterEach(function (done) {
-          db.query('FOR u IN users FILTER u.username == @username REMOVE u IN users', {username: newUser.username})
-            .then(function () {})
-            .then(done, done);
-        });
-
-        it('should make user and save her to database');
-        it('should save only hash and salt of password');
-        it('should log in and show welcoming message', function () {
+        it('should create the user, log in and show welcoming message', function () {
           browser.assert.success();
+          browser.assert.text('.popup-message', `Welcome ${newUser.username}. Your new account was created and verification email was sent to ${newUser.email}. It should arrive soon. In the meantime why don't you fill up your profile?`);
         });
       });
 
       context('invalid data', function () {
-        it('should ')
-        context('bad format', function () {
-          it('should show correct errors');
+        context('[username]', function () {
+          it('should show the username error');
+          it('should keep the username filled');
         });
-        context('duplicate email or username', function () {
-          it('should show correct errors');
+        context('[email]', function () {
+          it('should show the email error');
+          it('should keep the email filled');
+        });
+        context('[password]', function () {
+          it('should show the password error');
+        });
+        context('[password mismatch]', function () {
+          it('should show the password mismatch error');
+        });
+      });
+
+      context('duplicate data', function () {
+        context('[username]', function () {
+          it('should show the duplicate username error');
+          it('should keep the username filled');
+        });
+        context('[email]', function () {
+          it('should show the duplicate email error');
+          it('should keep the email filled');
         });
       });
     });
   });
 
   context('logged in', function () {
-    beforeEach(logout);
-    beforeEach(login);
-    afterEach(logout);
-    beforeEach(function (done) {
-      browser.visit('/signup')
-        .then(done, done);
-    });
+    beforeEach(funcs.login(loggedUser, browserObj));
+    afterEach(funcs.logout(browserObj));
+
+    beforeEach(funcs.visit('/signup', browserObj));
+
     it('should say that user needs to log out first (with link in "log out")', function () {
       browser.assert.success();
       browser.assert.text('div.popup-message.info', 'you are logged in as ' + loggedUser.username + '. To sign up you need to log out first.');

@@ -2,31 +2,24 @@
 
 let co = require('co');
 
-var express = require('express');
-var router = express.Router();
-var validate = require('../services/validation');
-var database = require('../services/data');
-var accountService = require('../services/account');
+var router = require('express').Router();
+
 var accountModule = require('../modules/account');
-var accountConfig = require('../config/user/account.json');
 
-const ITERATIONS = accountConfig.password.iterations;
-
-router.all('*', function(req, res, next) {
+//checking if user is not logged in
+router.all('/', function(req, res, next) {
   var sessUser = req.session.user;
   if(sessUser.logged === true) {
-    sessUser.messages.push('you are logged in as <a href="/user/'+ sessUser.username +'" >' + sessUser.username + '</a>. To sign up you need to <a href="/logout">log out</a> first.');
-    return res.render('sysinfo', {session: sessUser});
+    sessUser.messages.push(`you are logged in as <a href="/user/${sessUser.username}" >${sessUser.username}</a>. To sign up you need to <a href="/logout">log out</a> first.`);
+    return res.render('sysinfo');
   }
   else {
-    next();
+    return next();
   }
 });
 
 router.get('/', function(req, res, next){
-  var sessUser = req.session.user;
-  //
-  return res.render('signup', {errors: {}, values: {}, session: sessUser});
+  return res.render('signup', {errors: {}, values: {}});
 });
 
 router.post('/', function (req, res, next) {
