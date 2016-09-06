@@ -163,3 +163,35 @@ module.exports = function (collectionName) {
 
   });
 };
+
+/*
+ *
+ * these are some TODO tests which may be done later in collections
+describe('visit /challenge/:id/:name', function () {
+  context('challenge with :id exists', function () {
+    context(':id and :name are valid', function () {
+      it('should show activity log');
+      it('should show stars')
+      it('should show the challenges, tags, followers, stars, etc.');
+      context('not logged in', function () {
+        it('should suggest logging in or signing up with proper redirect in link', function () {
+        });
+      });
+
+      context('logged in', function () {
+        //challenge/id/name/add-tag
+
+        it('should show buttons for launching idea, project, discussion, challenge...');
+        it('may make it possible to link existent ideas, projects, discussions, challenges');
+        it('may be possible to edit the challenge name and description in wikipedia or etherpad style');
+
+        context('user is creator', function () {
+          it('may be possible to delete the challenge if not embraced'); //challenge/id/name/delete //discourage!
+          it('may be possible for the creator to remove their name (anonymization)');
+        });
+        
+        context('user is not a creator', function () {});
+      });
+    });
+});
+// */
