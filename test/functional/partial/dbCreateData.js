@@ -14,6 +14,7 @@ module.exports = function (amounts) {
   amounts.userTag = amounts.userTag || [];
   amounts.projectTag = amounts.projectTag || [];
   amounts.discussionTag = amounts.discussionTag || [];
+  const UNVERIFIED = amounts.unverified || [];
 
   //creating users
   data.users = [];
@@ -23,6 +24,8 @@ module.exports = function (amounts) {
       password: 'asdfasdf',
       email: `test${i}@example.com`
     });
+
+    if(UNVERIFIED.indexOf(i)>-1) data.users[i].verified = false;
   }
 
 /*

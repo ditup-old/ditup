@@ -94,23 +94,21 @@ module.exports = function (db) {
     }
 
     function populateTags(tags, users) {
-      var tagPromises = [];
-      for(let i = 0, len = tags.length; i < len; ++i) {
-        let creator = typeof(tags[i].creator) === 'number' ? users[tags[i].creator].username : tags[i].creator;
-        tags[i].creator = creator;
-        tags[i].tagname = tags[i].name || tags[i].tagname;
-        let tp = data.tag.create({
-          name: tags[i].tagname,
-          description: tags[i].description,
-          meta: {
-            created: Date.now(),
-            creator: creator
-          }
-        });
-        tagPromises.push(tp);
-      }
-      return Promise.all(tagPromises)
-        .then(function () {});
+      return co(function * () {
+        for(let tag of tags) {
+          let creator = typeof(tag.creator) === 'number' ? users[tag.creator].username : tag.creator;
+          tag.creator = creator;
+          tag.tagname = tag.name || tag.tagname;
+          yield data.tag.create({
+            name: tag.tagname,
+            description: tag.description,
+            meta: {
+              created: Date.now(),
+              creator: creator
+            }
+          });
+        }
+      });
     }
 
     function populateCollections(collections, users, collectionName) {

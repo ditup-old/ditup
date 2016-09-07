@@ -1,0 +1,64 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.settings-section {
+  border: 10px solid #6ca6ca;
+  padding: 10px;
+  margin-top: 5px;
+}
+
+.settings-section.settings-danger {
+  border-color: #e45;
+}
+
+.settings-section.settings-danger input[type=submit] {
+  background-color: #e45;
+}
+
+.settings-section hr {
+  border: none;
+  height: 5px;
+  background-color: #6ca6ca;
+}
+
+.settings-section form:not(.settings-send-verification-code) input {
+  width: 300px;
+  margin-top: 3px;
+}
+
+.settings-section input[type=submit] {
+  height: 2em;
+  background-color: #6ca6ca;
+  border-radius: 2px;
+}
+
+.settings-send-verification-code {
+  display: inline-block;
+}
+
+.settings-email-verified::before {
+  content: "(";
+}
+
+.settings-email-verified::after {
+  content: ")";
+}

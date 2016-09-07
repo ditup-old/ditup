@@ -10,7 +10,6 @@ var image = require('../services/image');
 let co = require('co');
 
 router.use(require('./user/edit'));
-router.use(require('./user/settings'));
 
 router
 .post('/:username', function (req, res, next){

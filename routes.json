@@ -26,5 +26,6 @@
   {"url":"/people", "router":"people"},
   {"url":"/messages", "router":"messages"},
   {"url":"/notifications", "router":"notifications"},
+  {"url":"/settings", "router":"settings"},
   {"url":"/about", "router":"about"}
 ]

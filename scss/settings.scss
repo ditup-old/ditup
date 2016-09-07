@@ -1,0 +1,48 @@
+@import "colors";
+@import "page-mixin";
+
+@include page();
+
+.settings-section {
+  border: 10px solid $darker;
+  padding: 10px;
+  margin-top: 5px;
+
+  &.settings-danger {
+    border-color: #e45;
+
+    input[type=submit] {
+      background-color: #e45;
+    }
+  }
+
+  hr {
+    border: none;
+    height: 5px;
+    background-color: $darker;
+  }
+
+  form:not(.settings-send-verification-code) input {
+    width: 300px;
+    margin-top:3px;
+  }
+
+  input[type=submit] {
+    height: 2em;
+    background-color: $darker;
+    border-radius:2px;
+  }
+}
+
+.settings-send-verification-code {
+  display: inline-block;
+}
+
+.settings-email-verified {
+  &::before {
+    content: "("
+  }
+  &::after {
+    content: ")"
+  }
+}
