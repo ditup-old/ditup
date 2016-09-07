@@ -1,0 +1,44 @@
+@import "colors";
+
+$status-size: 6em;
+$name-size: 4em;
+$nav-size: 2em;
+
+body {
+  background-color: $darker;
+  color: $light;
+}
+
+.error-page {
+  height: $status-size + $name-size + $nav-size;
+  vertical-align:middle;
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  margin: auto;
+
+  text-align: center;
+  font-family: Lato;
+}
+
+.error-status {
+  font-size: $status-size;
+  font-weight: bold;
+}
+
+.error-name {
+  font-size: $name-size;
+  font-weight: bold;
+}
+
+.error-navigation {
+  font-size: $nav-size;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/lato/Lato2OFLWeb/Lato/fonts/Lato-Light.ttf");
+}

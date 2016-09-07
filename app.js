@@ -123,11 +123,21 @@ module.exports = function (session) {
   // will print stacktrace
   if (app.get('env') === 'development' || app.get('env') === 'test') {
     app.use(function(err, req, res, next) {
-      res.status(err.status || 500);
-      console.error(err, err.stack);
-      res.format({
+      err.status = err.status || 500;
+      res.status(err.status);
+      console.error(err.status, err, err.stack);
+      return res.format({
         'text/html': function () {
-          res.render('error', {
+          let preparedErrors = [403, 404];
+          if(preparedErrors.indexOf(err.status)>-1){
+            return res.render(`./errors/${err.status}`);
+          }
+          if(err.status === 500) {
+            res.locals.message = err.message;
+            res.locals.stack = err.stack;
+            return res.render(`./errors/500`);
+          }
+          return res.render('error', {
             message: err.message,
             error: err
           });

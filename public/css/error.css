@@ -1,0 +1,36 @@
+body {
+  background-color: #6ca6ca;
+  color: #eee;
+}
+
+.error-page {
+  height: 12em;
+  vertical-align: middle;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  text-align: center;
+  font-family: Lato;
+}
+
+.error-status {
+  font-size: 6em;
+  font-weight: bold;
+}
+
+.error-name {
+  font-size: 4em;
+  font-weight: bold;
+}
+
+.error-navigation {
+  font-size: 2em;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/lato/Lato2OFLWeb/Lato/fonts/Lato-Light.ttf");
+}

@@ -1,0 +1,32 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/error.css'
+];
+
+var title = '403 - Not Authorized - ditup';
+var logged = session.logged;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ../partial/page-top.ejs %>
+<section class="error-page">
+  <section class="error-status">
+    403
+  </section>
+  <section class="error-name">
+    Not Authorized
+  </section>
+  <nav class="error-navigation">
+    <% if(logged !== true) { 
+      let extendedLogin = `/login?redirect=${encodeURIComponent(url)}`
+    %>
+    <a href="<%= extendedLogin %>">[try to log in]</a>
+    <% }
+    else { %>
+    you don't have enough rights
+    <% } %>
+  </nav>
+</section>
+<% include ../partial/page-bottom.ejs %>

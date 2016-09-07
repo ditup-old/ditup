@@ -1,0 +1,25 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/error.css'
+];
+
+var title = '404 - Not Found - ditup';
+var logged = session.logged;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ../partial/page-top.ejs %>
+<section class="error-page">
+  <section class="error-status">
+    404
+  </section>
+  <section class="error-name">
+    Not Found
+  </section>
+  <nav class="error-navigation">
+    <a href="/">[homepage]</a>
+  </nav>
+</section>
+<% include ../partial/page-bottom.ejs %>
