@@ -125,7 +125,7 @@ module.exports = function (session) {
     app.use(function(err, req, res, next) {
       err.status = err.status || 500;
       res.status(err.status);
-      console.error(err.status, err, err.stack);
+      console.error(err.status, err);
       return res.format({
         'text/html': function () {
           let preparedErrors = [403, 404];
