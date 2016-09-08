@@ -31,6 +31,7 @@ router.post('/', function (req, res, next) {
     password: form.password,
     password2: form.password2
   };
+  let db = req.app.get('database');
 
   return co(function * () {
     try {
@@ -45,7 +46,7 @@ router.post('/', function (req, res, next) {
     }
 
     let host = req.app.get('host');
-    yield accountModule.initEmailVerification({username:formData.username, email: formData.email, host: host});
+    yield accountModule.initEmailVerification({username:formData.username, email: formData.email, host: host, database: db});
 
     //generate success message
     sessUser.username = formData.username;

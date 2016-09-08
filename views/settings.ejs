@@ -9,6 +9,7 @@ var title = `${data.username} - settings - ditup`;
 var verifiedMail = data.isEmailVerified ? 'verified' : 'not verified';
 
 var errors = errors || {};
+var values = values || {};
 
 var headScripts = [];
 var scripts = [];
@@ -23,8 +24,8 @@ var scripts = [];
   <section class="settings-section settings-user">
     <header>
       <h2>User</h2>
-      Something might be here.
     </header>
+    Something might be here.
   </section>
   <section class="settings-section settings-email">
     <header>
@@ -40,9 +41,9 @@ var scripts = [];
     </div>
     <hr />
     <form class="settings-new-email" action="" method="post">
-      <input type="text" name="new-email" value="" placeholder="new email" />
+      <input type="text" name="new-email" value="<%= values.newEmail %>" placeholder="new email" />
       <br />
-      <input type="password" name="password" value="" placeholder="password" />
+      <input type="password" name="password" value="<%= values.password %>" placeholder="password" />
       <br />
       <input type="submit" name="action" value="change email" />
     </form>

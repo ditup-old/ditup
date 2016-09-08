@@ -32,6 +32,7 @@ module.exports = function independentAccount(dependencies) {
     var username = data.username;
     var email = data.email;
     var host = data.host || 'https://ditup.org';
+    var db = data.database;
 
     return co(function *() {
       //create verification code, salt & hash
@@ -53,7 +54,7 @@ module.exports = function independentAccount(dependencies) {
         username: username,
         email: email
       };
-      yield database.user.updateEmailVerifyCode(user, data);
+      yield db.user.updateEmailVerifyCode(user, data);
       
       //sending a verification email to the user
       var mailerData = {
@@ -199,32 +200,25 @@ module.exports = function independentAccount(dependencies) {
     if(!data.hasOwnProperty('username') || !data.hasOwnProperty('password')) throw badInput;
     var username = data.username;
     var password = data.password;
-    var salt;
-    var hash;
+    var db = data.database;
 
-    //generate salt for password hash
-    return accountService.generateSalt()
-      .then(function (_salt) {
-        salt = _salt;
+    return co(function * () {
+      //generate salt for password hash
+      let salt = yield accountService.generateSalt();
 
-        //generate hash
-        return accountService.hashPassword(password, salt, ITERATIONS);
-      })
-      .then(function (_hash) {
-        hash = _hash;
+      //generate hash
+      let hash = yield  accountService.hashPassword(password, salt, ITERATIONS);
 
-        //this user should be saved to database
-        var login = {
-          salt: salt,
-          hash: hash,
-          iterations: ITERATIONS
-        };
-
-        var user = {username: username};
-        
-        //save new user to database
-        return database.updateUserPassword(user, login);
-      });
+      //data for the database
+      let login = {
+        salt: salt,
+        hash: hash,
+        iterations: ITERATIONS
+      };
+    
+      //save new password hash, salt & iterations to db
+      yield db.user.updatePassword({username: username}, login);
+    });
   };
 
   /**
@@ -238,36 +232,28 @@ module.exports = function independentAccount(dependencies) {
     returnUserData = returnUserData || {};
     var username = data.username;
     var password = data.password;
-    var hash, salt, iterations;
+    var db = data.database;
 
-    return co(function * () {});
+    return co(function * () {
+      let user = yield db.readUser({username: username});
 
-    return database.readUser({username: username})
-      .then(function (user) {
-        if(!user) throw new Error('user not exist');
-        returnUserData.name = user.profile.name;
-        returnUserData.surname = user.profile.surname;
-        returnUserData.username = user.username;
-        returnUserData.email = user.email;
-        hash = user.login.hash;
-        salt = user.login.salt;
-        iterations = user.login.iterations;
+      returnUserData.name = user.profile.name;
+      returnUserData.surname = user.profile.surname;
+      returnUserData.username = user.username;
+      returnUserData.email = user.email;
 
-        //hash the provided password
-        return accountService.hashPassword(password, salt, iterations);
-      })
-      .then(function (hash2) {
-        //compare password hashes
-        var isPasswordCorrect = accountService.compareHashes(hash, hash2);
-        if(isPasswordCorrect === true) {
-          return true;
-        }
+      let hash = user.login.hash;
+      let salt = user.login.salt;
+      let iterations = user.login.iterations;
 
-        return false;
-      })
-      .then(null, function (err) {
-        if(err.message === 'user not exist') {return false;}
-      });
+      //hash the provided password
+      let hash2 = yield accountService.hashPassword(password, salt, iterations);
+
+      //compare password hashes
+      var isPasswordCorrect = accountService.compareHashes(hash, hash2);
+
+      return isPasswordCorrect === true ? true : false;
+    });
   };
 
   /**

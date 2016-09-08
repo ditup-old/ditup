@@ -42,11 +42,6 @@ module.exports = function independentData(dependencies) {
      * @param {Object} data
      */
     updateUserResetPasswordCode: that.user.updateResetPasswordCode,
-    /**
-     * @param {Object} user
-     * @param {Object} data
-     */
-    updateUserPassword: that.user.updatePassword,
     ////D
     deleteUser: that.user.delete,
 

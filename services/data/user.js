@@ -213,7 +213,7 @@ module.exports = function (db) {
     var query = 'FOR x IN users FILTER x.username == @username ' +
       'UPDATE x WITH {email: @email, account: {email: @data}} IN users';
     var email = {
-      create_date: data.create_date,
+      create_date: data.create_date || Date.now(),
       hash: data.hash,
       salt: data.salt,
       iterations: data.iterations,
@@ -225,7 +225,21 @@ module.exports = function (db) {
       email: user.email
     }
 
-    return db.query(query, params);
+    return co(function * () {
+      try{
+        let cursor = yield db.query(query, params);
+      }
+      catch(e){
+        if(e.code === 409 && e.errorNum === 1210) {
+          let err = new Error('duplicit email');
+          err.status = 409;
+          throw err;
+        }
+        throw (e);
+      }
+
+      return;
+    });
   };
 
   user.updateEmailVerified = function (user, data) {
