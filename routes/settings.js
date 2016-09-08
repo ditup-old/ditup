@@ -86,7 +86,6 @@ router.post('/', function (req, res, next) {
 
   if(req.body.action === 'change email') {
     var sessUser = req.session.user;
-    req.ditup.postProcessed = true;
     //marking that we processed the post
     req.ditup.postProcessed = true;
 
@@ -164,6 +163,7 @@ router.post('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
   let db = req.app.get('database');
   if(req.body.action === 'change password') {
+    req.ditup.postProcessed = true;
     let currentPassword = req.body['current-password'];
     let newPassword = req.body['new-password'];
     let newPassword2 = req.body['new-password2'];
