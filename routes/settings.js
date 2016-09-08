@@ -83,9 +83,10 @@ router.post('/', function (req, res, next) {
 // ***********change email******************
 router.post('/', function (req, res, next) {
   //we expect email and password. if password match, we create email code, save email & hash to database & send verification email.
-  var sessUser = req.session.user;
 
   if(req.body.action === 'change email') {
+    var sessUser = req.session.user;
+    req.ditup.postProcessed = true;
     //marking that we processed the post
     req.ditup.postProcessed = true;
 
@@ -116,6 +117,10 @@ router.post('/', function (req, res, next) {
         res.locals.values = {
           newEmail: email
         };
+
+        res.locals.errors = {
+          password: 'the password is wrong'
+        };
       }
 
       return next();
@@ -130,6 +135,10 @@ router.post('/', function (req, res, next) {
           password: password
         };
 
+        res.locals.errors = {
+          newEmail: 'the email is duplicit'
+        }
+
         return next();
       }
       else if(e.status === 400) {
@@ -138,6 +147,10 @@ router.post('/', function (req, res, next) {
           newEmail: email,
           password: password
         }
+
+        res.locals.errors = {
+          newEmail: 'the email is invalid'
+        };
         return next();
       }
       else return next(e);
@@ -151,15 +164,81 @@ router.post('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
   let db = req.app.get('database');
   if(req.body.action === 'change password') {
-    let password = req.body['new-password'];
+    let currentPassword = req.body['current-password'];
+    let newPassword = req.body['new-password'];
+    let newPassword2 = req.body['new-password2'];
     let sessUser = req.session.user;
     return co(function * () {
-      yield accountModule.updatePassword({username: sessUser.username, password: password, database: db});
+      
+      //check if the new passwords are the same
+      if(newPassword !== newPassword2){
+        throw new Error('password mismatch');
+      }
 
-      sessUser.messages.push('the password was changed');
+      //validate the new password
+      validate.user.password(newPassword);
+
+      //match password
+      let match = yield accountModule.matchPassword({username: sessUser.username, password: currentPassword, database: db});
+
+      //correct password
+      //
+      if(match === true) {
+        yield accountModule.updatePassword({username: sessUser.username, password: newPassword, database: db});
+        sessUser.messages.push('the password was changed');
+      }
+      //wrong password
+      //
+      else {
+        sessUser.messages.push('the current password is wrong');
+        res.locals.values = {
+          newPassword: newPassword,
+          newPassword2: newPassword2
+        };
+
+        res.locals.errors = {
+          currentPassword: 'the password is wrong'
+        };
+      }
 
       return next();
-    }).catch(next);
+    }).catch(function (e) {
+      if(e.status === 400) {
+        sessUser.messages.push(`the new password is invalid (${e.message})`);
+        res.locals.values = {
+          currentPassword: currentPassword
+        }
+
+        res.locals.errors = {
+          newPassword: e.message
+        };
+
+        return next();
+      }
+      else if(e.message === 'password mismatch') {
+        sessUser.messages.push('the new passwords don\'t match');
+        res.locals.values = {
+          currentPassword: currentPassword
+        }
+
+        res.locals.errors = {
+          newPassword2: 'the passwords don\'t match'
+        };
+        return next();
+      }
+      return next(e);
+    });
+  }
+
+  return next();
+});
+
+// ***************** request not recognized error **************** //
+router.post('/', function (req, res, next) {
+  if(req.ditup.postProcessed !== true) {
+    let e = new Error('post request not recognized');
+    e.status = 400;
+    return next(e);
   }
 
   return next();

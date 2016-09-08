@@ -41,9 +41,9 @@ var scripts = [];
     </div>
     <hr />
     <form class="settings-new-email" action="" method="post">
-      <input type="text" name="new-email" value="<%= values.newEmail %>" placeholder="new email" />
+      <input <%- errors.hasOwnProperty('newEmail') ? 'class="settings-input-error" ' : '' %>type="text" name="new-email" value="<%= values.newEmail %>" placeholder="new email" /><%= errors.newEmail %>
       <br />
-      <input type="password" name="password" value="<%= values.password %>" placeholder="password" />
+      <input <%= errors.hasOwnProperty('password') ? 'class="settings-input-error" ' : '' %>type="password" name="password" value="<%= values.password %>" placeholder="password" /><%= errors.password %>
       <br />
       <input type="submit" name="action" value="change email" />
     </form>
@@ -53,11 +53,11 @@ var scripts = [];
       <h2>Password</h2>
     </header>
     <form class="settings-new-password" action="" method="post">
-      <input type="password" name="current-password" value="" placeholder="current password" />
+      <input <%= errors.hasOwnProperty('currentPassword') ? 'class="settings-input-error" ' : '' %>type="password" name="current-password" value="<%= values.currentPassword %>" placeholder="current password" /><%= errors.currentPassword %>
       <br />
-      <input type="password" name="new-password" value="" placeholder="new password" />
+      <input <%= errors.hasOwnProperty('newPassword') || errors.hasOwnProperty('newPassword2') ? 'class="settings-input-error" ' : '' %>type="password" name="new-password" value="<%= values.newPassword %>" placeholder="new password" /><%= errors.newPassword %>
       <br />
-      <input type="password" name="new-password2" value="" placeholder="repeat new password" />
+      <input <%= errors.hasOwnProperty('newPassword2') ? 'class="settings-input-error" ' : '' %>type="password" name="new-password2" value="<%= values.newPassword2 %>" placeholder="repeat new password" /><%= errors.newPassword2 %>
       <br />
       <input type="submit" name="action" value="change password" />
     </form>

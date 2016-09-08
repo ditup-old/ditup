@@ -62,3 +62,7 @@
 .settings-email-verified::after {
   content: ")";
 }
+
+.settings-input-error {
+  color: red;
+}

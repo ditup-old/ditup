@@ -3,16 +3,18 @@
 
 @include page();
 
+$danger-color: #e45;
+
 .settings-section {
   border: 10px solid $darker;
   padding: 10px;
   margin-top: 5px;
 
   &.settings-danger {
-    border-color: #e45;
+    border-color: $danger-color;
 
     input[type=submit] {
-      background-color: #e45;
+      background-color: $danger-color;
     }
   }
 
@@ -46,3 +48,8 @@
     content: ")"
   }
 }
+
+.settings-input-error {
+  color: red;
+}
+

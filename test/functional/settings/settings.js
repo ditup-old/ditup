@@ -187,18 +187,44 @@ describe('user settings', function () {
         });
         
         context('bad data [wrong old password]', function () {
-          it('should complain about wrong password');
-          it('should keep the new passwords filled');
-          it('should empty the old password');
+          beforeEach(funcs.fill('/settings', {'[name=current-password]': 'wrong-password', '[name=new-password]': newPassword, '[name=new-password2]': newPassword, submit: 'change password'}, browserObj));
+
+          it('should complain about wrong password', function () {
+            browser.assert.text('.popup-message', 'the current password is wrong');
+          });
+
+          it('should keep the new passwords filled', function () {
+            browser.assert.input('[name=new-password]', newPassword);
+            browser.assert.input('[name=new-password2]', newPassword);
+          });
+
+          it('should empty the old password', function () {
+            browser.assert.input('[name=current-password]', '');
+          });
         });
+
         context('bad data [invalid new password]', function () {
-          it('should complain about invalid password');
-          it('should keep the old password filled');
+          beforeEach(funcs.fill('/settings', {'[name=current-password]': loggedUser.password, '[name=new-password]': invalidPassword, '[name=new-password2]': invalidPassword, submit: 'change password'}, browserObj));
+          it('should complain about invalid password', function () {
+            browser.assert.text('.popup-message', /^the new password is invalid (.*)$/);
+          });
+          it('should keep the old password filled', function () {
+            browser.assert.input('[name=current-password]', loggedUser.password);
+          });
         });
         context('bad data [new passwords mismatch]', function () {
-          it('should complain about mismatching passwords');
-          it('should keep the mismatching passwords in the form');
-          it('should keep the old password in the form');
+          beforeEach(funcs.fill('/settings', {'[name=current-password]': loggedUser.password, '[name=new-password]': newPassword, '[name=new-password2]': `${newPassword}.`, submit: 'change password'}, browserObj));
+
+          it('should complain about mismatching passwords', function () {
+            browser.assert.text('.popup-message', 'the new passwords don\'t match');
+          });
+          it('should leave the mismatching passwords empty', function () {
+            browser.assert.input('[name=new-password]', '');
+            browser.assert.input('[name=new-password2]', '');
+          });
+          it('should keep the old password in the form', function () {
+            browser.assert.input('[name=current-password]', loggedUser.password);
+          });
         });
       });
     });
