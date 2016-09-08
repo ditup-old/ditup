@@ -1,0 +1,25 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/error.css'
+];
+
+var title = '400 - Bad Request - ditup';
+var logged = session.logged;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ../partial/page-top.ejs %>
+<section class="error-page">
+  <section class="error-status">
+    400
+  </section>
+  <section class="error-name">
+    Bad Request
+  </section>
+  <nav class="error-navigation">
+    <%= message %>
+  </nav>
+</section>
+<% include ../partial/page-bottom.ejs %>

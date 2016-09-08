@@ -128,8 +128,9 @@ module.exports = function (session) {
       console.error(err.status, err);
       return res.format({
         'text/html': function () {
-          let preparedErrors = [403, 404];
+          let preparedErrors = [400, 403, 404];
           if(preparedErrors.indexOf(err.status)>-1){
+            if(err.status === 400) res.locals.message = err.message;
             return res.render(`./errors/${err.status}`);
           }
           if(err.status === 500) {
