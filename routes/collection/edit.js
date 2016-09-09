@@ -10,6 +10,7 @@ let co = require('co');
 let express = require('express');
 var functions = require('../collection/functions');
 var generateUrl = functions.generateUrl;
+let validate = require('../../services/validation/validate');
 
 let exp = {};
 
@@ -139,23 +140,28 @@ exp.post = function (fields) {
           if(field === 'tags') {
             if(req.body.action === 'add tag') {
               let tagname = req.body.tagname;
+              validate.tag.tagname(tagname);
+
               let exists = yield db.tag.exists(tagname);
               if(exists) {
                 yield db[dittype].addTag(id, tagname, req.session.user.username);
                 req.session.messages.push(`the tag ${req.body.tagname} was added to the ${dittype}`);
               }
               else {
-                return res.render('tag-create-add', {tag: {name: req.body.tagname}});
+                return res.render('tag-create-add', {tag: {tagname: req.body.tagname}});
               }
             }
             else if(req.body.action === 'create and add tag') {
               let tagname = req.body.tagname;
+              let description = req.body.description;
               //TODO validation
+              validate.tag.tagname(tagname);
+              validate.tag.description(description);
               //
               //create the tag
               yield db.tag.create({
-                name: tagname,
-                description: req.body.description,
+                tagname: tagname,
+                description: description,
                 meta: {
                   creator: req.session.user.username
                 }
@@ -191,6 +197,21 @@ exp.post = function (fields) {
         if(e.code === 409) {
           req.session.user.messages.push(`the tag ${req.body.tagname} is already added`);
           return next();
+        }
+        if(e.status === 400) {
+          if(e.detail && e.detail.field === 'tagname') {
+            if(e.detail.rule === 'regex') {
+              req.session.user.messages.push(`the tagname is invalid. it should look like 'simplename' or 'some-longer-tagname'.`);
+            }
+            else {
+              req.session.user.messages.push(e.message);
+            }
+            return next();
+          }
+          else if(e.detail && e.detail.field === 'description') {
+            req.session.user.messages.push(e.message);
+            return next();
+          }
         }
         return next(e);
       });

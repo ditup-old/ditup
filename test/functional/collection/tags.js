@@ -30,7 +30,8 @@ module.exports = function (collectionName) {
     beforeEach(function () {
       browser = browserObj.Value;
     });
-
+    
+    //*
     context(`visit /${collectionName}/:id/:url`, function () {
       beforeEach(funcs.visit(()=>`/${collectionName}/${collection.id}/${collection.url}`, browserObj));
       it(`should show tags of ${collectionName}`, function () {
@@ -73,6 +74,7 @@ module.exports = function (collectionName) {
         });
       });
     });
+    // */
 
     context(isProject ? 'member' : 'logged in', function () {
       if(isProject) {
@@ -82,7 +84,8 @@ module.exports = function (collectionName) {
         beforeEach(funcs.login(loggedUser, browserObj));
       }
       afterEach(funcs.logout(browserObj));
-
+      
+      //*
       context('click edit link', function () {
         beforeEach(funcs.visit(()=>`/${collectionName}/${collection.id}/${collection.url}`, browserObj));
         //clicking the edit link
@@ -118,8 +121,29 @@ module.exports = function (collectionName) {
           });
         }
       });
+      // */
 
       context('add the tag (POST)', function () {
+        let longString = '01234567';
+        for(let i=0;i<10;++i){
+          longString += longString;
+        }
+
+        let invalidTag = {
+          tagname: 'some Invalid-tagname',
+          description: longString
+        };
+
+        context('invalid data [tagname]', function () {
+          beforeEach(funcs.fill(()=>`/${collectionName}/${collection.id}/${collection.url}/edit?field=tags`, {'.add-tag-form [name=tagname]': invalidTag.tagname, submit: 'add tag'}, browserObj));
+
+          it('should complain about invalid tagname', function () {
+            browser.assert.text('.popup-message', `the tagname is invalid. it should look like 'simplename' or 'some-longer-tagname'.`);
+          });
+
+          it('should keep the data in the form');
+        });
+
         context('the tag exists', function () {
           context(`${collectionName} is already tagged with this tag`, function () {
             let addedTag = dbData.tags[0];
@@ -163,21 +187,44 @@ module.exports = function (collectionName) {
           });
 
           context('POST the new tag', function () {
-            beforeEach(function (done) {
-              co(function * () {
-                yield browser.fill('.create-add-tag-form [name=description]', nonExistentTag.description)
-                  .pressButton('.create-add-tag-form [name=action]');
-                done();
+            context('valid data', function () {
+              beforeEach(function (done) {
+                co(function * () {
+                  yield browser.fill('.create-add-tag-form [name=description]', nonExistentTag.description)
+                    .pressButton('.create-add-tag-form [name=action]');
+                  done();
 
-              }).catch(done);
+                }).catch(done);
+              });
+
+              it(`should create and add the tag to ${collectionName} and go back to the edit tags page`, function () {
+                browser.assert.elements('.tag', dbData.tags.length);
+              });
+
+              it(`should say that the tag was created and added to the ${collectionName}`, function () {
+                browser.assert.text('.popup-message.info', `the tag ${nonExistentTag.name} was created and added to the ${collectionName}`);
+              });
+            }); 
+
+            context('invalid data [tagname]', function () {
+              it('is hard to test at this point');
             });
 
-            it(`should create and add the tag to ${collectionName} and go back to the edit tags page`, function () {
-              browser.assert.elements('.tag', dbData.tags.length);
-            });
+            context('invalid data [description]', function () {
+              beforeEach(function (done) {
+                co(function * () {
+                  yield browser.fill('.create-add-tag-form [name=description]', invalidTag.description)
+                    .pressButton('.create-add-tag-form [name=action]');
+                  done();
 
-            it(`should say that the tag was created and added to the ${collectionName}`, function () {
-              browser.assert.text('.popup-message.info', `the tag ${nonExistentTag.name} was created and added to the ${collectionName}`);
+                }).catch(done);
+              });
+
+              it('should complain about invalid tagname', function () {
+                browser.assert.text('.popup-message', `the maximal length of description is 2048`);
+              });
+
+              it('should keep the data in the form');
             });
           });
         });
