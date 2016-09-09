@@ -33,6 +33,7 @@ The first release should be a proof of the concept. It should be simple and show
         - name
         - username
 - [x] make a single info site /about
+    - [ ] it's monotonous. fix that. make it more interesting with color, font, different content, ... (suggested by dzik)
 - [ ] fix project, idea, challenge, discussion pages
     - [x] edit
         - [x] edit not only challenge, but others, too.
@@ -51,6 +52,7 @@ The first release should be a proof of the concept. It should be simple and show
         - idea
         - challenge
         - discussion
+        - they disappear when voted under zero
     - [x] inviting people to projects
 - [x] follow people
 - [x] merge dits of user with dits general: if logged in, both will be shown.
@@ -60,16 +62,27 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] comment the code
 - [ ] write styles
     - [ ] media query
+    - [ ] introduce a nice contrasting colour
+    - [ ] white background
 - [ ] clean the code
 - [x] unviewed notifications are not bold
-- [ ] nice error pages
+- [x] nice error pages
 - [ ] activity (it's not notifications. it's activity. you fetch activity of people & dits you follow to some feed.)
     - you should be able to filter the activity by type.
 - [x] fix user profile and write tests for it
 - [x] fix showing number of messages & notifications when reading messages/notifications
 - [ ] the adder of a tag to crowdsourced objects should be able to remove it from the object until voted.
 - [ ] the new tags should be removable by their creator when not used.
-- [ ] delete avatar picture when deleting user.
+- [x] delete avatar picture when deleting user.
+- [ ] inviting people to a project - better UX, the button for this should be clearly visible
+  - [ ] inviting non-users by email?
+  - [ ] inviting by link with a hash?
+- some navigation (like how to get out of a user page)
+- when starting a new discussion, the initial post is disappearing.
+- a page with all my things
+  - [ ] i created
+  - [ ] i follow
+  - [ ] i commented
 
 ### Future goals and ideas
 
