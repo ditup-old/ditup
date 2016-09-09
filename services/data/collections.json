@@ -1,7 +1,9 @@
 {
   "challengeCommentAuthor": {
     "type": "edge",
-    "unique": []
+    "unique": [],
+    "from": ["challenges"],
+    "to": ["users"]
   },
   "challenges": {
     "type": "document",
@@ -9,11 +11,15 @@
   },
   "challengeTag": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["challenges"],
+    "to": ["tags"]
   },
   "discussionCommentAuthor": {
     "type": "edge",
-    "unique": []
+    "unique": [],
+    "from": ["discussions"],
+    "to": ["users"]
   },
   "discussions": {
     "type": "document",
@@ -21,11 +27,15 @@
   },
   "discussionTag": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["discussions"],
+    "to": ["tags"]
   },
   "ideaCommentAuthor": {
     "type": "edge",
-    "unique": []
+    "unique": [],
+    "from": ["ideas"],
+    "to": ["users"]
   },
   "ideas": {
     "type": "document",
@@ -33,15 +43,21 @@
   },
   "ideaTag": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["ideas"],
+    "to": ["tags"]
   },
   "projectCommentAuthor": {
     "type": "edge",
-    "unique": []
+    "unique": [],
+    "from": ["projects"],
+    "to": ["users"]
   },
   "projectMember": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["projects"],
+    "to": ["users"]
   },
   "projects": {
     "type": "document",
@@ -49,31 +65,43 @@
   },
   "projectTag": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["projects"],
+    "to": ["tags"]
   },
   "tags": {
     "type": "document",
-    "unique": ["name"]
+    "unique": ["name", "tagname"]
   },
   "userFollowChallenge": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["users"],
+    "to": ["challenges"]
   },
   "userFollowDiscussion": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["users"],
+    "to": ["discussions"]
   },
   "userFollowIdea": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["users"],
+    "to": ["ideas"]
   },
   "userFollowProject": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["users"],
+    "to": ["projects"]
   },
   "userFollowUser": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["users"],
+    "to": ["users"]
   },
   "users": {
     "type": "document",
@@ -81,11 +109,15 @@
   },
   "userTag": {
     "type": "edge",
-    "unique": ["unique"]
+    "unique": ["unique"],
+    "from": ["users"],
+    "to": ["tags"]
   },
   "messages": {
     "type": "edge",
-    "unique": []
+    "unique": [],
+    "from": ["users"],
+    "to": ["users"]
   },
   "notifications": {
     "type": "document",

@@ -46,5 +46,60 @@ module.exports = function (parameters) {
         yield col.createHashIndex(indexName, {unique: false});
       }
     }
+    
+
+    // ************* graph ************* //
+    let graph = db.graph('ditup_graph');
+    
+    //populating graph properties from collections
+    let graphProperties = (function () {
+
+      //the object to return
+      let properties = {
+        edgeDefinitions: [],
+        orphanCollections: []
+      };
+      
+      //keeping track of documents which are used as vertexes
+      let nonOrphans = [];
+
+      for(let cnm in collections) {
+        let collection = collections[cnm];
+
+        if(collection.type === 'edge') {
+          //adding the edge to the edgeDefinitions
+          properties.edgeDefinitions.push({
+            collection: cnm,
+            from: collection.from,
+            to: collection.to
+          })
+          
+          //keeping track of documents used as vertexes
+          for(let vertex of collection.from){
+            if(nonOrphans.indexOf(vertex) === -1) nonOrphans.push(vertex);
+          }
+          for(let vertex of collection.to){
+            if(nonOrphans.indexOf(vertex) === -1) nonOrphans.push(vertex);
+          }
+          //END
+        }
+      }
+      
+      //populating the orphanCollections (the documents not yet used as vertexes)
+      for(let cnm in collections) {
+        let collection = collections[cnm];
+
+        //check whether a document is an orphan
+        if(collection.type === 'document' && nonOrphans.indexOf(cnm) === -1) {
+          properties.orphanCollections.push(cnm);
+        }
+      }
+
+      return properties;
+    })();
+
+    let graphInfo = yield graph.create(graphProperties);
+    console.log(graphInfo);
+    // ************ END graph *************** //
   });
 };

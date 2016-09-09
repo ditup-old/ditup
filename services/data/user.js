@@ -306,8 +306,18 @@ module.exports = function (db) {
   };
 
   ////D
-  user.delete = function (user) {
-    return db.query('FOR u IN users FILTER u.username == @username REMOVE u IN users', {username: user.username});
+  user.remove = function (username) {
+    return co(function * () {
+      let userCollection = db.collection('users');
+      let user = yield userCollection.firstExample({username: username});
+      let graph = db.graph('ditup_graph');
+      let output = yield graph.vertexCollection('users').remove(user._id);
+
+      yield db.query('FOR n IN notifications FILTER n.to == @userId REMOVE n IN notifications', {userId: user._id});
+
+      if(output.code === 202 && output.error === false && output.removed === true) return;
+      else throw output.error;
+    });
   };
 
   user.count = function (options) {

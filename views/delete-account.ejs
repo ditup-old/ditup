@@ -1,0 +1,29 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/settings.css'
+];
+
+var title = '400 - Bad Request - ditup';
+var logged = session.logged;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<section class="page">
+  <header class="delete-account-title">
+    <h1>Delete your account?</h1>
+  </header>
+  <section class="delete-account-disclaimer">
+    <p>If you continue, all your private data will be deleted. The public data you created will be kept without reference to you.</p>
+    <p>This action cannot be undone.</p>
+    <p>Do you really want to delete your account?</p>
+  </section>
+  <form method="post">
+    <input type="hidden" name="action" value="really delete account">
+    <input class="delete-account-yes" type="submit" name="really" value="yes">  
+    <input class="delete-account-no" type="submit" name="really" value="no">  
+  </form>
+</section>
+<% include ./partial/page-bottom.ejs %>

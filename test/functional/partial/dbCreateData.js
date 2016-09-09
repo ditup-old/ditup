@@ -14,6 +14,8 @@ module.exports = function (amounts) {
   amounts.userTag = amounts.userTag || [];
   amounts.projectTag = amounts.projectTag || [];
   amounts.discussionTag = amounts.discussionTag || [];
+  amounts.userFollowUser = amounts.userFollowUser || [];
+  amounts.notifications = amounts.notifications || [];
   const UNVERIFIED = amounts.unverified || [];
 
   //creating users
@@ -154,16 +156,25 @@ module.exports = function (amounts) {
   }
 // */
 
-/*
+//*
   //users following each other
   data.userFollowUser = [];
-  for(let i=0; i<USER_NO-1; ++i) {
+  for(let ufu of amounts.userFollowUser) {
     data.userFollowUser.push({
-      follower: i+1,
-      followed: 0
+      follower: ufu[0],
+      followed: ufu[1]
     });
   }
 // */
+  
+  data.notifications = [];
+  for(let userno of amounts.notifications) {
+    data.notifications.push({
+      to: userno,
+      text: "you are notified, go to projects",
+      url: "/projects"
+    });
+  }
 
   return data;
 }

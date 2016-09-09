@@ -261,10 +261,14 @@ module.exports = function independentAccount(dependencies) {
    * @params {string} user.username
    * @returns {Promise}
    */
-  ret.deleteUser = function (user) {
+  ret.deleteUser = function (data) {
     //TODO more fancy and complicated deleting of user content, ideally in transaction
-
-    return database.deleteUser(user);
+    let username = data.username;
+    let db = data.database;
+    return co(function * () {
+      let output = yield db.user.remove(username);
+      console.log(output);
+    });
   };
 
   ret.createUser = function (user) {

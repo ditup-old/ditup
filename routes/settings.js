@@ -233,6 +233,36 @@ router.post('/', function (req, res, next) {
   return next();
 });
 
+// ***************** delete account *****************//
+router.post('/', function (req, res, next) {
+  let sessUser = req.session.user;
+  if(req.body.action === 'delete account') {
+    req.ditup.postProcessed = true;
+
+    return res.render('delete-account');
+  }
+  else if(req.body.action === 'really delete account') {
+    req.ditup.postProcessed = true;
+
+    if(req.body.really === 'yes') {
+      let db = req.app.get('database');
+      return co(function * () {
+        let username = sessUser.username;
+        //delete the user and all her data
+        yield accountModule.deleteUser({username: username, database: db});
+        //destroy the session
+        req.session.destroy();
+        return res.render('goodbye', {username: username});
+      })
+      .catch(next);
+    }
+    else {
+      sessUser.messages.push('thank you for staying with us');
+    }
+  }
+  return next();
+});
+
 // ***************** request not recognized error **************** //
 router.post('/', function (req, res, next) {
   if(req.ditup.postProcessed !== true) {

@@ -1,0 +1,29 @@
+<%
+var css = [
+  '/css/header.css',
+  '/css/settings.css'
+];
+
+var title = '400 - Bad Request - ditup';
+var logged = session.logged;
+
+var headScripts = [];
+var scripts = [];
+
+%><% include ./partial/page-top.ejs %>
+<section class="page">
+  <header class="goodbye-title">
+    <h1>Goodbye, <%= username %>.</h1>
+  </header>
+  <section class="goodbye-text">
+    <p>All your data were deleted.</p>
+    <p>Thank you for the time we spent together.</p>
+    <p>If you want, you can let us know why you decided to leave.</p>
+  </section>
+  <form class="goodbye-feedback" action="/feedback" method="post">
+    The feedback doesn't work yet.
+    <textarea></textarea>
+    <input type="submit" name="action" value="feedback">
+  </form>
+</section>
+<% include ./partial/page-bottom.ejs %>

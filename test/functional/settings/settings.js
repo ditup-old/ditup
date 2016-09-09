@@ -165,7 +165,7 @@ describe('user settings', function () {
     });
     // */
 
-    //*
+    /*
     context('password section', function () {
       it('should show a form for typing a new password', function () {
         browser.assert.element('.settings-new-password');
@@ -230,7 +230,7 @@ describe('user settings', function () {
     });
     // */
 
-    /*
+    //*
     context('danger section', function () {
       it('should show Delete account button', function () {
         browser.assert.element('.settings-delete-account');
@@ -238,14 +238,45 @@ describe('user settings', function () {
       });
 
       context('POST delete account', function () {
-        it('should show disclaimer... this cannot be undone. (and about keeping public data), do you want to continue? yes, no');
+        beforeEach(funcs.fill('/settings', {submit: 'delete account'}, browserObj));
+        it('should show disclaimer... this cannot be undone. (and about keeping public data), do you want to continue? yes, no', function () {
+          browser.assert.text('.delete-account-title', 'Delete your account?');
+          browser.assert.text('.delete-account-disclaimer', 'If you continue, all your private data will be deleted. The public data you created will be kept without reference to you. This action cannot be undone. Do you really want to delete your account?');
+          browser.assert.input('[name=action]', 'really delete account');
+          browser.assert.element('[name=really][value=yes]');
+          browser.assert.element('[name=really][value=no]');
+        });
 
         context('click YES', function () {
-          it('should log the user out, delete her, say goodbye and ask for feedback');
+          beforeEach(function (done) {
+            browser.pressButton('[name=really][value=yes]')
+              .then(done, done);
+          });
+
+          it('should delete the user and all her private data');
+          it('should log the user out');
+
+          it('should say goodbye and ask for feedback', function () {
+            browser.assert.text('.goodbye-title', `Goodbye, ${loggedUser.username}.`);
+            browser.assert.text('.goodbye-text', 'All your data were deleted. Thank you for the time we spent together. If you want, you can let us know why you decided to leave.');
+            browser.assert.element('.goodbye-feedback');
+          });
         });
 
         context('click NO', function () {
-          it('go to /settings page');
+          beforeEach(function (done) {
+            browser.pressButton('[name=really][value=no]')
+              .then(done, done);
+          });
+
+          it('go to /settings page', function () {
+            browser.assert.url('/settings');
+            browser.assert.element('.settings-delete-account');
+          });
+
+          it('say thank you for staying with us', function () {
+            browser.assert.text('.popup-message', 'thank you for staying with us');
+          });
         });
       });
     });
