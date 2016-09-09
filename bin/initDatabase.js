@@ -21,7 +21,7 @@ var schema = {
 prompt.start();
 prompt.get(schema, function (err, result) {
   let rootUser = result.username;
-  let rootPasswd = result.password;
+  let rootPasswd = encodeURIComponent(result.password);
 
 
   var db = arangojs({url: `http://${rootUser}:${rootPasswd}@${config.host}:${config.port}`});
