@@ -53,7 +53,8 @@ module.exports = function (session) {
     req.ditup = {};
     next();
   });
-
+  
+  /*
   //saving last visited page for redirects (after login)
   app.use(function (req, res, next) {
     req.session.history = req.session.history || {current: '/', previous: '/'}
@@ -65,6 +66,7 @@ module.exports = function (session) {
     }
     next();
   });
+  */
   
   //update user active to now (when was the user last active? when active, update.)
   app.use(require('./routes/active-user'));
@@ -123,7 +125,7 @@ module.exports = function (session) {
   // will print stacktrace
   if (app.get('env') === 'development' || app.get('env') === 'test') {
     app.use(function(err, req, res, next) {
-      err.status = err.status || 500;
+      err.status = err.status || err.code || 500;
       res.status(err.status);
       console.error(err.status, err);
       return res.format({
