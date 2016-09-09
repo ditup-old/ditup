@@ -78,7 +78,7 @@ The first release should be a proof of the concept. It should be simple and show
   - [ ] inviting non-users by email?
   - [ ] inviting by link with a hash?
 - some navigation (like how to get out of a user page)
-- when starting a new discussion, the initial post is disappearing.
+- [ ] when starting a new discussion, the initial post is disappearing (make there a description).
 - a page with all my things
   - [ ] i created
   - [ ] i follow
