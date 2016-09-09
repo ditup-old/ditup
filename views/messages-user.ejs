@@ -16,6 +16,20 @@
 include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
 <style>
+  .message .msg-side .msg-time {
+    display: inline-block;
+    visibility: hidden;
+    height: 1em;
+  }
+
+  .message:hover .msg-side .msg-time {
+    visibility: visible;
+  }
+
+  .msg-time {
+    color: #999;
+  }
+
   .header-recipient-avatar {
     height: 1.5em;
     width: 1.5em;
@@ -87,11 +101,11 @@ include ./partial/header.ejs %>
         if(userIsDifferent) {%>
         <span class="msg-side"><img class="msg-sender-avatar" src="/user/<%= msg.from.username %>/avatar" alt=""/></span>
         <span class="msg-main">
-          <span class="msg-sender"><a href="/user/<%= msg.from.username %>"><%= msg.from.username %></a></span> <span><%= displayDate %><%= time %></span><br />
+          <span class="msg-sender"><a href="/user/<%= msg.from.username %>"><%= msg.from.username %></a></span> <span class="msg-time"><%= displayDate %><%= time %></span><br />
         <% }
         else {
         %>
-        <span class="msg-side"><span><%= displayDate %><%= time %></span></span>
+        <span class="msg-side"><span class="msg-time"><%= displayDate %><%= time %></span></span>
         <span class="msg-main">
         <% } 
           lastUser = msg.from.username;
