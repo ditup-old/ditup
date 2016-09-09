@@ -15,12 +15,90 @@
 %><%
 include ./partial/page-top.ejs %><%
 include ./partial/header.ejs %>
+<style>
+  .header-recipient-avatar {
+    height: 1.5em;
+    width: 1.5em;
+    border-radius: 4px;
+  }
+
+  .msg-sender-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 3px;
+  }
+
+  .msg-sender {
+    font-weight: bold;
+  }
+
+  ul>hr {
+    border: none;
+    height: 1px;
+    background-color: #ccc;
+  }
+
+  .msg-side {
+    width: 50px;
+    padding: 5px;
+  }
+
+  .msg-main {
+    width: 700px;
+  }
+
+  .message:not(:empty) {
+    border:none;
+  }
+
+  .msg-side, .msg-main {
+    display: inline-block;
+    vertical-align: top;
+  }
+</style>
 <section class="page">
-  <header><h1>Messages with <a class="icon-user" href="/user/<%= recipient.username %>"><%= recipient.username %></a></h1></header>
-  <section><ul><% for(msg of messages) {
-      let notViewedClass = (msg.viewed === true || msg.from.username === loggedUser) ? '' : ' msg-not-viewed';
-      %><li class="message<%= notViewedClass %>">
-        <span class="msg-sender"><a class="icon-user" href="/user/<%= msg.from.username %>"><%= msg.from.username %></a></span><span><%= msg.text %></span>
+  <header><h1>Messages with <a class="" href="/user/<%= recipient.username %>"><img class="header-recipient-avatar" src="/user/<%= recipient.username %>/avatar" /><%= recipient.username %></a></h1></header>
+  <section><ul><% 
+      let lastUser;
+      for(msg of messages) {
+        let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        let date = new Date(msg.created);
+        let dateNow = new Date();
+        let hours = date.getHours();
+        let minutes = '0'+date.getMinutes();
+        let time = `${hours}:${minutes.substr(-2)}`;
+        let day = date.getDate();
+        let dayNow = dateNow.getDate();
+        let month = months[date.getMonth()];
+        let monthNow =  months[dateNow.getMonth()];
+        let year = date.getYear();
+        let yearNow = dateNow.getYear();
+        date = `${month} ${day}`;
+        dateNow = `${monthNow} ${dayNow}`;
+        let shortYear = (''+year).substr(-2);
+        let displayDate = (date === dateNow && year === yearNow) ? '' : `${date} ${year !== yearNow ? ' '+shortYear : ''}`;
+
+        let notViewedClass = (msg.viewed === true || msg.from.username === loggedUser) ? '' : ' msg-not-viewed';
+        var userIsDifferent = lastUser !== msg.from.username;
+        %>
+        <% if(userIsDifferent) { %><hr /><% } %>
+        <li class="message<%= notViewedClass %>">
+        <% 
+        if(userIsDifferent) {%>
+        <span class="msg-side"><img class="msg-sender-avatar" src="/user/<%= msg.from.username %>/avatar" alt=""/></span>
+        <span class="msg-main">
+          <span class="msg-sender"><a href="/user/<%= msg.from.username %>"><%= msg.from.username %></a></span> <span><%= displayDate %><%= time %></span><br />
+        <% }
+        else {
+        %>
+        <span class="msg-side"><span><%= displayDate %><%= time %></span></span>
+        <span class="msg-main">
+        <% } 
+          lastUser = msg.from.username;
+        %>
+
+        <span><%= msg.text %></span>
+        </span>
       </li><%
     }
     %></ul></section>
