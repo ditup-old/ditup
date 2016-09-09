@@ -54,7 +54,7 @@ router.post('/', function (req, res, next) {
 
     var message = `Welcome ${formData.username}. Your new account was created and verification email was sent to ${formData.email}. It should arrive soon. In the meantime why don't you fill up your profile?`;
     req.session.messages.push(message);
-    return res.redirect(`/user/${formData.username}/edit?field=name`);
+    return res.redirect(`/user/${formData.username}`);
   })
     .catch(next);
 });
