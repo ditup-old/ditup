@@ -7,9 +7,9 @@ module.exports = function (db) {
 
   tag.create = function (tag) {
     var query = 'FOR u IN users FILTER u.username == @username ' +
-      'INSERT {tagname: @name, name: @name, description: @description, meta: {created: @created, creator: u._id}} IN tags';
+      'INSERT {tagname: @tagname, name: @tagname, description: @description, meta: {created: @created, creator: u._id}} IN tags';
     var params = {
-      name: tag.name,
+      tagname: tag.tagname || tag.name,
       description: tag.description,
       created: tag.meta.created || Date.now(),
       username: tag.meta.creator
