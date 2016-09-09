@@ -25,8 +25,8 @@ rules.user = {
     maxLength: 16384
   },
   email: {
-    regex: /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
-    maxLength: 1024
+    maxLength: 1024,
+    regex: /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/
   },
   password: {
     minLength: 8,
@@ -37,9 +37,9 @@ rules.user = {
 rules.tag = {
   tagname: {
     empty: false,
-    regex: /^[a-z0-9]+(\-[a-z0-9]+)*$/,
     minLength: 2,
-    maxLength: 64
+    maxLength: 64,
+    regex: /^[a-z0-9]+(\-[a-z0-9]+)*$/
   },
   description: {
     empty: true,
