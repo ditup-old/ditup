@@ -1,6 +1,7 @@
 'use strict';
 
 var co = require('co');
+var image = require('../services/image');
 
 module.exports = function independentAccount(dependencies) {
   var validate = dependencies.validate;
@@ -262,12 +263,16 @@ module.exports = function independentAccount(dependencies) {
    * @returns {Promise}
    */
   ret.deleteUser = function (data) {
+
     //TODO more fancy and complicated deleting of user content, ideally in transaction
     let username = data.username;
     let db = data.database;
     return co(function * () {
-      let output = yield db.user.remove(username);
-      console.log(output);
+      //remove the user and her edges from database
+      yield db.user.remove(username);
+
+      //delete avatar picture if it exists
+      yield image.avatar.remove(username);
     });
   };
 
