@@ -19,6 +19,8 @@ include ./partial/header.ejs %>
   .message .msg-side .msg-time {
     display: inline-block;
     visibility: hidden;
+    overflow: visible;
+    position: absolute;
     height: 1em;
   }
 
@@ -55,6 +57,7 @@ include ./partial/header.ejs %>
   .msg-side {
     width: 50px;
     padding: 5px;
+    position: relative;
   }
 
   .msg-main {
@@ -68,6 +71,16 @@ include ./partial/header.ejs %>
   .msg-side, .msg-main {
     display: inline-block;
     vertical-align: top;
+  }
+
+  .new-message {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .new-message input[type=text] {
+    margin-left: 50px;
+    width: 650px;
   }
 </style>
 <section class="page">
@@ -116,8 +129,8 @@ include ./partial/header.ejs %>
       </li><%
     }
     %></ul></section>
-  <form method="post" action="">
-    <textarea name="message"></textarea>
+  <form class="new-message" method="post" action="">
+    <input type="text" name="message" placeholder="write a message" />
     <input type="submit" name="send" value="send" />
   </form>
 </section>
