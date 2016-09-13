@@ -52,10 +52,10 @@ include ./header.ejs %>
       <span class="collection-name <%= collectionName %>-name icon-<%= collectionName %>" >
         <%= collection.name %>
       </span>
-      <%if(creator === true) { %>
-      <a class="edit-<%= collectionName %>-name" href="<%= selfLink %>/edit?field=name">edit</a>
-      <% } %>
     </h1>
+    <%if(creator === true) { %>
+    <a class="edit-<%= collectionName %>-name" href="<%= selfLink %>/edit?field=name">edit</a>
+    <% } %>
   </header>
   <div class="tag-container collection-tags">
     <%

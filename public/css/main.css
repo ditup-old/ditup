@@ -115,7 +115,7 @@ body {
 
 body {
   color: #011149;
-  background-color: #eee;
+  background-color: white;
 }
 
 @font-face {
@@ -136,7 +136,7 @@ body {
   margin: 0px;
   display: inline-block !important;
   background-color: #011149;
-  color: #eee;
+  color: white;
   text-decoration: none;
   font-size: 1.1em !important;
   border: none;
@@ -151,7 +151,7 @@ body {
   display: inline-block;
   background-color: #011149;
   border: 1px solid #011149;
-  color: #eee;
+  color: white;
   padding: 5px;
   margin: 5px;
   border-radius: 5px;
@@ -160,7 +160,7 @@ body {
 .tag.unsaved {
   display: inline-block;
   border: 1px solid #011149;
-  background-color: #eee;
+  background-color: white;
   color: #011149;
   padding: 5px;
   margin: 5px;

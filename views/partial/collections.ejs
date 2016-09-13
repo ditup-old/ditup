@@ -35,7 +35,7 @@ include ./header.ejs %>
     %><section class="project-list involved-list">
       <header><h2>You are involved in</h2></header>
       <ul class=""><% for(let involvedProject of lists.involved) {
-          %><li class="project"><a class="icon-project project-link project-id-<%= involvedProject.id %>" href="/project/<%= involvedProject.id %>"><span class="project-name"><%= involvedProject.name %></span></a><span class="project-involvement"><%= involvedProject.status %></span></li><%
+          %><li class="project"><a class="icon-project project-link project-id-<%= involvedProject.id %>" href="/project/<%= involvedProject.id %>"><span class="project-name"><%= involvedProject.name %></span></a><span class="info-detail project-involvement"><%= involvedProject.status %></span></li><%
         } 
       %></ul>
     </section><!--
@@ -57,7 +57,7 @@ include ./header.ejs %>
           }
           var tagList = tagArray.sort().join(", ");//"
 
-        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link <%= collection %>-id-<%= commonTagsCollection.id %>" href="/<%= collection %>/<%= commonTagsCollection.id %>"><span class="<%= collection %>-name"><%= commonTagsCollection.name %></span></a><span class="common-tagno" data-tooltip="<%= tagList %>" title="<%= tagList %>"><%= commonTagsCollection.tags.length %> tags</span></li><%
+        %><li class="<%= collection %>"><a class="icon-<%= collection %> <%= collection %>-link <%= collection %>-id-<%= commonTagsCollection.id %>" href="/<%= collection %>/<%= commonTagsCollection.id %>"><span class="<%= collection %>-name"><%= commonTagsCollection.name %></span></a><span class="info-detail common-tagno" data-tooltip="<%= tagList %>" title="<%= tagList %>"><%= commonTagsCollection.tags.length %> tags</span></li><%
         }
       %></ul>
     </section>

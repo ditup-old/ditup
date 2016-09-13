@@ -101,6 +101,9 @@ $font-size: 16px;
   }
 }
 
+
+$submenu-border: 3px solid rgba(200,200,200,0.5);
+
 .header-submenu {
   display:none;
   position:absolute;
@@ -108,7 +111,11 @@ $font-size: 16px;
   min-width:100%;
   color:black;
   background-color:white;
-  @include box-shadow(0px 0px 5px 3px #ccc);
+  //@include box-shadow(0px 0px 5px 3px #ccc);
+  border-bottom: $submenu-border;
+  border-left: $submenu-border;
+  border-right: $submenu-border;
+  //border: $submenu-border;
 
   a {
     display:inline-block;

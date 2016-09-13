@@ -10,6 +10,24 @@
   padding: 3px;
 }
 
+.follow-unfollow-field {
+  display: inline-block;
+  border: 2px solid #6ca6ca;
+  border-radius: 1px;
+}
+
+.follow-unfollow-field form {
+  display: inline-block;
+}
+
+.follow-unfollow-subfield {
+  padding: 2px;
+}
+
+.follow-count-followers {
+  border-left: 2px solid #6ca6ca;
+}
+
 .page {
   max-width: 800px;
   margin: auto;
