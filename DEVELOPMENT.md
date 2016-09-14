@@ -65,7 +65,7 @@ The first release should be a proof of the concept. It should be simple and show
 - [ ] write styles
     - [ ] media query
     - [ ] introduce a nice contrasting colour
-    - [ ] white background
+    - [x] white background
 - [ ] clean the code
 - [x] unviewed notifications are not bold
 - [x] nice error pages
@@ -85,6 +85,7 @@ The first release should be a proof of the concept. It should be simple and show
   - [ ] i created
   - [ ] i follow
   - [ ] i commented
+- [ ] creator of dits would be visible
 
 ### Future goals and ideas
 

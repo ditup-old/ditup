@@ -131,10 +131,10 @@ module.exports = function (collectionName) {
         });
       });
 
-      context(`${collectionName} contains her own post`, function () {
-        it('should show edit link at the post');
-        it('should show delete link at the post');
-        it('shouldn\'t show edit nor delete lin at posts of different users');
+      context(`${collectionName} contains her own comment`, function () {
+        it('should show edit link at the comment');
+        it('should show delete link at the comment');
+        it('shouldn\'t show edit nor delete lin at comments of different users');
       });
 
       context('doesn\'t have rights to add a comment', function () {
