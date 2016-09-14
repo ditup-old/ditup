@@ -85,9 +85,7 @@ function fill(url, data, browserObj) {
       yield browser.pressButton(data['submit'] || 'submit');
       done();
     })
-    .catch(function (err) {
-      done(err);
-    });
+    .catch(done);
   };
 }
 

@@ -3,18 +3,24 @@
 module.exports = function (amounts) {
   let data = {};
 
+  let collections = ['challenge', 'idea', 'discussion', 'project'];
+
   const USER_NO = amounts.users || 0;
   const TAG_NO = amounts.tags || 0;
   const CHALLENGE_NO = amounts.challenges || 0;
   const IDEA_NO = amounts.ideas || 0;
   const PROJECT_NO = amounts.projects || 0;
   const DISCUSSION_NO = amounts.discussions || 0;
-  amounts.challengeTag = amounts.challengeTag || [];
-  amounts.ideaTag = amounts.ideaTag || [];
   amounts.userTag = amounts.userTag || [];
-  amounts.projectTag = amounts.projectTag || [];
-  amounts.discussionTag = amounts.discussionTag || [];
   amounts.userFollowUser = amounts.userFollowUser || [];
+  amounts.projectMember = amounts.projectMember || [];
+
+  for(let collection of collections) {
+    //userFollowCollection
+    amounts[`userFollow${collection.substr(0,1).toUpperCase()}${collection.substr(1)}`] = amounts[`userFollow${collection.substr(0,1).toUpperCase()}${collection.substr(1)}`] || [];
+    //collectionTag
+    amounts[`${collection}Tag`] = amounts[`${collection}Tag`] || [];
+  }
   amounts.notifications = amounts.notifications || [];
   const UNVERIFIED = amounts.unverified || [];
 
@@ -111,50 +117,20 @@ module.exports = function (amounts) {
     });
   }
 // */
+  
 //*
-  //adding tags to challenges
-  data.challengeTag = [];
-  for(let ct of amounts.challengeTag) {
-    data.challengeTag.push({
-      collection: ct[0],
-      tag: ct[1],
-      creator: (ct[0]+ct[1]) % USER_NO
-    });
+  //adding tags to collections
+  for(let collection of collections) {
+    let collectionTag = `${collection}Tag`;
+    data[collectionTag] = [];
+    for(let ct of amounts[collectionTag]) {
+      data[collectionTag].push({
+        collection: ct[0],
+        tag: ct[1],
+        creator: (ct[0]+ct[1]) % USER_NO
+      });
+    }
   }
-// */
-//*
-  //adding tags to ideas
-  data.ideaTag = [];
-  for(let it of amounts.ideaTag) {
-    data.ideaTag.push({
-      collection: it[0],
-      tag: it[1],
-      creator: (it[0]+it[1]) % USER_NO
-    });
-  }
-// */
-//*
-  //adding tags to projects
-  data.projectTag = [];
-  for(let it of amounts.projectTag) {
-    data.projectTag.push({
-      collection: it[0],
-      tag: it[1],
-      creator: (it[0]+it[1]) % USER_NO
-    });
-  }
-// */
-//*
-  //adding tags to discussions
-  data.discussionTag = [];
-  for(let it of amounts.discussionTag) {
-    data.discussionTag.push({
-      collection: it[0],
-      tag: it[1],
-      creator: (it[0]+it[1]) % USER_NO
-    });
-  }
-// */
 
 //*
   //users following each other
@@ -167,12 +143,37 @@ module.exports = function (amounts) {
   }
 // */
   
+//*
+  //user following collections
+  for(let collection of collections) {
+    let Collection = `${collection.substr(0,1).toUpperCase()}${collection.substr(1)}`;
+    let userFollowCollection = `userFollow${Collection}`;
+    data[userFollowCollection] = [];
+    for(let ufd of amounts[userFollowCollection]) {
+      data[userFollowCollection].push({
+        user: ufd[0],
+        collection: ufd[1]
+      });
+    }
+  }
+
+// */
+
   data.notifications = [];
   for(let userno of amounts.notifications) {
     data.notifications.push({
       to: userno,
       text: "you are notified, go to projects",
       url: "/projects"
+    });
+  }
+
+  data.projectMember = [];
+  for(let pm of amounts.projectMember) {
+    data.projectMember.push({
+      collection: pm[0],
+      user: pm[1],
+      status: pm[2]
     });
   }
 

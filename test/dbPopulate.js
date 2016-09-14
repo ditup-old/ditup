@@ -149,33 +149,22 @@ module.exports = function (db) {
     }
 
     function populateCollectionTag(collectionTag, collections, tags, users, collectionName) {
-      var challengeTag = collectionTag;
-      var challenges = collections;
-      var ctPromises = [];
-      for(let c of collections){
-        c.tags = [];
-      }
-      for(let _ct of challengeTag) {
-        _ct.collection = _ct.hasOwnProperty('collection') ? _ct.collection : _ct[collectionName];
-      }
+      return co(function * () {
+        for(let c of collections){
+          c.tags = [];
+        }
 
-      for(let _ct of challengeTag) {
-        let creator = typeof(_ct.creator) === 'number' ? users[_ct.creator].username : _ct.creator;
-        let challenge = challenges[_ct.collection].id;
-        let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].tagname || tags[_ct.tag].name: _ct.tag;
-        let ctp = data[collectionName].addTag(challenge, tag, creator);
-        ctPromises.push(ctp);
-      }
-      return Promise.all(ctPromises)
-        .then(function () {
-          for(let _ct of challengeTag) {
-            let tagsArray = challenges[_ct.collection].tags = challenges[_ct.collection].tags || [];
-            let tag = typeof(_ct.tag) === 'number' ? tags[_ct.tag].name : _ct.tag;
-            tagsArray.push(tag);
-          }
-          return;
-        });
-    
+        for(let ct of collectionTag) {
+          let creator = users[ct.creator].username;
+          let collectionId = collections[ct.collection].id;
+          //let tag = typeof(ct.tag) === 'number' ? tags[ct.tag].tagname: ct.tag;
+          let tagname = tags[ct.tag].tagname;
+          yield data[collectionName].addTag(collectionId, tagname, creator);
+
+          let tagsArray = collections[ct.collection].tags;
+          tagsArray.push(tagname);
+        }
+      });
     }
 
     function populateCollectionCommentAuthor(collectionCommentAuthor, collections, users, collectionName) {
