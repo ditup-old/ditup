@@ -1,9 +1,9 @@
 'use strict';
 
-module.exports = function (collectionName) {
+module.exports = function (collection) {
   let config = require('../partial/config');
   let dbConfig = require('../../../services/db-config');
-  let dbData = require('../../dbData');
+  let dbData = require('./dbCollection')(collection);
 
   let deps = config.init({db: dbConfig}, dbData);
 
@@ -11,7 +11,7 @@ module.exports = function (collectionName) {
 
   var generateUrl = require('../../../routes/collection/functions').generateUrl;
 
-  describe(`user visits /${collectionName}/:id/:name`, function () {
+  describe(`user visits /${collection}/:id/:name`, function () {
     let browserObj = {};
     let browser;
 
@@ -22,49 +22,58 @@ module.exports = function (collectionName) {
     });
 
     let loggedUser = dbData.users[0];
-    var existentCollection = dbData[`${collectionName}s`][0];
+    var existentCollection = dbData[`${collection}s`][0];
     existentCollection.url = generateUrl(existentCollection.name);
 
-    var nonexistentCollection = {name: `nonexistent ${collectionName}`, id: '1234567890'};
+    var nonexistentCollection = {name: `nonexistent ${collection}`, id: '1234567890'};
     nonexistentCollection.url = generateUrl(nonexistentCollection.name);
 
-    context(`the ${collectionName} exists`, function () {
+    context(`the ${collection} exists`, function () {
       //*
       context('url has an incorrect name', function () {
-        beforeEach(funcs.visit(() => `/${collectionName}/${existentCollection.id}/random-url`, browserObj));
+        beforeEach(funcs.visit(() => `/${collection}/${existentCollection.id}/random-url`, browserObj));
 
         it('should permanent redirect to the url with correct name', function () {
           browser.assert.success();
           browser.assert.redirected();
-          browser.assert.url(`/${collectionName}/${existentCollection.id}/${existentCollection.url}`);
+          browser.assert.url(`/${collection}/${existentCollection.id}/${existentCollection.url}`);
         });
       });
 
-      context('user visits /${collectionName}/:id (without .../:url)', function () {
-        beforeEach(funcs.visit(() => `/${collectionName}/${existentCollection.id}`, browserObj));
+      context('user visits /${collection}/:id (without .../:url)', function () {
+        beforeEach(funcs.visit(() => `/${collection}/${existentCollection.id}`, browserObj));
 
         it('should permanent redirect to the url with correct name', function () {
           browser.assert.success();
           browser.assert.redirected();
-          browser.assert.url(`/${collectionName}/${existentCollection.id}/${existentCollection.url}`);
+          browser.assert.url(`/${collection}/${existentCollection.id}/${existentCollection.url}`);
         });
       });
 
       context('user visits correct url', function () {
-        beforeEach(funcs.visit(() => `/${collectionName}/${existentCollection.id}/${existentCollection.url}`, browserObj));
+        beforeEach(funcs.visit(() => `/${collection}/${existentCollection.id}/${existentCollection.url}`, browserObj));
 
-        it(`should show a ${collectionName} page`, function () {
+        it(`should show a ${collection} page`, function () {
           browser.assert.success();
         });
 
-        it(`should show a ${collectionName} name`, function () {
-          browser.assert.text(`.${collectionName}-name`, existentCollection.name);
+        it(`should show a ${collection} name`, function () {
+          browser.assert.text(`.${collection}-name`, existentCollection.name);
         });
 
-        it(`should show ${collectionName} comments`, function () {
+        it(`should show a ${collection} description`, function () {
+          browser.assert.element(`.${collection}-description`);
+          browser.assert.text(`.${collection}-description`, existentCollection.description);
+        });
+
+        it('should show a share link', function () {
+          browser.assert.input('.share-link input[readonly]', browser.url);
+        });
+
+        it(`should show ${collection} comments`, function () {
           for(let comment of existentCollection.comments) {
-            browser.assert.text(`#${collectionName}-comment-${comment.id} .${collectionName}-comment-text`, comment.text);
-            browser.assert.text(`#${collectionName}-comment-${comment.id} .${collectionName}-comment-author`, comment.author);
+            browser.assert.text(`#${collection}-comment-${comment.id} .${collection}-comment-text`, comment.text);
+            browser.assert.text(`#${collection}-comment-${comment.id} .${collection}-comment-author`, comment.author);
           }
         });
 
@@ -79,7 +88,7 @@ module.exports = function (collectionName) {
       //*
       context('has rights to add comments', function () {
         beforeEach(funcs.login(loggedUser, browserObj));
-        beforeEach(funcs.visit(() => `/${collectionName}/${existentCollection.id}/${existentCollection.url}`, browserObj));
+        beforeEach(funcs.visit(() => `/${collection}/${existentCollection.id}/${existentCollection.url}`, browserObj));
         afterEach(funcs.logout(browserObj));
 
         it('should show a form to add a comment', function () {
@@ -97,17 +106,17 @@ module.exports = function (collectionName) {
               author: loggedUser.username
             };
 
-            beforeEach(funcs.fill(() => `/${collectionName}/${existentCollection.id}/${existentCollection.url}`, {comment: validComment.text, submit: '.comment-form [name=action][value=comment]'}, browserObj));
+            beforeEach(funcs.fill(() => `/${collection}/${existentCollection.id}/${existentCollection.url}`, {comment: validComment.text, submit: '.comment-form [name=action][value=comment]'}, browserObj));
 
             it('should add a new comment to the database and show it', function () {
               browser.assert.success();
-              browser.assert.text(`.${collectionName}-comment-text`, new RegExp(`.*` + validComment.text + `.*`));
-              browser.assert.text(`.${collectionName}-comment-author`, new RegExp(`.*` + validComment.author + `.*`));
+              browser.assert.text(`.${collection}-comment-text`, new RegExp(`.*` + validComment.text + `.*`));
+              browser.assert.text(`.${collection}-comment-author`, new RegExp(`.*` + validComment.author + `.*`));
             });
           });
 
           context('invalid comment [empty]', function () {
-            beforeEach(funcs.fill(() => `/${collectionName}/${existentCollection.id}/${existentCollection.url}`, {comment: '', submit: '.comment-form [name=action][value=comment]'}, browserObj));
+            beforeEach(funcs.fill(() => `/${collection}/${existentCollection.id}/${existentCollection.url}`, {comment: '', submit: '.comment-form [name=action][value=comment]'}, browserObj));
 
             it('should complain about invalid data (empty)', function () {
               browser.assert.text('.popup-message', 'the minimal length of text is 1');
@@ -121,7 +130,7 @@ module.exports = function (collectionName) {
               longComment += longComment;
             }
 
-            beforeEach(funcs.fill(() => `/${collectionName}/${existentCollection.id}/${existentCollection.url}`, {comment: longComment, submit: '.comment-form [name=action][value=comment]'}, browserObj));
+            beforeEach(funcs.fill(() => `/${collection}/${existentCollection.id}/${existentCollection.url}`, {comment: longComment, submit: '.comment-form [name=action][value=comment]'}, browserObj));
 
             it('should complain about invalid data (too long)', function () {
               //too long means > 16384 characters
@@ -131,7 +140,7 @@ module.exports = function (collectionName) {
         });
       });
 
-      context(`${collectionName} contains her own comment`, function () {
+      context(`${collection} contains her own comment`, function () {
         it('should show edit link at the comment');
         it('should show delete link at the comment');
         it('shouldn\'t show edit nor delete lin at comments of different users');
@@ -139,7 +148,7 @@ module.exports = function (collectionName) {
 
       context('doesn\'t have rights to add a comment', function () {
         beforeEach(funcs.logout(browserObj));
-        beforeEach(funcs.visit(() => `/${collectionName}/${existentCollection.id}/${existentCollection.url}`, browserObj));
+        beforeEach(funcs.visit(() => `/${collection}/${existentCollection.id}/${existentCollection.url}`, browserObj));
 
         it('should suggest to log in', function () {
           browser.assert.text('.popup-message', 'log in to see more and contribute');
@@ -157,8 +166,8 @@ module.exports = function (collectionName) {
       // */
     });
 
-    context(`the ${collectionName} doesn't exist`, function () {
-      it(`should show 404 Not Found`, funcs.testError(() => `/${collectionName}/12345678/nonexistent-${collectionName}`, 404, browserObj));
+    context(`the ${collection} doesn't exist`, function () {
+      it(`should show 404 Not Found`, funcs.testError(() => `/${collection}/12345678/nonexistent-${collection}`, 404, browserObj));
     });
 
   });

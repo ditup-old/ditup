@@ -181,20 +181,20 @@
   ],
   "userTag": [],
   "discussionTag": [
-    {"discussion":0,"tag":0,"creator":0},
-    {"discussion":0,"tag":1,"creator":0}
+    {"collection":0,"tag":0,"creator":0},
+    {"collection":0,"tag":1,"creator":0}
   ],
   "challengeTag": [
-    {"challenge":0,"tag":3,"creator":0},
-    {"challenge":0,"tag":2,"creator":0}
+    {"collection":0,"tag":3,"creator":0},
+    {"collection":0,"tag":2,"creator":0}
   ],
   "ideaTag": [
-    {"idea":0,"tag":3,"creator":0},
-    {"idea":0,"tag":4,"creator":0}
+    {"collection":0,"tag":3,"creator":0},
+    {"collection":0,"tag":4,"creator":0}
   ],
   "projectTag": [
-    {"project":0,"tag":2,"creator":0},
-    {"project":0,"tag":5,"creator":0}
+    {"collection":0,"tag":2,"creator":0},
+    {"collection":0,"tag":5,"creator":0}
   ],
   "projectMember": [
     {"collection": 0, "user": 1, "status": "joining"},

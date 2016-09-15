@@ -4,7 +4,7 @@ let co = require('co');
 let router = require('express').Router();
 var functions = require('../collection/functions');
 var generateUrl = functions.generateUrl;
-var editRoutes = require('../collection/edit');
+var editRoutes = require('../collection/edit/edit');
 
 //read the collection
 router.use(editRoutes.readCollection);

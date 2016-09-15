@@ -3,7 +3,7 @@
 let config = require('../partial/config');
 let dbConfig = require('../../../services/db-config');
 
-var dbData = require('../../dbData');
+var dbData = require('../collection/dbCollection')('project');
 let deps = config.init({db: dbConfig}, dbData);
 let funcs = config.funcs;
 let co = require('co');

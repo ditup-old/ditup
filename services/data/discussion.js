@@ -8,7 +8,7 @@ var proto = require('./proto');
 module.exports = function (db) {
   var discussion = {};
 
-  discussion.create = proto.create(['name'], 'discussions', db);
+  discussion.create = proto.create(['name', 'description'], 'discussions', db);
   
   discussion.read = proto.read('discussions', db);
   discussion.update; //TODO
