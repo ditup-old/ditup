@@ -59,9 +59,11 @@ proto.read = function (collectionName, db) {
   return function (id) {
     var query = `
       FOR d IN ${collectionName} FILTER d._key == @id
-        LET creator = (FOR u IN users FILTER u._id == d.creator RETURN u)
-        FOR c IN creator
-          RETURN MERGE(d, {creator: {username: c.username}}, {id: d._key})
+        LET creator = (
+          FOR u IN users FILTER u._id == d.creator
+              RETURN u
+        )
+        RETURN MERGE(d, {creator: LENGTH(creator) == 1 ? {username: creator[0].username} : null}, {id: d._key})
     `;
     var params = {id: id};
 
