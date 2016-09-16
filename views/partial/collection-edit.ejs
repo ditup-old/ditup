@@ -58,7 +58,7 @@ include ./header.ejs %>
       }
     %><% include ./tags.ejs %>
   </div>
-  <div class="<%= collectionName %>-description" id="<%= collectionName %>-description" >
+  <div class="<%= collectionName %>-description collection-description" id="<%= collectionName %>-description" >
     <% if(edit.indexOf('description') > -1) { %>
     <form method="post" class="edit-collection-description">
       <textarea name="description"><%= collection.description %></textarea>

@@ -33,6 +33,7 @@ function vldt(value, rules, fieldName) {
       if(!valid) {
         err.message = `the minimal length of ${fieldName || 'field'} is ${rules.minLength}`;
         err.detail.rule = rule;
+        err.detail.ruleValue = rules[rule];
         throw err;
       }
     }
@@ -41,6 +42,7 @@ function vldt(value, rules, fieldName) {
       if(!valid) {
         err.message = `the maximal length of ${fieldName || 'field'} is ${rules.maxLength}`;
         err.detail.rule = rule;
+        err.detail.ruleValue = rules[rule];
         throw err;
       }
     }
@@ -49,6 +51,7 @@ function vldt(value, rules, fieldName) {
       if(!valid) {
         err.message = `the field ${fieldName} must be a value from the list [${rules[rule].join(', ')}]`;
         err.detail.rule = rule;
+        err.detail.ruleValue = rules[rule];
         throw err;
       }
     }
@@ -59,6 +62,7 @@ function vldt(value, rules, fieldName) {
       if(!valid) {
         err.message = `the field ${fieldName} must have a form ${rules[rule]}`;
         err.detail.rule = 'regex';
+        err.detail.ruleValue = rules[rule];
         throw err;
       }
     }

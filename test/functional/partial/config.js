@@ -73,8 +73,19 @@ function fill(url, data, browserObj) {
       for(let name in data) {
         if(name !== 'submit') {
           if(typeof(data[name]) === 'object') {
-            if(data[name].action === 'select') {
-              browser.select(name, data[name].value);
+
+            switch (data[name].action) {
+              case 'select':
+                browser.select(name, data[name].value);
+                break;
+              case 'choose':
+                browser.choose(name);
+                break;
+              case 'check':
+                browser.check(name);
+                break;
+              default:
+
             }
           }
           else {

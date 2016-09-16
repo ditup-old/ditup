@@ -1,0 +1,34 @@
+<%
+  var css = [
+  '/css/header.css',
+  '/css/collections-new.css'
+  ];
+
+  var title = 'home';
+  var headScripts = [];
+  var scripts = [];
+
+  var values = values || {};
+%><%include ./partial/page-top.ejs %><%
+include ./partial/header.ejs %>
+<section class="page">
+  <header>
+    <h1>Create a new <%= collectionName %></h1>
+  </header>
+  <section>
+    <form class="new-<%= collectionName %>-form" method="post" >
+      <input type="text" name="name" value="<%= values.name %>" placeholder="name" /><br />
+      <textarea name="description" placeholder="description (markdown)" ><%= values.description %></textarea><br />
+      <% if(collectionName === 'project') { 
+        var checked = 'checked="checked"';
+      %>
+      joining possible?<br />
+      <label><input type="radio" name="joining" value="yes" <%= values.joining === 'yes' ? checked : '' %> />yes</label>
+      <label><input type="radio" name="joining" value="no" <%= values.joining === 'no' ? checked : '' %> />no</label><br />
+      <textarea name="join-info" placeholder="info for people who want to join"><%= values.joinInfo %></textarea><br />
+      <% } %>
+      <input type="submit" name="action" value="create" />
+    </form>
+  </section>
+</section>
+<% include ./partial/page-bottom.ejs %>

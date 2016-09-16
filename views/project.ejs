@@ -32,11 +32,13 @@ include ./partial/header.ejs %>
       <% include ./partial/share.ejs %>
 
       <span class="membership-field"><%
+
+        let projectMembersNumber = `<span class="project-members-number">${project.memberno}</span>`
         if(project.userStatus === 'member') {
-          %><a class="link-to-members" href="<%= longUrl %>/members">members: <span class="number-of-members"><%= project.memberno %></span></a><%
+        %><a class="link-to-members" href="<%= longUrl %>/members">members: <%- projectMembersNumber %></span></a><%
         }
         else {
-          %>members: <span class="number-of-members"><%= project.memberno %></span><%
+          %>members: <%- projectMembersNumber %><%
         }
       %><% if(project.userStatus === 'member') {
                 %><a class="member-join-button" href="<%= longUrl %>/join">member</a><%

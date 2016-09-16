@@ -55,5 +55,27 @@ rules.comment = {
   }
 }
 
+rules.collection = {
+  name: {
+    minLength: 1,
+    maxLength: 1024,
+    regex: /([^\s])/
+  },
+  description: {
+    minLength: 1,
+    maxLength: 16384,
+    regex: /([^\s])/
+  }
+}
+
+rules.project = {
+  joining: {
+    list: ['yes', 'no']
+  },
+  joinInfo: {
+    empty: true,
+    maxLength: 16384
+  }
+}
 
 module.exports = rules;
