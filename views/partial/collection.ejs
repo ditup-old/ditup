@@ -12,7 +12,7 @@
   var scripts = [];
   session = session || {logged:false, username: null};
   var logged = session.logged || false;
-  var creator = !!(collection.creator.username === session.username) || false;
+  var creator = !!(collection.creator && collection.creator.username === session.username) || false;
   var loggedUser = session.username || false;
   var selfLink = `/${collectionName}/${collection.id}/${collection.url}`;
 %><%include ./page-top.ejs %><%
