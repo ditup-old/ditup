@@ -27,7 +27,8 @@ include ./partial/header.ejs %>
       <label><input type="radio" name="joining" value="no" <%= values.joining === 'no' ? checked : '' %> />no</label><br />
       <textarea name="join-info" placeholder="info for people who want to join"><%= values.joinInfo %></textarea><br />
       <% } %>
-      <input type="submit" name="action" value="create" />
+      <input type="submit" name="action" value="create" /><!--
+      --><a class="cancel-link" href="/<%= collectionName %>s" >cancel</a>
     </form>
   </section>
 </section>

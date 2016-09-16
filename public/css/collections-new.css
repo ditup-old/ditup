@@ -1,0 +1,52 @@
+.page {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.page h1 {
+  font-size: 25px;
+  /*margin-left: $list-margin;*/
+  /*padding:0;*/
+}
+
+.page h2 {
+  font-size: 20px;
+}
+
+.page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+input[type=text], textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  padding: 5px;
+}
+
+textarea {
+  height: 80px;
+}
+
+input[type=submit] {
+  background-color: #6ca6ca;
+  border-width: 0;
+}
+
+.cancel-link {
+  background-color: #ca906c;
+}
+
+input[type=submit], .cancel-link {
+  color: white;
+  display: inline-block;
+  height: 3em;
+  line-height: 3em;
+  vertical-align: middle;
+  text-align: center;
+  width: 50%;
+  cursor: pointer;
+}

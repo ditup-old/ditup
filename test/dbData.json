@@ -99,6 +99,7 @@
   "discussions": [
     {
       "name": "new test discussion",
+      "description": "discussion description",
       "id": null,
       "creator": 0
     }

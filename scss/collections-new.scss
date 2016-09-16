@@ -1,0 +1,34 @@
+@import 'page-mixin';
+@import 'colors';
+
+@include page();
+
+input[type=text], textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  padding: 5px;
+}
+
+textarea {
+  height: 80px;
+}
+
+input[type=submit] {
+  background-color: $darker;
+  border-width:0;
+}
+.cancel-link {
+  background-color: complement($darker);
+}
+
+input[type=submit], .cancel-link {
+  color: $light;
+  display: inline-block;
+  height: 3em;
+  line-height: 3em;
+  vertical-align: middle;
+  text-align: center;
+  width: 50%;
+  cursor: pointer;
+}
