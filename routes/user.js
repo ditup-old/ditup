@@ -195,17 +195,25 @@ router
 //
 //when user doesn't exist, this function will return the default profile picture. not error.
 router.get('/:username/avatar', function (req, res, next) {
-  return co(function * () {
-    let database = req.app.get('database');
+  var username = req.params.username;
+  var sessUser = req.session.user;
 
-    var username = req.params.username;
-    var sessUser = req.session.user;
+  return co(function * () {
+    let db = req.app.get('database');
+
+    let avatarChanged = yield db.user.readAvatarChanged(username);
+    if(avatarChanged && req.headers['if-none-match'] && req.headers['if-none-match'] === `${avatarChanged}`) return res.sendStatus(304);
 
     //read the avatar
     let img = yield image.avatar.read(username);
 
-    res.writeHead(200, {'Content-Type': img.type});
-    return res.end(img.data); // Send the file data to the browser.
+    res.set({
+      ETag: avatarChanged,
+      'Content-Type': img.type,
+    });
+
+    //res.writeHead(200, {'Content-Type': img.type});
+    return res.status(200).end(img.data); // Send the file data to the browser.
   })
     .catch(next);
 });

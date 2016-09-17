@@ -39,6 +39,7 @@ router.post('/:username/edit',
   //processing the uploaded image
   function (req, res, next) {
     return co(function * (){
+      var db = req.app.get('database');
       var username = req.params.username;
       if (req.file === undefined) throw new Error('file too big or other error');
 
@@ -46,6 +47,7 @@ router.post('/:username/edit',
 
       yield image.avatar.create(tempPath, username);
 
+      yield db.user.updateAccount({username: username}, {avatar_changed: Date.now()});
       req.session.messages.push('the new avatar was successfully uploaded');
       return res.redirect(`/user/${username}`);
     })

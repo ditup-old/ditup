@@ -12,6 +12,10 @@ module.exports = function (db) {
   var user = {};
 
   user.create = function (user) {
+    //initialize the avatar_changed value to current time
+    user.account = user.account || {};
+    user.account.avatar_changed = Date.now();
+
     return db.query('INSERT @user IN users', {user: user});
   };
 
@@ -207,6 +211,21 @@ module.exports = function (db) {
   user.updateAccount = function (user, account) {
     return db.query('FOR x IN users FILTER x.username == @username UPDATE x WITH {account: @account} IN users', {username: user.username, account: account});
   };
+
+  user.readAvatarChanged = function (username) {
+    let query = `
+      WITH users
+      FOR u IN users FILTER u.username == @username
+        RETURN u.account.avatar_changed
+    `;
+    let params = {username: username};
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let ret = yield cursor.all();
+      if(ret.length === 0) return null;
+      return ret[0] || null;
+    });
+  }
 
   user.updateEmailVerifyCode = function (user, data) {
     
