@@ -84,9 +84,11 @@ router
 //read tags. they are profile specific.
 .all('/:username', function (req, res, next) {
   return co(function * () {
-    let db = req.app.get('database');
-    let username = req.params.username;
-    res.locals.tags = yield db.user.tags(username);
+    if(req.session.user.logged === true) {
+      let db = req.app.get('database');
+      let username = req.params.username;
+      res.locals.tags = yield db.user.tags(username);
+    }
     return res.render('user-profile');
   }).catch(next);
 })

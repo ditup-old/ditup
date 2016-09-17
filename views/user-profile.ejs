@@ -11,6 +11,7 @@ var logged = session.logged;
 var profileUrl = `/user/${profile.username}`;
 var me = logged === true && profile.username === session.username ? true : false;
 var edit = edit === true ? true : false;
+var tags = tags ? tags : [];
 
 var headScripts = [
 //  {
