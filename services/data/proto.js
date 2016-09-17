@@ -348,14 +348,17 @@ proto.tags = function (collectionName, db) {
             RETURN {name: t.name, description: t.description})
       RETURN LENGTH(col) == 0 ? 404 : output`;
     var params = {id: id};
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (tags) {
-        if(tags[0] == '404') throw new Error('404');
-        return tags[0];
-      });
+
+    return co(function * () {
+      let cursor = yield db.query(query, params)
+      let output = yield cursor.all();
+      if(output[0] === '404') {
+        let e = new Error(`Not Found: user ${username}`);
+        e.status = 404;
+        throw e;
+      }
+      return output[0];
+    });
   };
 };
 
@@ -404,12 +407,26 @@ proto.following = function (collectionName, db) {
       LET us = (FOR u IN users FILTER u.username == @username RETURN u)
       LET output = (
         FOR u IN us
-          FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER ufd._from == u._id && ufd.hide == false
-            FOR d IN `+collectionName+` FILTER ufd._to == d._id
-              RETURN MERGE(d, {id: d._key})
+          FOR v IN 1..1
+            OUTBOUND u
+            userFollow${singularUppercase(collectionName)}
+            RETURN MERGE({id: v._key}, KEEP(v, 'name'))
       )
-      RETURN LENGTH(us) == 0 ? "404" : output`;
+      RETURN LENGTH(us) == 0 ? '404' : output
+    `;
     var params = {username: username};
+    
+    return co(function * () {
+      let cursor = yield db.query(query, params)
+      let output = yield cursor.all();
+      if(output[0] === '404') {
+        let e = new Error(`Not Found: user ${username}`);
+        e.status = 404;
+        throw e;
+      }
+      return output[0];
+    });
+
     return db.query(query, params)
       .then(function (cursor) {
         return cursor.all();
@@ -561,47 +578,24 @@ proto.readCollectionsByTags = function (collectionParams, collectionName, db) {
     pms += cp + ': ditt.' + cp + ', ';
   }
   var sg = singularLowercase(collectionName);
-  return function (tags, username) {
+  return function (tags) {
     var query = `LET output = (FOR t IN tags FILTER t.name IN @tags
-          FOR dt IN `+sg+`Tag FILTER dt._to == t._id
-              FOR d IN `+collectionName+` FILTER d._id == dt._from
-                  RETURN {` + sg + `: d, tag: t})
+          FOR dt IN ${sg}Tag FILTER dt._to == t._id
+              FOR d IN ${collectionName} FILTER d._id == dt._from
+                  RETURN {${sg}: d, tag: t})
       FOR pt IN output
           COLLECT ditt = pt.` + sg + ` INTO tags = {name: pt.tag.name, description: pt.tag.description}
           LET tagno = LENGTH(tags)
           SORT tagno DESC
-          LET ` + sg + ` = {` + pms + `id: ditt._key}
-          RETURN {` + sg + `: ` + sg + `, tags: tags, tagno: tagno}`;
+          LET ${sg} = {${pms}id: ditt._key}
+          RETURN {${sg}: ${sg}, tags: tags, tagno: tagno}`;
     var params = {tags: tags};
-
-    if(username) {
-      query = `LET output = (FOR t IN tags FILTER t.name IN @tags
-            FOR dt IN `+sg+`Tag FILTER dt._to == t._id
-                FOR d IN `+collectionName+` FILTER d._id == dt._from
-                    RETURN {` + sg + `: d, tag: t})
-        LET collected = (FOR pt IN output
-            COLLECT ditt = pt.` + sg + ` INTO tags = {name: pt.tag.name, description: pt.tag.description}
-            LET tagno = LENGTH(tags)
-            LET ` + sg + ` = {`+ pms +`id: ditt._key, _id: ditt._id, posts: LENGTH(ditt.posts)}
-            RETURN {` + sg + `: ` + sg + `, tags: tags, tagno: tagno})
-        LET hidden = (FOR u IN users FILTER u.username == @username
-          FOR c IN collected
-            FOR ufd IN userFollow`+singularUppercase(collectionName)+` FILTER ufd._from == u._id && ufd._to == c.` + sg + `._id && ufd.hide == true
-              RETURN c.` + sg + `._id)
-        FOR c IN collected FILTER c.` + sg + `._id NOT IN hidden
-          SORT c.tagno DESC
-          RETURN c`;
-      params = {tags: tags, username: username};
-    }
-
-    return db.query(query, params)
-      .then(function (cursor) {
-        return cursor.all();
-      })
-      .then(function (collections) {
-        return collections;
-      });
-    ; 
+    
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let collections = yield cursor.all();
+      return collections;
+    });
   };
 };
 
@@ -715,10 +709,11 @@ proto.collectionsByTagsOfUser = function (collectionName, db) {
   let sg = singularLowercase(collectionName);
   let sgUp = singularUppercase(collectionName);
 
-  return function (username, showHidden) {
-    let showHiddenIsGood = showHidden === true || showHidden === false || showHidden === undefined;
-    if(!showHiddenIsGood) return Promise.reject('400');
-    showHidden = showHidden === true ? true : false;
+  return function (username, options) {
+    var options = options || {};
+    options.limit = options.limit || {};
+    options.limit.offset = options.limit.offset || 0;
+    options.limit.count = options.limit.count || 5;
 
     var query = `
     LET usrs = (FOR u IN users FILTER u.username == @username RETURN u)
@@ -730,11 +725,12 @@ proto.collectionsByTagsOfUser = function (collectionName, db) {
           COLLECT col = v INTO tags = KEEP(p.vertices[1], 'tagname', 'description')
           LET tagno = LENGTH(tags)
           SORT tagno DESC
+          LIMIT @offset, @count
           RETURN {id: col._key, name: col.name, tags: tags, tagno: tagno}
     )
     RETURN COUNT(usrs)==0 ? '404' : (COUNT(usrs)>1 ? 'duplicate': ret)`;
 
-    var params = {username: username};
+    var params = {username: username, offset: options.limit.offset, count: options.limit.count};
     
     return co(function *() {
       let cursor = yield db.query(query, params);
