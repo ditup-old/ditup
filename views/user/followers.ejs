@@ -1,10 +1,24 @@
-<header class="user-followers-header">
-  <h2>Followers</h2>
+<%
+var sgpage = page.slice(-1) === 's' ? page.slice(0,-1) : page;
+var Page = page.slice(0,1).toUpperCase() + page.slice(1);
+
+var users;
+
+if(page === 'followers') {
+  users = followers;
+}
+else if(page === 'following') {
+  users = following;
+}
+
+%>
+<header class="user-<%= page %>-header">
+  <h2><%= Page %></h2>
 </header>
-<section class="user-followers-list">
+<section class="user-<%= page %>-list user-users-list">
   <ul><%
-    for(let follower of followers) {
-    %><li class="user-follower"><a href="/user/<%= follower.username %>" target="_blank"><span class="user-follower-side"><img class="user-follower-avatar" src="/user/<%= follower.username %>/avatar" alt="profile of user <%= follower.username %>"/></span><span class="user-follower-main"><span class="icon-user user-follower-username"><%= follower.username %></span><br /><span class="user-follower-name"><%= `${follower.profile.name} ${follower.profile.surname}` %></span></a></span></li><%
+    for(let user of users) {
+    %><li class="user-<%= sgpage %> user-user"><a href="/user/<%= user.username %>"><span class="user-user-side"><img class="user-user-avatar" src="/user/<%= user.username %>/avatar" alt="profile of user <%= user.username %>"/></span><span class="user-user-main"><span class="icon-user user-user-username user-<%= sgpage %>-username"><%= user.username %></span><br /><span class="user-user-name user-<%= sgpage %>-name"><%= `${user.profile.name} ${user.profile.surname}` %></span></a></span></li><%
     }
 %></ul>
 </section>

@@ -112,7 +112,11 @@ var scripts = [];
     switch (page) {
       case 'followers':%>
         <% include ./user/followers %>
-    <% 
+        <%
+        break;
+      case 'following':%>
+        <% include ./user/following %>
+        <% 
         break;
       default:
     %>

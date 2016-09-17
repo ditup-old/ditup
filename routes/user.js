@@ -12,7 +12,7 @@ let co = require('co');
 router.use(require('./user/edit'));
 
 router
-.post('/:username', function (req, res, next){
+.post(['/:username', '/:username/followers', '/:username/following'], function (req, res, next){
   return co(function * () {
     let sessUser = req.session.user;
     let username = req.params.username;
@@ -35,7 +35,7 @@ router
   })
     .catch(next);
 })
-.all('/:username/followers', function (req, res, next) {
+.all(['/:username/followers', '/:username/following'], function (req, res, next) {
   let sessUser = req.session.user;
   if(sessUser.logged === true) {
     return next();
@@ -46,7 +46,7 @@ router
     throw err;
   }
 })
-.all(['/:username', '/:username/followers'], function (req, res, next) {
+.all(['/:username', '/:username/followers', '/:username/following'], function (req, res, next) {
   return co(function * () {
     let db = req.app.get('database');
     var username = req.params.username;
@@ -100,7 +100,16 @@ router
     return next();
   }).catch(next);
 })
-.all(['/:username', '/:username/followers'], function (req, res, next) {
+.all('/:username/following', function (req, res, next) {
+  return co(function * () {
+    let username = req.params.username;
+    let db = req.app.get('database');
+    res.locals.page = 'following';
+    res.locals.following = yield db.user.readFollowing(username);
+    return next();
+  }).catch(next);
+})
+.all(['/:username', '/:username/followers', '/:username/following'], function (req, res, next) {
   return res.render('user-profile');
 });
 

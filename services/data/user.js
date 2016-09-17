@@ -463,6 +463,35 @@ module.exports = function (db) {
     });
   }
 
+  user.readFollowing = function (username){
+    return co (function * () {
+      var query = `
+        FOR u IN users FILTER u.username == @username
+          LET following = (
+            FOR v IN 1..1
+              OUTBOUND u
+              userFollowUser
+              RETURN KEEP(v, 'username', 'profile')
+          )
+          RETURN following
+      `;
+      var params = {username: username};
+
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+      if(output.length === 0) {
+        let err = new Error('User Not Found');
+        err.status = 404;
+        throw err;
+      }
+      if(output.length > 1) {
+        let err = new Error('Database problem: multiple similar usernames');
+        throw err;
+      }
+      return output[0];
+    });
+  }
+
   user.countFollowers = function (username){
     return co (function * () {
       var query = `
