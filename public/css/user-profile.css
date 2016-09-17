@@ -82,3 +82,20 @@
   font-size: 1.2em;
   color: gray;
 }
+
+.user-pages-nav {
+  margin-bottom: 0.5em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #6ca6ca;
+}
+
+.user-pages-nav li {
+  display: inline;
+  margin-right: 1em;
+}
+
+.user-action-panel li {
+  display: block;
+  width: 100%;
+  text-align: center;
+}

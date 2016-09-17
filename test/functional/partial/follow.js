@@ -7,7 +7,7 @@ module.exports = function (collectionName) {
 
   let deps = config.init({db: dbConfig}, dbData);
   let funcs = config.funcs;
-  describe('/user/:username follow & unfollow user', function () {
+  describe(`/${collectionName}/:id/:url follow & unfollow ${collectionName}`, function () {
     let browserObj = {};
     let browser;
 

@@ -438,10 +438,43 @@ module.exports = function (db) {
     return co (function * () {
       var query = `
         FOR u IN users FILTER u.username == @username
-            LET links = (FOR ufu IN userFollowUser
-              FILTER ufu._to == u._id
-              RETURN null)
-            RETURN COUNT(links)`;
+          LET following = (
+            FOR v IN 1..1
+              INBOUND u
+              userFollowUser
+              RETURN null
+          )
+          RETURN LENGTH(following)
+      `;
+      var params = {username: username};
+
+      let cursor = yield db.query(query, params);
+      let output = yield cursor.all();
+      if(output.length === 0) {
+        let err = new Error('User Not Found');
+        err.status = 404;
+        throw err;
+      }
+      if(output.length > 1) {
+        let err = new Error('Database problem: multiple similar usernames');
+        throw err;
+      }
+      return output[0];
+    });
+  }
+
+  user.countFollowing = function (username){
+    return co (function * () {
+      var query = `
+        FOR u IN users FILTER u.username == @username
+          LET following = (
+            FOR v IN 1..1
+              OUTBOUND u
+              userFollowUser
+              RETURN null
+          )
+          RETURN LENGTH(following)
+      `;
       var params = {username: username};
 
       let cursor = yield db.query(query, params);

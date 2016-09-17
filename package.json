@@ -45,6 +45,7 @@
     "watch-project-edit": "mocha ./test/functional/project/edit --watch",
     "watch-people": "mocha ./test/functional/user/people --watch",
     "watch-user-follow": "mocha ./test/functional/user/follow --watch",
+    "watch-user-nav": "mocha ./test/functional/user/navigation --watch",
     "watch-project-follow": "mocha ./test/functional/project/follow --watch",
     "watch-idea-follow": "mocha ./test/functional/idea/follow --watch",
     "watch-challenge-follow": "mocha ./test/functional/challenge/follow --watch",

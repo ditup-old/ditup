@@ -25,12 +25,14 @@ describe('/user/:username follow & unfollow user', function () {
   function testFollowButton(message) {
     it(message || 'should show \'follow\' button', function () {
       browser.assert.element('.follow-button');
+      browser.assert.elements('.unfollow-button', 0);
     });
   }
 
   function testUnfollowButton(message) {
     it(message || 'should show \'unfollow\' button', function () {
       browser.assert.element('.unfollow-button');
+      browser.assert.elements('.follow-button', 0);
     });
   }
 

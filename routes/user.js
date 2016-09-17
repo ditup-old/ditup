@@ -53,9 +53,11 @@ router
       sessUser.messages.push('log in to see more');
     }
     
-    //show number of followers
+    //show number of followers && following
     if(sessUser.logged === true) {
       profile.followers = yield db.user.countFollowers(username);
+      profile.followingno = yield db.user.countFollowing(username);
+      profile.followerno = profile.followers;
     }
     
     //find out whether logged user is following this user

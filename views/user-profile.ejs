@@ -29,32 +29,6 @@ var scripts = [];
   }
 </style>
 <section class="page">
-  <nav class="action-panel">
-    <%
-    if(!edit) {
-      if (logged && !me) { 
-      %><span><a class="user-messages-link write-message fa fa-comment" href="/messages/<%= profile.username %>">talk</a></span><%
-      }
-      %>
-      <%
-        /**
-         * ********************** *
-         *    follow         *
-         * ********************** *
-         */
-
-        var follow = {
-          view: logged,
-          edit: logged && !me,
-          following: profile.following,
-          followers: profile.followers
-        };
-
-        %><% include partial/follow.ejs %>
-        <% } else if(edit===true){ %>
-    <a href="/user/<%= profile.username %>">cancel</a>
-        <% } %>
-  </nav>
   <section class="panel-basic" ><!-- basic profile info -->
     <div class="profile-avatar">
       <% if(edit === true && field === 'avatar') { %>
@@ -67,6 +41,36 @@ var scripts = [];
       <% if(me && !edit) { %><a class="profile-avatar-edit-link icon-edit" href="<%= profileUrl %>/edit?field=avatar">edit avatar</a><% } %>
       <% } %>
     </div>
+    <nav class="action-panel user-action-panel">
+      <ul>
+        <%
+        if(!edit) {
+          if (logged && !me) {
+        %>
+      <%
+          /**
+           * ********************** *
+           *    follow         *
+           * ********************** *
+           */
+
+          var follow = {
+            view: logged,
+            edit: logged && !me,
+            following: profile.following,
+            followers: profile.followers
+          };
+
+          %>
+        <li><a class="user-messages-link write-message fa fa-comment" href="/messages/<%= profile.username %>">talk</a></li>
+        <li><% include partial/follow.ejs %></li>
+        <% } %>
+      </ul>
+      <span></span>
+          <% } else if(edit===true){ %>
+      <a href="/user/<%= profile.username %>">cancel</a>
+          <% } %>
+    </nav>
     <div>
       <% if(edit === true && field === 'birthday') { %>
       <form method="post" class="profile-edit-birthday">
@@ -98,6 +102,11 @@ var scripts = [];
     <div class="profile-active"><%= profile.active %></div>
   </section><!--
   --><section class="panel-info" ><!--  -->
+    <%
+    //adding a navigation panel with lists fields (Followers, Following, projects etc.)
+    if(!edit) { %>
+      <% include ./user/navigation %>
+    <% } %>
     <div><span class="profile-username icon-user"><%= profile.username %></span></div>
     <div>
       <% if(edit === true && field === 'name') { %>
