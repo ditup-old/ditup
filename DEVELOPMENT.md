@@ -86,6 +86,22 @@ The first release should be a proof of the concept. It should be simple and show
   - [ ] i follow
   - [ ] i commented
 - [ ] creator of dits would be visible
+- [ ] various lists
+  - [x] /user/:username/followers
+  - [x] /user/:username/following
+  - [ ] /user/:username/projects
+  - [ ] /user/:username/ideas|challenges|discussions
+  - /user/:username/stars
+  - [ ] /user/:username/watching
+  - [ ] /c|i|p|d/:id/followers
+  - [ ] /p/:id/members
+  - [ ] /p/:id/invited
+  - [ ] /p/:id/joining
+  - [ ] /tag/:tagname/all-uses
+  - [ ] /tag/:tagname/users
+  - [ ] /tag/:tagname/ideas|challenges|discussions|projects
+  - [ ] /my-dits
+- [ ] solve caching or 304 avatars (performance)
 
 ### Future goals and ideas
 
