@@ -719,42 +719,35 @@ proto.collectionsByTagsOfUser = function (collectionName, db) {
     let showHiddenIsGood = showHidden === true || showHidden === false || showHidden === undefined;
     if(!showHiddenIsGood) return Promise.reject('400');
     showHidden = showHidden === true ? true : false;
-    
 
-    var query = `LET usrs = (FOR u IN users FILTER u.username == @username
-        RETURN u)
-      LET tagsOfUser = (FOR u IN usrs
-        FOR ut IN userTag FILTER ut._from == u._id
-            FOR t IN tags FILTER t._id == ut._to
-              RETURN t)
-      LET output = (FOR t IN tagsOfUser
-        FOR pt IN ` + sg + `Tag FILTER pt._to == t._id
-          FOR p IN ` + collectionName + ` FILTER p._id == pt._from
-            RETURN {` + sg + `: p, tag: t})
-      LET cols = (FOR pt IN output
-        COLLECT col = pt.` + sg + ` INTO tags = {name: pt.tag.name, description: pt.tag.description}
-        LET tagno = LENGTH(tags)
-        SORT tagno DESC
-        //LET ` + sg + ` = {id: col._key, name: col.name, _id: col._id}
-        RETURN {` + sg + `: col, tags: tags, tagno: tagno})
-      
-      //now finding out whether the collection is hidden
-      LET hip = (FOR p IN cols
-        FOR u IN usrs
-          LET hidden = (COUNT(FOR ufp IN userFollow` + sgUp + ` FILTER u._id == ufp._from && p.` + sg + `._id == ufp._to && ufp.hide == true RETURN ufp))
-          RETURN {id: p.` + sg + `._key, name: p.` + sg + `.name, description: p.` + sg + `.description, tags: p.tags, hidden: hidden})
-          
-      LET ret = (FOR h IN hip ` + (showHidden === true ? '' : 'FILTER h.hidden == 0') + ` RETURN h)
-      RETURN COUNT(usrs)==0 ? '404' : (COUNT(usrs)>1 ? 'duplicate': ret)`;
+    var query = `
+    LET usrs = (FOR u IN users FILTER u.username == @username RETURN u)
+    LET ret = (
+      FOR u IN usrs
+        FOR v,e,p IN 2..2
+          ANY u
+          OUTBOUND userTag, INBOUND ${sg}Tag
+          COLLECT col = v INTO tags = KEEP(p.vertices[1], 'tagname', 'description')
+          LET tagno = LENGTH(tags)
+          SORT tagno DESC
+          RETURN {id: col._key, name: col.name, tags: tags, tagno: tagno}
+    )
+    RETURN COUNT(usrs)==0 ? '404' : (COUNT(usrs)>1 ? 'duplicate': ret)`;
+
     var params = {username: username};
     
     return co(function *() {
       let cursor = yield db.query(query, params);
+      //let out = (yield cursor.all());
       let out = (yield cursor.all())[0];
 
-      if(out === '404') throw new Error('404');
-      if(out === 'duplicate') throw new Error('duplicate');
-      return Promise.resolve(out);
+      if(out === '404') {
+        let e = new Error(`Not Found: user ${username}`);
+        e.status = 404;
+        throw e;
+      }
+      if(out === 'duplicate') throw new Error(`duplicate user ${username}`);
+      return out;
     })
     .catch(function (err) {
       return Promise.reject(err);
