@@ -99,3 +99,40 @@
   width: 100%;
   text-align: center;
 }
+
+.user-follower-avatar {
+  height: 40px;
+  width: 40px;
+  border-radius: 3px;
+}
+
+.user-follower-side {
+  width: 50px;
+  position: relative;
+}
+
+.user-follower-main {
+  width: 400px;
+}
+
+.user-follower-side, .user-follower-main {
+  display: inline-block;
+  padding: 5px;
+  vertical-align: top;
+}
+
+.user-follower-name {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.user-follower-username {
+  font-size: 1em;
+  color: #777;
+}
+
+ul > hr {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+}

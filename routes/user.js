@@ -35,7 +35,18 @@ router
   })
     .catch(next);
 })
-.all('/:username', function (req, res, next) {
+.all('/:username/followers', function (req, res, next) {
+  let sessUser = req.session.user;
+  if(sessUser.logged === true) {
+    return next();
+  }
+  else {
+    let err = new Error('Not Authorized');
+    err.status = 403;
+    throw err;
+  }
+})
+.all(['/:username', '/:username/followers'], function (req, res, next) {
   return co(function * () {
     let db = req.app.get('database');
     var username = req.params.username;
@@ -66,11 +77,31 @@ router
     }
     
     res.locals.profile = profile;
-    res.locals.tags = yield db.user.tags(username);
-
-    return res.render('user-profile');
+    return next();
   })
     .catch(next);
+})
+//read tags. they are profile specific.
+.all('/:username', function (req, res, next) {
+  return co(function * () {
+    let db = req.app.get('database');
+    let username = req.params.username;
+    res.locals.tags = yield db.user.tags(username);
+    return res.render('user-profile');
+  }).catch(next);
+})
+//read followers && set the view page to 'followers'
+.all('/:username/followers', function (req, res, next) {
+  return co(function * () {
+    let username = req.params.username;
+    let db = req.app.get('database');
+    res.locals.page = 'followers';
+    res.locals.followers = yield db.user.readFollowers(username);
+    return next();
+  }).catch(next);
+})
+.all(['/:username', '/:username/followers'], function (req, res, next) {
+  return res.render('user-profile');
 });
 
 module.exports = router;

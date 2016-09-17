@@ -1,5 +1,6 @@
 <nav class="user-pages-nav">
   <ul>
+    <li><a class="user-profile-link" href="/user/<%= profile.username %>">Profile</a></li>
     <li><a class="user-followers-link" href="/user/<%= profile.username %>/followers">Followers <span class="user-followers-number"><%= profile.followerno %></span></a></li>
     <li><a class="user-following-link" href="/user/<%= profile.username %>/following">Following <span class="user-following-number"><%= profile.followingno %></span></a></li>
   </ul>

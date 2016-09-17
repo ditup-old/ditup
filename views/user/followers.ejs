@@ -1,0 +1,10 @@
+<header class="user-followers-header">
+  <h2>Followers</h2>
+</header>
+<section class="user-followers-list">
+  <ul><%
+    for(let follower of followers) {
+    %><li class="user-follower"><a href="/user/<%= follower.username %>" target="_blank"><span class="user-follower-side"><img class="user-follower-avatar" src="/user/<%= follower.username %>/avatar" alt="profile of user <%= follower.username %>"/></span><span class="user-follower-main"><span class="icon-user user-follower-username"><%= follower.username %></span><br /><span class="user-follower-name"><%= `${follower.profile.name} ${follower.profile.surname}` %></span></a></span></li><%
+    }
+%></ul>
+</section>

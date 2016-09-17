@@ -28,6 +28,10 @@ describe('/user/:username navigation', function () {
     it('should show the navigation panel', function () {
       browser.assert.element('.user-pages-nav');
     });
+    it('should show Profile link in the navigation panel', function () {
+      browser.assert.element('.user-profile-link');
+      browser.assert.attribute('.user-profile-link', 'href', `/user/${otherUser.username}`);
+    });
     it('should show Followers link in the navigation panel', function () {
       browser.assert.element('.user-followers-link');
       browser.assert.attribute('.user-followers-link', 'href', `/user/${otherUser.username}/followers`);
