@@ -14,6 +14,11 @@ module.exports = function (session) {
 
   var database = require('./services/data');
 
+  //add some method to String
+  String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  }
+
   //var home = require('./routes/home');
   //var signup = require('./routes/signup');
 
