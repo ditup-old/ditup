@@ -42,28 +42,39 @@ hr {
   margin-right: 1em;
 }
 
-.user-list-item-avatar {
+.user-list-item-avatar, .dit-list-item-icon {
   height: 40px;
   width: 40px;
   border-radius: 3px;
 }
 
-.user-list-item-side {
+.dit-list-item-icon {
+  font-size: 30px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+  color: white;
+  background-color: #011149;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.user-list-item-side, .dit-list-item-side {
   width: 50px;
   position: relative;
 }
 
-.user-list-item-main {
+.user-list-item-main, .dit-list-item-main {
   width: 400px;
 }
 
-.user-list-item-side, .user-list-item-main {
+.user-list-item-side, .user-list-item-main, .dit-list-item-main, .dit-list-item-side {
   display: inline-block;
   padding: 5px;
   vertical-align: top;
 }
 
-.user-list-item-name {
+.user-list-item-name, .dit-list-item-name {
   font-size: 1.5em;
   font-weight: bold;
 }
@@ -77,26 +88,17 @@ hr {
   display: inline-block;
 }
 
-.user-list:empty::before {
-  content: "nobody found";
-  color: red;
-}
-
 .tag-list:empty::before {
   content: "no other tags found";
   color: red;
 }
 
-/*
-.user-action-panel {
-  li {
-    display: block;
-    width: 100%;
-    text-align: center;
-  }
+.user-list:empty::before {
+  content: "nobody found";
+  color: red;
 }
 
-
-
-
-*/
+.dit-list:empty::before {
+  content: "nothing found";
+  color: red;
+}

@@ -1,0 +1,18 @@
+    <li class="tag-<%= sgPage %> dit-list-item">
+      <span class="dit-list-item-side">
+        <a href="/<%= sgPage %>/<%= dit.id %>/<%= dit.url %>">
+          <span class="icon-<%= sgPage %> dit-list-item-icon"></span>
+        </a>
+      </span>
+      <span class="dit-list-item-main">
+        <a href="/<%= sgPage %>/<%= dit.id %>/<%= dit.url %>">
+          <span class="dit-list-item-name tag-dit-name" ><%= dit.name %></span>
+        </a>
+        <ul class="dit-list-item-tag-list tag-<%= sgPage %>-tags-list tag-list"><%
+        for(let ditTag of dit.tags) { %>
+          <li class="tag-dit-tag">
+            <a href="/tag/<%= ditTag.tagname %>"><span class="icon-tag tag-dit-tag-tagname" ><%= ditTag.tagname %></span></a>
+          </li>
+        <% } %></ul>
+      </span>
+    </li>

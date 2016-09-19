@@ -1,25 +1,36 @@
+<%
+var pageData = {};
+
+var sgPage = page.slice(0,-1);
+
+switch (page) {
+  case 'users':
+    pageData.users = users;
+    break;
+  case 'challenges':
+    pageData.dits = challenges;
+    break;
+  case 'ideas':
+    pageData.dits = ideas;
+    break;
+  case 'projects':
+    pageData.dits = projects;
+    break;
+  case 'discussions':
+    pageData.dits = discussions;
+    break;
+  default:
+}
+%>
 <section class="tag-<%= page %>">
   <ul class="user-list"><%
-    for(let user of users) { %>
-    <li class="tag-user user-list-item">
-      <span class="user-list-item-side">
-        <a href="/user/<%= user.username %>">
-          <img src="/user/<%= user.username %>/avatar" class="user-list-item-avatar" alt="profile picture of user <%= user.username %>"/>
-        </a>
-      </span>
-      <span class="user-list-item-main">
-        <a href="/user/<%= user.username %>">
-          <span class="user-list-item-username tag-user-username" ><%= user.username %></span>
-          <div class="user-list-item-name" ><%= `${user.profile.name} ${user.profile.surname}` %></div>
-        </a>
-        <ul class="user-list-item-tag-list tag-user-tags-list tag-list"><%
-        for(let userTag of user.tags) { %>
-          <li class="tag-user-tag">
-            <a href="/tag/<%= userTag.tagname %>"><span class="icon-tag tag-user-tag-tagname" ><%= userTag.tagname %></span></a>
-          </li>
-        <% } %></ul>
-      </span>
-    </li>
-  <% }
-  %></ul>
+    if(page === 'users') {
+      for(let user of pageData.users) { %><% include ./pages/user %><% }
+    }
+    else if(['challenges', 'ideas', 'projects', 'discussions'].indexOf(page) > -1) {
+      for(let dit of pageData.dits) {
+        %><% include ./pages/dit %><%
+      }
+    }
+%></ul>
 </section>

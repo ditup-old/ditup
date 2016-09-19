@@ -261,7 +261,38 @@ module.exports = function (db) {
       let params = {tagname: tagname};
       let cursor = yield db.query(query, params);
       let out = yield cursor.all();
-      console.log(out);
+      return out;
+    });
+  }
+
+  tag.readChallenges = function (tagname) {
+    return co(function * () {
+      //get challenges and their other tags and sort challenges by amount of followers
+      let query = `WITH tags, challenges, users
+        //find the required tag
+        FOR t IN tags FILTER t.tagname == @tagname
+          //get the searched collections and their followers
+          LET collections = (
+            FOR v,e,p IN 1..2 ANY t
+            INBOUND challengeTag, INBOUND userFollowChallenge
+              COLLECT col = p.vertices[1] WITH COUNT INTO countFollowers
+              RETURN {col: col, followerno: countFollowers-1}
+          )
+          FOR c IN collections
+            //get the other tags of each collection 
+            LET otherTags = (
+                FOR v IN 1..1 OUTBOUND c.col
+                OUTBOUND challengeTag
+                  FILTER v._id != t._id
+                  SORT v.tagname ASC
+                  RETURN KEEP(v, 'tagname', 'description')
+            )
+            //sort collections by popularity (amount of followers)
+            SORT c.followerno DESC
+            RETURN MERGE(KEEP(c.col, 'name'), {id: c.col._key}, {tags: otherTags}, {followerno: c.followerno})`;
+      let params = {tagname: tagname};
+      let cursor = yield db.query(query, params);
+      let out = yield cursor.all();
       return out;
     });
   }

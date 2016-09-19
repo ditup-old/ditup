@@ -7,11 +7,13 @@ let co = require('co');
 var process = require('../services/processing');
 var validate = require('../services/validation/validate');
 
+let generateUrl = require('./collection/functions').generateUrl;
+
 router.get('/', function (req, res, next) {
   return res.redirect('tags');
 });
 
-router.get(['/:tagname', '/:tagname/users'], function (req, res, next) {
+router.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (req, res, next) {
   let db = req.app.get('database');
   return co(function * () {
     var sessUser = req.session.user;
@@ -28,21 +30,37 @@ router.get(['/:tagname', '/:tagname/users'], function (req, res, next) {
   })
     .catch(next);
 })
-.get(['/:tagname/users'], function (req, res, next) {
+.get(['/:tagname/:page'], function (req, res, next) {
+  let page = req.params.page;
+
+  //check for validity of the :page parameter
+  let validPages = ['users', 'challenges'];
+  let isValidPage = validPages.indexOf(page) > -1;
+  if(!isValidPage) return next();
+
+  let upPage = page.capitalizeFirstLetter();
+
   let db = req.app.get('database');
   return co(function * () {
     var sessUser = req.session.user;
     var tagname = req.params.tagname;
 
-    res.locals.users = yield db.tag.readUsers(tagname);
+    let cols = yield db.tag[`read${upPage}`](tagname);
 
-    res.locals.page = 'users';
+    //for each collection generate url
+    for(let col of cols) {
+      col.url = generateUrl(col.name);
+    }
+
+    res.locals[page] = cols;
+
+    res.locals.page = page;
     return next();
   })
     .catch(next);
 })
 //rendering
-.get(['/:tagname', '/:tagname/users'], function (req, res, next) {
+.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (req, res, next) {
   return res.render('tag');
 });
 

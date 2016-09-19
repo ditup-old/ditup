@@ -1,0 +1,19 @@
+    <li class="tag-user user-list-item">
+      <span class="user-list-item-side">
+        <a href="/user/<%= user.username %>">
+          <img src="/user/<%= user.username %>/avatar" class="user-list-item-avatar" alt="profile picture of user <%= user.username %>"/>
+        </a>
+      </span>
+      <span class="user-list-item-main">
+        <a href="/user/<%= user.username %>">
+          <span class="user-list-item-username tag-user-username" ><%= user.username %></span>
+          <div class="user-list-item-name" ><%= `${user.profile.name} ${user.profile.surname}` %></div>
+        </a>
+        <ul class="user-list-item-tag-list tag-user-tags-list tag-list"><%
+        for(let userTag of user.tags) { %>
+          <li class="tag-user-tag">
+            <a href="/tag/<%= userTag.tagname %>"><span class="icon-tag tag-user-tag-tagname" ><%= userTag.tagname %></span></a>
+          </li>
+        <% } %></ul>
+      </span>
+    </li>
