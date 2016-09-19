@@ -2,6 +2,11 @@
 
 let co = require('co');
 
+//add some method to String
+String.prototype.capitalizeFirstLetter = function () {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 module.exports = {
   init: init,
   beforeTest: beforeTest,
@@ -103,6 +108,7 @@ function fill(url, data, browserObj) {
 function init (config, dbData) {
   // force the test environmentV to 'test'
   process.env.NODE_ENV = 'test';
+
   // get the application server module
   var app = require('../../../app');
   var session = require('../../../session');

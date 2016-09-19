@@ -13,7 +13,22 @@ router.get('/', function (req, res, next) {
   return res.redirect('tags');
 });
 
-router.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (req, res, next) {
+router.get(['/:tagname/users', '/:tagname/challenges', '/:tagname/ideas', '/:tagname/projects', '/:tagname/discussions'], function (req, res, next) {
+  if(req.session.user.logged === true) {
+    return next();
+  }
+  let e = new Error('Not Authorized');
+  e.status = 403;
+  return next(e);
+})
+.get('/:tagname', function (req, res, next) {
+  let sessUser = req.session.user;
+  if(sessUser.logged !== true) {
+    sessUser.messages.push('log in to see more and contribute');
+  }
+  return next();
+})
+.get(['/:tagname', '/:tagname/users', '/:tagname/challenges', '/:tagname/ideas', '/:tagname/projects', '/:tagname/discussions'], function (req, res, next) {
   let db = req.app.get('database');
   return co(function * () {
     var sessUser = req.session.user;
@@ -34,7 +49,7 @@ router.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (r
   let page = req.params.page;
 
   //check for validity of the :page parameter
-  let validPages = ['users', 'challenges'];
+  let validPages = ['users', 'challenges', 'ideas', 'projects', 'discussions'];
   let isValidPage = validPages.indexOf(page) > -1;
   if(!isValidPage) return next();
 
@@ -48,8 +63,19 @@ router.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (r
     let cols = yield db.tag[`read${upPage}`](tagname);
 
     //for each collection generate url
-    for(let col of cols) {
-      col.url = generateUrl(col.name);
+    if(page !== 'users') {
+      for(let col of cols) {
+        col.url = generateUrl(col.name);
+      }
+    }
+
+    //remove profile & tags from user if not logged in
+    if(page === 'users' && sessUser.logged !== true) {
+      for(let user of cols) {
+        delete user.profile;
+        delete user.tags;
+        user.profile = [];
+      }
     }
 
     res.locals[page] = cols;
@@ -60,7 +86,7 @@ router.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (r
     .catch(next);
 })
 //rendering
-.get(['/:tagname', '/:tagname/users', '/:tagname/challenges'], function (req, res, next) {
+.get(['/:tagname', '/:tagname/users', '/:tagname/challenges', '/:tagname/ideas', '/:tagname/projects', '/:tagname/discussions'], function (req, res, next) {
   return res.render('tag');
 });
 

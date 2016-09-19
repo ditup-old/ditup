@@ -44,32 +44,6 @@ describe('tag pages', function () {
         browser.assert.text('.tag-description', existentTag.description);
       });
 
-      it('should show amount of all the uses of the tag', function () {
-        browser.assert.text('.tag-all-count', dbData.users.length + dbData.challenges.length + dbData.ideas.length + dbData.projects.length + dbData.discussions.length);
-      });
-      it('should show amount of uses by users', function () {
-        browser.assert.text('.tag-user-count', dbData.users.length);
-      });
-      it('should show amount of uses by challenges', function () {
-        browser.assert.text('.tag-challenge-count', dbData.challenges.length);
-      });
-      it('should show amount of uses by ideas', function () {
-        browser.assert.text('.tag-idea-count', dbData.ideas.length);
-      });
-      it('should show amount of uses by projects', function () {
-        browser.assert.text('.tag-project-count', dbData.projects.length);
-      });
-      it('should show amount of uses by discussions', function () {
-        browser.assert.text('.tag-discussion-count', dbData.discussions.length);
-      });
-
-      let pages = ['all-uses', 'users', 'challenges', 'ideas', 'discussions', 'projects'];
-
-      for(let page of pages) {
-        it(`should link to the /tag/:tagname/${page} page`, function () {
-          browser.assert.attribute(`.tag-${page}-link`, 'href', `/tag/${existentTag.tagname}/${page}`);
-        });
-      }
 
       context('logged in', function () {
         beforeEach(funcs.login(loggedUser, browserObj));
@@ -77,6 +51,40 @@ describe('tag pages', function () {
         afterEach(funcs.logout(browserObj));
         it('should show edit tag link', function () {
           browser.assert.link('.edit-tag-link', 'edit', `/tag/${existentTag.tagname}/edit`)
+        });
+
+        it('should show amount of all the uses of the tag', function () {
+          browser.assert.text('.tag-all-count', dbData.users.length + dbData.challenges.length + dbData.ideas.length + dbData.projects.length + dbData.discussions.length);
+        });
+        it('should show amount of uses by users', function () {
+          browser.assert.text('.tag-user-count', dbData.users.length);
+        });
+        it('should show amount of uses by challenges', function () {
+          browser.assert.text('.tag-challenge-count', dbData.challenges.length);
+        });
+        it('should show amount of uses by ideas', function () {
+          browser.assert.text('.tag-idea-count', dbData.ideas.length);
+        });
+        it('should show amount of uses by projects', function () {
+          browser.assert.text('.tag-project-count', dbData.projects.length);
+        });
+        it('should show amount of uses by discussions', function () {
+          browser.assert.text('.tag-discussion-count', dbData.discussions.length);
+        });
+
+        let pages = ['users', 'challenges', 'ideas', 'discussions', 'projects', 'tags'];
+
+        for(let page of pages) {
+          it(`should link to the /tag/:tagname/${page} page`, function () {
+            browser.assert.attribute(`.tag-${page}-link`, 'href', `/tag/${existentTag.tagname}/${page}`);
+          });
+        }
+      });
+      context('not logged in', function () {
+        beforeEach(funcs.logout(browserObj));
+        beforeEach(funcs.visit(`/tag/${existentTag.tagname}`, browserObj));
+        it('should say log in to see more', function () {
+          browser.assert.text('.popup-message', 'log in to see more and contribute');
         });
       });
     });

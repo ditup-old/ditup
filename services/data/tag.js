@@ -6,8 +6,10 @@ module.exports = function (db) {
   var tag = {};
 
   tag.create = function (tag) {
-    var query = 'FOR u IN users FILTER u.username == @username ' +
-      'INSERT {tagname: @tagname, name: @tagname, description: @description, meta: {created: @created, creator: u._id}} IN tags';
+    var query = `
+      FOR u IN users FILTER u.username == @username
+        INSERT {tagname: @tagname, name: @tagname, description: @description, meta: {created: @created, creator: u._id}} IN tags
+    `;
     var params = {
       tagname: tag.tagname || tag.name,
       description: tag.description,
@@ -265,16 +267,18 @@ module.exports = function (db) {
     });
   }
 
-  tag.readChallenges = function (tagname) {
+  tag.readCollections = function (tagname, collections) {
+    let collection = collections.slice(0,-1);
+    let upCollection = collection.charAt(0).toUpperCase() + collection.slice(1);
     return co(function * () {
       //get challenges and their other tags and sort challenges by amount of followers
-      let query = `WITH tags, challenges, users
+      let query = `WITH tags, ${collections}, users
         //find the required tag
         FOR t IN tags FILTER t.tagname == @tagname
           //get the searched collections and their followers
           LET collections = (
             FOR v,e,p IN 1..2 ANY t
-            INBOUND challengeTag, INBOUND userFollowChallenge
+            INBOUND ${collection}Tag, INBOUND userFollow${upCollection}
               COLLECT col = p.vertices[1] WITH COUNT INTO countFollowers
               RETURN {col: col, followerno: countFollowers-1}
           )
@@ -282,7 +286,7 @@ module.exports = function (db) {
             //get the other tags of each collection 
             LET otherTags = (
                 FOR v IN 1..1 OUTBOUND c.col
-                OUTBOUND challengeTag
+                OUTBOUND ${collection}Tag
                   FILTER v._id != t._id
                   SORT v.tagname ASC
                   RETURN KEEP(v, 'tagname', 'description')
@@ -295,6 +299,15 @@ module.exports = function (db) {
       let out = yield cursor.all();
       return out;
     });
+  };
+  
+  //making tag.read(SomeCollection) function
+  //it reads the someCollection dits tagged with the tag :tagname
+  for(let collections of ['challenges', 'ideas', 'projects', 'discussions']) {
+    let upCols = collections.charAt(0).toUpperCase() + collections.slice(1);
+    tag[`read${upCols}`] = function (tagname) {
+      return this.readCollections(tagname, collections);
+    }
   }
 
   tag.readRelatedTags = function (tagname) {

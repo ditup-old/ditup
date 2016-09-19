@@ -21,9 +21,21 @@ switch (page) {
     break;
   default:
 }
+
+var pageList;
+if(page === 'users') {
+  pageList = 'user-list';
+}
+else if (['challenges', 'ideas', 'projects', 'discussions'].indexOf(page)>-1) {
+  pageList = 'dit-list';
+}
+else {
+  throw new Error('unexpected page');
+}
+
 %>
 <section class="tag-<%= page %>">
-  <ul class="user-list"><%
+  <ul class="<%= pageList %>"><%
     if(page === 'users') {
       for(let user of pageData.users) { %><% include ./pages/user %><% }
     }

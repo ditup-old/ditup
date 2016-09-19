@@ -8,9 +8,9 @@ module.exports = function (collectionName) {
 
   let config = require('../partial/config');
   let dbConfig = require('../../../services/db-config');
-  let dbData = require(`./db${upCollections}`);
-
+  let dbData = require(`./dbPages`)(collectionName);
   let deps = config.init({db: dbConfig}, dbData);
+
   let funcs = config.funcs;
 
 
@@ -27,20 +27,29 @@ module.exports = function (collectionName) {
     // ***********end of preparation
     //
     //
-    let loggedUser = dbData[collections][0];
+    let loggedUser = dbData.users[0];
     let existentTag = dbData.tags[0];
 
-    beforeEach(funcs.visit(`/tag/${existentTag.tagname}/${collections}`, browserObj));
+    context('logged in', function () {
+      beforeEach(funcs.login(loggedUser, browserObj));
+      afterEach(funcs.logout(browserObj));
 
-    it(`should show the tag-${collections} page`, function () {
-      //browser.assert.text(`.tag-${collections}-header`, `${upCollections}`);
-      browser.assert.element(`.tag-${collections}`);
+      beforeEach(funcs.visit(`/tag/${existentTag.tagname}/${collections}`, browserObj));
+
+      it(`should show the tag-${collections} page`, function () {
+        //browser.assert.text(`.tag-${collections}-header`, `${upCollections}`);
+        browser.assert.element(`.tag-${collections}`);
+      });
+      it(`should list the ${collections}`, function () {
+        browser.assert.elements(`.tag-${collection}`, Math.ceil(dbData[collections].length / 2));
+      });
+      it(`should show other tags of each ${collection}`, function () {
+        browser.assert.elements(`.tag-${collection}-tags-list`, Math.ceil(dbData[collections].length/2));
+      });
     });
-    it(`should list the ${collections}`, function () {
-      browser.assert.elements(`.tag-${collection}`, Math.ceil(dbData[collections].length / 2));
-    });
-    it(`should show other tags of each ${collection}`, function () {
-      browser.assert.elements(`.tag-${collection}-tags-list`, Math.ceil(dbData[collections].length/2));
+
+    context('not logged in', function () {
+      it(`should show 403 page`, funcs.testError(`/tag/${existentTag.tagname}/${collections}`, 403, browserObj));
     });
   });
 
