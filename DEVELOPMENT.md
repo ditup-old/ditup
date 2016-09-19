@@ -98,7 +98,8 @@ The first release should be a proof of the concept. It should be simple and show
   - [ ] /p/:id/invited
   - [ ] /p/:id/joining
   - [ ] /tag/:tagname/all-uses
-  - [ ] /tag/:tagname/users
+  - [x] /tag/:tagname/users
+    - [ ] better security. this page shouldn't work if the visitor is not logged in
   - [ ] /tag/:tagname/ideas|challenges|discussions|projects
   - [ ] /my-dits
 - [ ] solve caching or 304 avatars (performance)
