@@ -11,7 +11,7 @@ router.get('/', function (req, res, next) {
   return res.redirect('tags');
 });
 
-router.get('/:tagname', function (req, res, next) {
+router.get(['/:tagname', '/:tagname/users'], function (req, res, next) {
   let db = req.app.get('database');
   return co(function * () {
     var sessUser = req.session.user;
@@ -24,10 +24,26 @@ router.get('/:tagname', function (req, res, next) {
     res.locals.tag = tag;
     res.locals.count = yield db.tag.uses(tagname);
 
-
-    return res.render('tag');
+    return next();
   })
     .catch(next);
+})
+.get(['/:tagname/users'], function (req, res, next) {
+  let db = req.app.get('database');
+  return co(function * () {
+    var sessUser = req.session.user;
+    var tagname = req.params.tagname;
+
+    res.locals.users = yield db.tag.readUsers(tagname);
+
+    res.locals.page = 'users';
+    return next();
+  })
+    .catch(next);
+})
+//rendering
+.get(['/:tagname', '/:tagname/users'], function (req, res, next) {
+  return res.render('tag');
 });
 
 //checking rights to edit tag
@@ -57,11 +73,6 @@ router.post('/:tagname/edit', function (req, res, next) {
     return res.redirect(`/tag/${tagname}`);
   })
     .catch(next);
-  
-  function invalidBranch() {
-    return res.render('tag-edit', {data: tag, errors: errors, session: sessUser});
-  }
-
 }, function (err, req, res, next) {
   if(err.status === 400) {
     req.session.user.messages.push(err.message);

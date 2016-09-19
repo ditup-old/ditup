@@ -225,5 +225,67 @@ module.exports = function (db) {
     });
   }
 
+  tag.readUsers = function (tagname) {
+    return co(function * () {
+      /*
+      let query = `
+        FOR t IN tags FILTER t.tagname == @tagname
+          FOR v IN 1..1
+            INBOUND t
+            userTag
+            SORT RAND()
+            RETURN KEEP(v, 'username', 'name', 'surname')
+      `;
+      // */
+      //
+      //get users and their other tags and sort users by amount of followers
+      let query = `WITH users, tags
+        FOR t IN tags FILTER t.tagname == @tagname
+          LET users = (
+            FOR v,e,p IN 1..2 ANY t
+            INBOUND userTag, INBOUND userFollowUser
+              COLLECT user = p.vertices[1] WITH COUNT INTO countFollowers
+              RETURN {user: user, followerno: countFollowers-1}
+          )
+            
+          FOR u IN users
+            LET otherTags = (
+                FOR v IN 1..1 OUTBOUND u.user
+                OUTBOUND userTag
+                  FILTER v._id != t._id
+                  SORT v.tagname ASC
+                  RETURN KEEP(v, 'tagname', 'description')
+            )
+            SORT u.followerno DESC
+            RETURN MERGE(KEEP(u.user, 'username', 'profile'), {tags: otherTags}, {followerno: u.followerno})`;
+      let params = {tagname: tagname};
+      let cursor = yield db.query(query, params);
+      let out = yield cursor.all();
+      console.log(out);
+      return out;
+    });
+  }
+
+  tag.readRelatedTags = function (tagname) {
+    //TODO add some options (limit etc.)
+    //untested function
+    let query = `WITH users, projects, discussions, ideas, challenges, tags, userTag, projectTag, challengeTag, ideaTag, discussionTag
+      FOR t IN tags FILTER t.tagname == @tagname
+        FOR v IN 2..2 ANY t
+        userTag, projectTag, challengeTag, ideaTag, discussionTag
+          COLLECT tagFinal = KEEP(v, 'tagname') WITH COUNT INTO relevance
+          SORT relevance DESC
+          RETURN MERGE(tagFinal, {relevance: relevance})`
+    let params = {tagname: tagname};
+
+    return co(function * () {
+      let cursor = yield db.query(query, params);
+      let out = cursor.all();
+      return out;
+    });
+
+
+  }
+
   return tag;
 };

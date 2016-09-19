@@ -63,6 +63,7 @@
     "watch-user-edit": "mocha ./test/functional/user/profile-edit --watch",
     "watch-settings": "mocha ./test/functional/settings/settings --watch",
     "watch-tag": "mocha ./test/functional/tag/tag --watch",
+    "watch-tag-users": "mocha ./test/functional/tag/users --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

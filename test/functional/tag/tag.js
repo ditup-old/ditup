@@ -63,6 +63,14 @@ describe('tag pages', function () {
         browser.assert.text('.tag-discussion-count', dbData.discussions.length);
       });
 
+      let pages = ['all-uses', 'users', 'challenges', 'ideas', 'discussions', 'projects'];
+
+      for(let page of pages) {
+        it(`should link to the /tag/:tagname/${page} page`, function () {
+          browser.assert.attribute(`.tag-${page}-link`, 'href', `/tag/${existentTag.tagname}/${page}`);
+        });
+      }
+
       context('logged in', function () {
         beforeEach(funcs.login(loggedUser, browserObj));
         beforeEach(funcs.visit(`/tag/${existentTag.tagname}`, browserObj));

@@ -30,3 +30,73 @@ hr {
   border: none;
   height: 5px;
 }
+
+.tag-pages-nav {
+  margin-bottom: 0.5em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #6ca6ca;
+}
+
+.tag-pages-nav li {
+  display: inline;
+  margin-right: 1em;
+}
+
+.user-list-item-avatar {
+  height: 40px;
+  width: 40px;
+  border-radius: 3px;
+}
+
+.user-list-item-side {
+  width: 50px;
+  position: relative;
+}
+
+.user-list-item-main {
+  width: 400px;
+}
+
+.user-list-item-side, .user-list-item-main {
+  display: inline-block;
+  padding: 5px;
+  vertical-align: top;
+}
+
+.user-list-item-name {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.user-list-item-username {
+  font-size: 1em;
+  color: #777;
+}
+
+.tag-list li {
+  display: inline-block;
+}
+
+.user-list:empty::before {
+  content: "nobody found";
+  color: red;
+}
+
+.tag-list:empty::before {
+  content: "no other tags found";
+  color: red;
+}
+
+/*
+.user-action-panel {
+  li {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
+
+
+*/

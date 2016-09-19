@@ -9,6 +9,8 @@ var title = `tag ${tag.tagname}`;
 var headScripts = [];
 var scripts = [];
 
+var page = page || '';
+
 %><% include ./partial/page-top.ejs %>
 <% include ./partial/header.ejs %>
 
@@ -19,14 +21,22 @@ var scripts = [];
   <section class="tag-description"><%- tag.description %></section>
   <% if(rights.edit === true) { %><a class="edit-tag-link" href="/tag/<%= tag.tagname %>/edit" >edit</a><% } %>
   <hr />
-  <section class="tag-uses">
-    uses:
-    all <span class="tag-all-count"><%= count.all %></span>,
-    <a href="/tag/<%= tag.tagname %>/users"><span class="icon-user tag-user-count"><%= count.users %></span></a>,
-    <span class="icon-challenge tag-challenge-count"><%= count.challenges %></span>,
-    <span class="icon-idea tag-idea-count"><%= count.ideas %></span>,
-    <span class="icon-project tag-project-count"><%= count.projects %></span>,
-    <span class="icon-discussion tag-discussion-count"><%= count.discussions %></span>
-  </section>
+  <nav class="tag-uses tag-pages-nav">
+    <ul>
+      <li><a class="tag-all-uses-link" href="/tag/<%= tag.tagname %>/all-uses">all <span class="tag-all-count"><%= count.all %></span></a></li>
+      <li><a class="tag-users-link" href="/tag/<%= tag.tagname %>/users"><span class="icon-user tag-user-count">users <%= count.users %></span></a></li>
+      <li><a class="tag-challenges-link" href="/tag/<%= tag.tagname %>/challenges"><span class="icon-challenge tag-challenge-count">challenges <%= count.challenges %></span></a></li>
+      <li><a class="tag-ideas-link" href="/tag/<%= tag.tagname %>/ideas"><span class="icon-idea tag-idea-count">ideas <%= count.ideas %></span></a></li>
+      <li><a class="tag-projects-link" href="/tag/<%= tag.tagname %>/projects"><span class="icon-project tag-project-count">projects <%= count.projects %></span></a></li>
+      <li><a class="tag-discussions-link" href="/tag/<%= tag.tagname %>/discussions"><span class="icon-discussion tag-discussion-count">discussions <%= count.discussions %></span></a></li>
+    </ul>
+  </nav>
+  <%
+    pages = ['users'];
+    if(pages.indexOf(page)>-1) {
+  %><% include ./tag/pages %>
+  <%
+    }
+  %>
 </section>
 <% include ./partial/page-bottom.ejs %>
