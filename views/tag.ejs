@@ -28,16 +28,16 @@ var logged = session.logged;
   <nav class="tag-uses tag-pages-nav">
     <ul>
       <li>all <span class="tag-all-count"><%= count.all %></span></li>
-      <li><a class="tag-users-link" href="/tag/<%= tag.tagname %>/users">users <span class="icon-user tag-user-count"><%= count.users %></span></a></li>
-      <li><a class="tag-challenges-link" href="/tag/<%= tag.tagname %>/challenges">challenges <span class="icon-challenge tag-challenge-count"><%= count.challenges %></span></a></li>
-      <li><a class="tag-ideas-link" href="/tag/<%= tag.tagname %>/ideas">ideas <span class="icon-idea tag-idea-count"><%= count.ideas %></span></a></li>
-      <li><a class="tag-projects-link" href="/tag/<%= tag.tagname %>/projects">projects <span class="icon-project tag-project-count"><%= count.projects %></span></a></li>
-      <li><a class="tag-discussions-link" href="/tag/<%= tag.tagname %>/discussions">discussions <span class="icon-discussion tag-discussion-count"><%= count.discussions %></span></a></li>
-      <li><a class="tag-tags-link" href="/tag/<%= tag.tagname %>/tags">tags</a></li>
+      <li><a class="icon-user tag-users-link" href="/tag/<%= tag.tagname %>/users">users <span class="tag-user-count"><%= count.users %></span></a></li>
+      <li><a class="icon-challenge tag-challenges-link" href="/tag/<%= tag.tagname %>/challenges">challenges <span class="tag-challenge-count"><%= count.challenges %></span></a></li>
+      <li><a class="icon-idea tag-ideas-link" href="/tag/<%= tag.tagname %>/ideas">ideas <span class="tag-idea-count"><%= count.ideas %></span></a></li>
+      <li><a class="icon-project tag-projects-link" href="/tag/<%= tag.tagname %>/projects">projects <span class="tag-project-count"><%= count.projects %></span></a></li>
+      <li><a class="icon-discussion tag-discussions-link" href="/tag/<%= tag.tagname %>/discussions">discussions <span class="tag-discussion-count"><%= count.discussions %></span></a></li>
+      <li><a class="icon-tag tag-tags-link" href="/tag/<%= tag.tagname %>/tags">tags</a></li>
     </ul>
   </nav>
   <%
-    pages = ['users', 'challenges', 'ideas', 'projects', 'discussions'];
+    pages = ['users', 'challenges', 'ideas', 'projects', 'discussions', 'tags'];
     if(pages.indexOf(page)>-1) {
   %><% include ./tag/pages %>
   <%

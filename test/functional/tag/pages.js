@@ -8,7 +8,19 @@ module.exports = function (collectionName) {
 
   let config = require('../partial/config');
   let dbConfig = require('../../../services/db-config');
-  let dbData = require(`./dbPages`)(collectionName);
+  let dbData;
+  
+  //different data for different pages
+  switch(collectionName) {
+    case 'users': 
+      dbData = require(`./dbUsers`);
+      break;
+    case 'tags':
+      dbData = require(`./dbRelatedTags`);
+      break;
+    default:
+      dbData = require(`./dbPages`)(collectionName);
+  }
   let deps = config.init({db: dbConfig}, dbData);
 
   let funcs = config.funcs;
@@ -41,11 +53,13 @@ module.exports = function (collectionName) {
         browser.assert.element(`.tag-${collections}`);
       });
       it(`should list the ${collections}`, function () {
-        browser.assert.elements(`.tag-${collection}`, Math.ceil(dbData[collections].length / 2));
+        browser.assert.elements(`.tag-${collection}`, collection === 'tag' ? 14 : Math.ceil(dbData[collections].length / 2));
       });
-      it(`should show other tags of each ${collection}`, function () {
-        browser.assert.elements(`.tag-${collection}-tags-list`, Math.ceil(dbData[collections].length/2));
-      });
+      if(collection !== 'tag') {
+        it(`should show other tags of each ${collection}`, function () {
+          browser.assert.elements(`.tag-${collection}-tags-list`, Math.ceil(dbData[collections].length/2));
+        });
+      }
     });
 
     context('not logged in', function () {

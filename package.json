@@ -68,6 +68,7 @@
     "watch-tag-ideas": "mocha ./test/functional/tag/ideas --watch",
     "watch-tag-projects": "mocha ./test/functional/tag/projects --watch",
     "watch-tag-discussions": "mocha ./test/functional/tag/discussions --watch",
+    "watch-tag-tags": "mocha ./test/functional/tag/related-tags --watch",
     "watch": "mocha ./test --watch"
   },
   "dependencies": {

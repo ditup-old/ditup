@@ -327,8 +327,6 @@ module.exports = function (db) {
       let out = cursor.all();
       return out;
     });
-
-
   }
 
   return tag;

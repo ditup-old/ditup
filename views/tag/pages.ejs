@@ -19,12 +19,18 @@ switch (page) {
   case 'discussions':
     pageData.dits = discussions;
     break;
+  case 'tags':
+    pageData.tags = tags;
+    break;
   default:
 }
 
 var pageList;
 if(page === 'users') {
   pageList = 'user-list';
+}
+else if(page === 'tags') {
+  pageList = 'tag-list';
 }
 else if (['challenges', 'ideas', 'projects', 'discussions'].indexOf(page)>-1) {
   pageList = 'dit-list';
@@ -38,6 +44,9 @@ else {
   <ul class="<%= pageList %>"><%
     if(page === 'users') {
       for(let user of pageData.users) { %><% include ./pages/user %><% }
+    }
+    else if(page === 'tags') {
+      for(let relatedTag of pageData.tags) { %><% include ./pages/tag %><% }
     }
     else if(['challenges', 'ideas', 'projects', 'discussions'].indexOf(page) > -1) {
       for(let dit of pageData.dits) {
