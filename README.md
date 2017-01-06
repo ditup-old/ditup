@@ -6,7 +6,7 @@ dit - do it together
 up - start it up
 
 ## important note
-Please note that this is an abandoned alpha version. It is running at [test.ditup.org](https://test.ditup.org)).
+Please note that this is an abandoned alpha version. It is running at [test.ditup.org](https://test.ditup.org).
 
 **The current active version**: [REST API](/ditup/ditapi) + [Angular 2 App](/ditup/ditapp-ng).
 
