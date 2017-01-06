@@ -1,4 +1,8 @@
 # ditup
+Please note that this is an abandoned alpha version (currently running in testing mode at [test.ditup.org](https://test.ditup.org)).
+
+The current active version consists of [REST API](/ditup/ditapi) + [Angular 2 App](/ditup/ditapp-ng).
+
 online platform for real-world collaboration
 
 dit - do it together
